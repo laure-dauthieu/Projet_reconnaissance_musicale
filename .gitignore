@@ -14,5 +14,23 @@ cache/
 slprj/
 *.mex*
 
+# LaTeX : fichiers temporaires de compilation (le PDF final rapport.pdf reste versionnable)
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*-SAVE-ERROR
+rapport/main.pdf
+
 # Système
 .DS_Store
