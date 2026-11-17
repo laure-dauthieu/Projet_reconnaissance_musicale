@@ -26,7 +26,7 @@ def tex(t):
     return s + r'\ldots' if coupe else s
 
 lignes = [r'% Généré automatiquement depuis liste_morceaux.csv : ne pas modifier à la main.',
-          r'\begin{small}',
+          r'\begin{footnotesize}',
           r'\begin{longtable}{@{}rlll@{}}',
           r'\toprule Identifiant & Artiste & Titre & Genre \\ \midrule \endhead',
           r'\bottomrule \endfoot']
@@ -38,6 +38,6 @@ for role, titre in (('base', 'Morceaux de la base (100)'), ('hors base', 'Morcea
     for r in sorted(sel, key=lambda r: (r['genre'], int(r['id']))):
         lignes.append('%s & %s & %s & %s \\\\' % (r['id'], tex(r['artiste']), tex(r['titre']), tex(r['genre'])))
     lignes.append(r'\midrule')
-lignes += [r'\end{longtable}', r'\end{small}']
+lignes += [r'\end{longtable}', r'\end{footnotesize}']
 io.open(dst, 'w', encoding='utf-8').write('\n'.join(lignes) + '\n')
 print(len(rows), 'morceaux,', nb_translit, 'caracteres translitteres,', sorted(set(r['role'] for r in rows)))

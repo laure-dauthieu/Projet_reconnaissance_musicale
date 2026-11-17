@@ -1,6 +1,6 @@
 % ---------------------------------------------------------------------
 \section{Théorie}
-\label{sec:theorie}
+\label{sec-theorie}
 % ---------------------------------------------------------------------
 
 Nous gardons la numérotation de l'énoncé : les équations (1) à (8) et les propriétés (1)
@@ -8,7 +8,7 @@ Nous gardons la numérotation de l'énoncé : les équations (1) à (8) et les p
 numérotées à partir de (9).
 
 \subsection{Prétraitement et théorème de Shannon (Q1)}
-\label{sec:shannon}
+\label{sec-shannon}
 
 Le signal est ramené en mono (moyenne des canaux) puis rééchantillonné à
 $\Fe = \qty{8}{\kilo\hertz}$.
@@ -55,7 +55,7 @@ détruiraient l'appariement sans cause visible. La fonction \texttt{resample} ap
 filtre passe-bas anti-repliement avant de décimer, ce qui supprime le problème.
 
 \subsection{Transformée de Fourier à court terme et compromis temps-fréquence (Q2)}
-\label{sec:tfct}
+\label{sec-tfct}
 
 Le contenu musical évolue en permanence : une TFD calculée sur tout le morceau
 mélangerait toutes les notes et ne dirait rien de leur succession. On calcule donc la
@@ -84,15 +84,15 @@ sont séparées si leur écart $f\,(2^{1/12}-1)$ dépasse $\Delta f$, donc au-de
 \begin{equation}
   f_{\min} = \frac{\Delta f}{2^{1/12}-1} \approx \num{16.8}\,\Delta f .
 \end{equation}
-Le nombre de trames par seconde vaut $\Fe/H = 2\Fe/N$. Le \cref{tab:resolutions} donne
+Le nombre de trames par seconde vaut $\Fe/H = 2\Fe/N$. Le \cref{tab-resolutions} donne
 ces grandeurs pour les quatre valeurs de $N$ demandées.
 
 \begin{table}[h]
   \centering\small
   \caption{Résolutions de la TFCT à $\Fe = \qty{8}{\kilo\hertz}$, fenêtre de Hann
   ($\kw = \num{1.44}$), $H = N/2$. Dernière colonne : nombre $\Nt$ de valeurs entières de
-  $\dm$ dans la zone cible $\Delta t \in [\num{0.1} ; 2]$\,s (\cref{sec:empreintes}).}
-  \label{tab:resolutions}
+  $\dm$ dans la zone cible $\Delta t \in [\num{0.1} ; 2]$\,s (\cref{sec-empreintes}).}
+  \label{tab-resolutions}
   \begin{tabular}{@{}rrrrrr@{}}
     \toprule
     $N$ & $\Tw$ (ms) & $\Delta f$ (Hz) & trames/s & $f_{\min}$ (Hz) & $\Nt$ \\
@@ -117,9 +117,9 @@ ces grandeurs pour les quatre valeurs de $N$ demandées.
         trame de \qty{256}{\milli\second} mélangerait souvent deux notes successives.
   \item \emph{Spécificité des clés.} Le nombre de trames par seconde fixe le nombre $\Nt$
         de valeurs de $\dm$ possibles dans la zone cible, donc le nombre de clés $M$
-        (\cref{sec:empreintes}). Passer à $N = 2048$ divise $\Nt$ et $M$ par deux.
+        (\cref{sec-empreintes}). Passer à $N = 2048$ divise $\Nt$ et $M$ par deux.
   \item \emph{Robustesse au filtrage.} La propriété (2) exige que la réponse
-        impulsionnelle soit courte devant la fenêtre (\cref{sec:proprietes}). Une fenêtre
+        impulsionnelle soit courte devant la fenêtre (\cref{sec-proprietes}). Une fenêtre
         plus longue l'étend à des réponses plus longues : c'est le seul argument en faveur
         de $N$ plus grand, et il ne l'emporte pas sur les trois précédents.
 \end{enumerate}
@@ -136,25 +136,27 @@ on multiplierait les canaux, donc les clés possibles, sans information nouvelle
 passeraient plus facilement d'un canal à son voisin.
 
 \subsection{Les deux propriétés qui fondent la méthode}
-\label{sec:proprietes}
+\label{sec-proprietes}
 
 \paragraph{Propriété (1) : un décalage temporel translate le spectrogramme.}
 Soit $y[n] = x[n - m_0H]$ avec $m_0$ entier. D'après (2),
 \begin{equation}
+\begin{split}
   X_y[m,k]
-  = \sum_{n=0}^{N-1} x[n + mH - m_0H]\, w[n]\, e^{-j2\pi kn/\Nfft}
-  = \sum_{n=0}^{N-1} x[n + (m-m_0)H]\, w[n]\, e^{-j2\pi kn/\Nfft}
+  &= \sum_{n=0}^{N-1} x[n + mH - m_0H]\, w[n]\, e^{-j2\pi kn/\Nfft} \\
+  &= \sum_{n=0}^{N-1} x[n + (m-m_0)H]\, w[n]\, e^{-j2\pi kn/\Nfft}
   = X_x[m-m_0, k],
-  \label{eq:translation}
+\end{split}
+  \label{eq-translation}
 \end{equation}
 donc $S_y[m,k] = S_x[m-m_0,k]$ : le spectrogramme est translaté de $m_0$ trames. Le
 résultat est exact, sans approximation, et vaut même pour la phase, parce que chaque
 trame est analysée dans son propre repère temporel. C'est lui qui permet de retrouver la
-position de l'extrait (\cref{sec:decision}).
+position de l'extrait (\cref{sec-decision}).
 
 \emph{Décalage quelconque.} Si $n_0 = m_0H + r$ avec $0 < r < H$, la trame $m$ de $y$
 analyse un segment de $x$ qui commence $r$ échantillons avant la trame $m-m_0$ de sa
-grille : elle tombe \emph{entre} deux trames de $x$, et~\eqref{eq:translation} ne
+grille : elle tombe \emph{entre} deux trames de $x$, et~\eqref{eq-translation} ne
 s'applique plus. Dans un passage stable, $|X|$ varie peu d'une position de fenêtre à
 l'autre et les pics restent en place ; près d'une attaque ou d'une fin de note, le
 maximum temporel d'un pic peut passer d'une trame à sa voisine. En rapportant chaque
@@ -173,7 +175,7 @@ dans (2), puis en posant $n' = n - l$ :
   &= \alpha \sum_{n} \sum_{l=0}^{L_h-1} h[l]\, x[n+mH-l]\, w[n]\, e^{-j2\pi kn/\Nfft} \nonumber\\
   &= \alpha \sum_{l=0}^{L_h-1} h[l]\, e^{-j2\pi kl/\Nfft}
      \sum_{n'} x[n'+mH]\, w[n'+l]\, e^{-j2\pi kn'/\Nfft} .
-  \label{eq:filtrage-exact}
+  \label{eq-filtrage-exact}
 \end{align}
 Si la fenêtre ne variait pas sur la durée de $h$, on pourrait remplacer $w[n'+l]$ par $w[n']$
 et la somme intérieure deviendrait $X_x[m,k]$. On écrit donc $w[n'+l] = w[n'] + (w[n'+l] - w[n'])$ :
@@ -181,7 +183,7 @@ et la somme intérieure deviendrait $X_x[m,k]$. On écrit donc $w[n'+l] = w[n'] 
   X_y[m,k] = \alpha\,\hhat(f_k)\, X_x[m,k] + \varepsilon[m,k],
   \qquad
   \hhat(f_k) = \sum_{l=0}^{L_h-1} h[l]\, e^{-j2\pi f_k l/\Fe},
-  \label{eq:filtrage}
+  \label{eq-filtrage}
 \end{equation}
 avec
 \[
@@ -218,24 +220,24 @@ courbe suit $20\log_{10}|\hhat(f_k)|$. Pour un passe-bande de Butterworth
 millisecondes ($L_h \ll N = 1024$), les courbes doivent se superposer dans la bande
 passante. Hors bande, $|X_y|$ tombe au niveau du bruit numérique et la différence devient
 erratique : la relation ne vaut que là où le signal filtré reste au-dessus de ce plancher.
-La \cref{fig:filtrage} le confirme : \aremplir{dispersion entre trames dans la bande
+La \cref{fig-filtrage} le confirme : \aremplir{dispersion entre trames dans la bande
 passante (en dB), écart à $20\log_{10}|\hhat|$, comportement hors bande}.
 
 \begin{figure}[t]
   \centering
-  \inclurefig[0.8\linewidth]{difference_spectres_passe_bande}{S_y,dB - S_x,dB en fonction de k pour plusieurs trames, passe-bande 300-3400 Hz}
+  \inclurefig[0.8\linewidth]{difference_spectres_passe_bande}{$S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$ en fonction de k pour plusieurs trames, passe-bande 300-3400 Hz}
   \caption{Vérification de la propriété (2) : différence $S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$
   en fonction de la fréquence pour \aremplir{5} trames d'un même morceau, après un filtre
   passe-bande \qtyrange{300}{3400}{\hertz}. En pointillés : $20\log_{10}|\hhat(f)|$.
   \aremplir{Ce qu'il faut y voir.}}
-  \label{fig:filtrage}
+  \label{fig-filtrage}
 \end{figure}
 
 \subsection{Invariance des maxima locaux et condition (5)}
-\label{sec:maxima}
+\label{sec-maxima}
 
 La carte de constellation est l'ensemble des maxima locaux du spectrogramme (définition
-(4), \cref{sec:pics}). Deux résultats justifient ce choix.
+(4), \cref{sec-pics}). Deux résultats justifient ce choix.
 
 \paragraph{Invariance au gain.} Si $y = \alpha x$ avec $\alpha > 0$, alors
 $X_y = \alpha X_x$ et $S_y = \alpha^2 S_x$. La fonction $s \mapsto \alpha^2 s$ est strictement
@@ -256,12 +258,15 @@ médiane, les élimine.
 
 \paragraph{Invariance au filtrage : la condition (5).} Soit $(m,k_0)$ un pic de $S_x$ et
 \[
-  \mu = S_{x,\mathrm{dB}}[m,k_0] - \max_{(m',k') \in V(m,k_0) \setminus \{(m,k_0)\}} S_{x,\mathrm{dB}}[m',k']
-  \;>\; 0
+  \mu = S_{x,\mathrm{dB}}[m,k_0] - \max_{(m',k') \in V^*} S_{x,\mathrm{dB}}[m',k'] \;>\; 0,
+  \qquad V^* = V(m,k_0) \setminus \{(m,k_0)\},
 \]
 son avance en décibels sur son concurrent le plus fort dans le voisinage. Notons
-$\Delta g(V) = \max_{|k'-k_0| \le \kv} |g(k') - g(k_0)|$ la variation du biais sur la
-largeur du voisinage. D'après (3), pour tout $(m',k') \in V(m,k_0)$ distinct du pic,
+\[
+  \Delta g(V) = \max_{|k'-k_0| \le \kv} |g(k') - g(k_0)|
+\]
+la variation du biais sur la largeur du voisinage. D'après (3), pour tout
+$(m',k') \in V^*$,
 \[
   S_{y,\mathrm{dB}}[m,k_0] - S_{y,\mathrm{dB}}[m',k']
   = \underbrace{S_{x,\mathrm{dB}}[m,k_0] - S_{x,\mathrm{dB}}[m',k']}_{\ge\, \mu}
@@ -290,7 +295,7 @@ des fréquences de coupure, la pente atteint plusieurs décibels sur $\pm 5$ can
 les pics nettement dominants restent en place.
 
 \subsection{Limites des deux propriétés}
-\label{sec:limites}
+\label{sec-limites}
 
 \paragraph{Réverbération.} La propriété (2) suppose $L_h \ll N$. Une réverbération de temps
 $T_{60}$ décroît de \qty{60}{\decibel} en $T_{60}$, donc de \qty{20}{\decibel} en $T_{60}/3$ ;
@@ -305,7 +310,7 @@ notes, efface les pics des notes brèves et laisse survivre ceux des notes tenue
 
 \paragraph{Décalage non entier.} La propriété (1) n'est exacte que pour un décalage multiple
 de $H$ ; dans le cas réaliste, une partie des pics migre d'une trame
-(\cref{sec:proprietes}).
+(\cref{sec-proprietes}).
 
 \paragraph{Tempo et hauteur.} Ni (1) ni (2) ne couvrent un changement de tempo, qui
 modifie les écarts $\dm$, ni un changement de hauteur, qui multiplie toutes les fréquences

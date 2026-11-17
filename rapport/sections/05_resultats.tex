@@ -1,26 +1,26 @@
 % ---------------------------------------------------------------------
 \section{Résultats}
-\label{sec:resultats}
+\label{sec-resultats}
 % ---------------------------------------------------------------------
 % Chiffres : resultats/synthese.csv, resultats/passage_echelle.csv, resultats/notes_resultats.md.
 % Règle : chaque taux est donné avec son seuil, sa durée Tq, sa dégradation et son
 % nombre de requêtes.
 
 \subsection{Protocole}
-\label{sec:protocole}
+\label{sec-protocole}
 
 \paragraph{Base.} 100 morceaux de \texttt{fma\_small}, 12 ou 13 par genre sur les 8 genres
 de la collection (Electronic, Experimental, Folk, Hip-Hop, Instrumental, International,
 Pop, Rock). Les fichiers de \texttt{fma\_small} sont des extraits de \qty{30}{\second}, ce
 qui fixe la taille de l'index et le nombre de cases $D$ des histogrammes de $\delta$. La liste
-complète est donnée en annexe (\cref{sec:liste-morceaux}).
+complète est donnée en annexe (\cref{sec-liste-morceaux}).
 
 \paragraph{Requêtes.} Pour chaque condition :
 \begin{itemize}
   \item $N^+ = 200$ requêtes positives, deux par morceau de la base (environ 25 par genre),
         dont le début est tiré au hasard \emph{en échantillons} à la fréquence d'origine : le
         décalage n'est donc en général pas un multiple de $H$, comme dans la réalité
-        (\cref{sec:proprietes}) ;
+        (\cref{sec-proprietes}) ;
   \item 100 requêtes négatives, une par morceau hors base (mêmes genres) : 50 servent à fixer
         le seuil, les 50 autres à mesurer le \TFD{}, d'où $N^- = 50$.
 \end{itemize}
@@ -44,7 +44,7 @@ est appliquée avec $P_x$ calculé sur l'extrait servant de requête, et non sur
 entier : sinon, un extrait calme recevrait un bruit relatif bien plus fort que le \RSB{}
 annoncé.
 
-\paragraph{Paramètres.} Ceux du \cref{tab:parametres}, en particulier $N = 1024$,
+\paragraph{Paramètres.} Ceux du \cref{tab-parametres}, en particulier $N = 1024$,
 $H = 512$, voisinage $\pm 3$ trames $\times$ $\pm 5$ canaux, $F = 10$, $\gf = 1$ et
 $\sthr = 35$.
 
@@ -55,17 +55,17 @@ $\sthr = 35$.
   superposée : 205 pics, soit \num{25.6}~pics/s pour une cible de 30. Les pics se répartissent
   sur toute la bande \qtyrange{0.2}{4}{\kilo\hertz} grâce au quota par bande, et tombent sur
   les zones d'énergie, en particulier les attaques de batterie (bandes verticales).}
-  \label{fig:constellation}
+  \label{fig-constellation}
 \end{figure}
 
 \subsection{Taux de bonne et de fausse détection}
-\label{sec:tbd-tfd}
+\label{sec-tbd-tfd}
 
-Le \cref{tab:synthese} rassemble les résultats de toutes les dégradations à
+Le \cref{tab-synthese} rassemble les résultats de toutes les dégradations à
 $\Tq = \qty{5}{\second}$ et $\sthr = 35$. Deux constats s'appliquent à toutes les lignes.
 D'abord, \emph{aucune} requête négative de test n'est acceptée : $\TFD = 0/50$ partout, ce
 qui ne permet pas d'affirmer un \TFD{} nul, seulement un \TFD{} probablement inférieur à
-\qty{6}{\percent} (\cref{sec:decision}). Ensuite, \emph{toutes} les erreurs sur les positives
+\qty{6}{\percent} (\cref{sec-decision}). Ensuite, \emph{toutes} les erreurs sur les positives
 sont des non-détections (score sous le seuil) : le système ne confond jamais un morceau avec
 un autre. Quand il se trompe, il le fait prudemment, en répondant « inconnu ».
 
@@ -73,7 +73,7 @@ un autre. Quand il se trompe, il le fait prudemment, en répondant « inconnu »
   \centering\small
   \caption{\TBD{} et \TFD{} par dégradation : $\Tq = \qty{5}{\second}$, $\sthr = 35$,
   $N^+ = 200$, $N^- = 50$. Aucune confusion entre morceaux n'a été observée.}
-  \label{tab:synthese}
+  \label{tab-synthese}
   \begin{tabular}{@{}llccc@{}}
     \toprule
     Dégradation & Paramètre & \TBD{} & Non-détections & \TFD{} \\
@@ -96,11 +96,11 @@ un autre. Quand il se trompe, il le fait prudemment, en répondant « inconnu »
   \end{tabular}
 \end{table}
 
-\paragraph{Bruit blanc et durée de la requête.} La \cref{fig:tbd-rsb} montre que le \TBD{}
+\paragraph{Bruit blanc et durée de la requête.} La \cref{fig-tbd-rsb} montre que le \TBD{}
 baisse lentement jusqu'à \qty{10}{\decibel}, puis de plus en plus vite, et que la chute
 dépend fortement de $\Tq$ : à \qty{0}{\decibel}, il vaut \qty{38.5}{\percent} pour
 $\Tq = \qty{3}{\second}$, \qty{66.5}{\percent} pour \qty{5}{\second} et \qty{85.5}{\percent}
-pour \qty{10}{\second}. Les deux effets découlent de~\eqref{eq:score-bon}. Le score croît
+pour \qty{10}{\second}. Les deux effets découlent de~\eqref{eq-score-bon}. Le score croît
 comme $\Tq$ alors que le seuil reste fixe, donc une requête plus longue tolère une
 proportion $p$ de pics survivants plus faible. Et le score varie comme $p^2$ : quand le bruit
 fait baisser $p$, le score baisse deux fois plus vite en relatif, d'où l'accélération de la
@@ -113,20 +113,20 @@ chute. Le score médian à $\Tq = \qty{5}{\second}$ passe ainsi de 232 sans brui
   \caption{\TBD{} en fonction du \RSB{} (bruit blanc ajouté après le passage à
   \qty{8}{\kilo\hertz}), une courbe par durée $\Tq \in \{3, 5, 10\}$\,s ; $\sthr = 35$,
   $N^+ = 200$, $N^- = 50$, $\TFD = 0$ partout.}
-  \label{fig:tbd-rsb}
+  \label{fig-tbd-rsb}
 \end{figure}
 
 \paragraph{MP3.} Le codage MP3 ne dégrade presque pas la reconnaissance
-(\cref{fig:tbd-mp3}) : \qty{98.5}{\percent} à 128 et \qty{64}{\kilo\bit\per\second}, comme sans
+(\cref{fig-tbd-mp3}) : \qty{98.5}{\percent} à 128 et \qty{64}{\kilo\bit\per\second}, comme sans
 dégradation, et encore \qty{98}{\percent} à \qty{32}{\kilo\bit\per\second}. L'explication est
-donnée en \cref{sec:q6}.
+donnée en \cref{sec-q6}.
 
 \begin{figure}[t]
   \centering
   \inclurefig[0.7\linewidth]{tbd_en_fonction_du_debit_mp3}{TBD en fonction du débit MP3}
   \caption{\TBD{} en fonction du débit MP3 (codage appliqué au signal d'origine à
   \qty{44.1}{\kilo\hertz}), $\Tq = \qty{5}{\second}$, $\sthr = 35$, $N^+ = 200$.}
-  \label{fig:tbd-mp3}
+  \label{fig-tbd-mp3}
 \end{figure}
 
 \paragraph{Filtrage et réverbération.} Le passe-bande \qtyrange{300}{3400}{\hertz} ne gêne
@@ -134,13 +134,13 @@ pas (\qty{98.5}{\percent}) : sa réponse impulsionnelle est brève devant la fen
 n'ajoute qu'un biais $g(k)$ indépendant du temps, et les pics éloignés des fréquences de
 coupure satisfont la condition (5). La réverbération est la dégradation la plus sévère :
 \qty{89}{\percent} à $T_{60} = \qty{0.3}{\second}$ et \qty{51}{\percent} à
-$T_{60} = \qty{1}{\second}$, conformément à la \cref{sec:limites} qui la place hors du
+$T_{60} = \qty{1}{\second}$, conformément à la \cref{sec-limites} qui la place hors du
 domaine de validité de la propriété (2).
 
 \subsection{Théorie confrontée à la mesure}
-\label{sec:theorie-mesure}
+\label{sec-theorie-mesure}
 
-\paragraph{Score du bon morceau.} Le modèle~\eqref{eq:score-bon} donne, avec nos paramètres,
+\paragraph{Score du bon morceau.} Le modèle~\eqref{eq-score-bon} donne, avec nos paramètres,
 $s_{\text{bon}} \approx F\rho\Tq\,p^2 = 250\,\Tq\,p^2$. À $\Tq = \qty{5}{\second}$, le score
 médian vaut 232 sans dégradation, ce qui correspond à $p \approx \num{0.43}$ : même sans
 dégradation, une partie des pics change de trame parce que la requête n'est pas alignée sur
@@ -162,23 +162,23 @@ qu'une requête de \qty{10}{\second} en supporte la perte de plus des deux tiers
 \qty{10}{\decibel}, $p \approx \num{0.33}$ reste au-dessus de $p^*$ pour toutes les durées, et
 la plupart des requêtes passent ; c'est sous \qty{10}{\decibel} que $p$ s'approche de $p^*$,
 d'abord pour $\Tq = \qty{3}{\second}$. Ce classement est exactement celui de la
-\cref{fig:tbd-rsb} : à \qty{0}{\decibel}, le \TBD{} de la requête de \qty{3}{\second} perd 56
+\cref{fig-tbd-rsb} : à \qty{0}{\decibel}, le \TBD{} de la requête de \qty{3}{\second} perd 56
 points (de \num{94.5} à \qty{38.5}{\percent}), celui de la requête de \qty{10}{\second} 14
 points (de \num{99.5} à \qty{85.5}{\percent}). Les valeurs de $p$ ci-dessus sont déduites des
 scores médians ; \aremplir{mesure directe de $p$ en fonction du \RSB{} (A4 de A) : tracer
 $p(\RSB)$, en déduire le \RSB{} où $p$ croise $p^*$ pour chaque $\Tq$, et le superposer à la
-\cref{fig:tbd-rsb}. C'est la confrontation demandée par le « Dernier mot » du sujet.}
+\cref{fig-tbd-rsb}. C'est la confrontation demandée par le « Dernier mot » du sujet.}
 
 \subsection{Conditions réelles}
-\label{sec:reel}
+\label{sec-reel}
 
 \aremplir{Brouhaha enregistré à la cafétéria (\RSB{} de 10, 5 et \qty{0}{\decibel}) et
 enregistrements au micro en salle à deux distances : protocole (salle, enceinte, téléphone,
-distances, volume, format) et résultats, à reporter dans le \cref{tab:synthese}.}
+distances, volume, format) et résultats, à reporter dans le \cref{tab-synthese}.}
 
 \subsection{Passage à l'échelle}
 
-La \cref{fig:passage-echelle} et la \cref{sec:index} montrent que la taille de l'index croît
+La \cref{fig-passage-echelle} et la \cref{sec-index} montrent que la taille de l'index croît
 linéairement avec le nombre de morceaux, de \qty{1.8}{\mega\byte} pour 10 morceaux à
 \qty{56}{\mega\byte} pour 500, alors que le temps médian d'une requête de \qty{5}{\second} ne
 passe que de \qtyrange{1.9}{2.4}{\milli\second}. C'est l'intérêt de l'index inversé : une
@@ -190,5 +190,5 @@ prétraité (spectrogramme, pics, clés, recherche, vote), pas le décodage du f
   \inclurefig[0.8\linewidth]{temps_et_taille_index}{temps de requête et taille de l'index en fonction du nombre de morceaux}
   \caption{Taille de l'index et temps médian d'une requête de \qty{5}{\second} non dégradée
   en fonction du nombre de morceaux indexés (10 à 500).}
-  \label{fig:passage-echelle}
+  \label{fig-passage-echelle}
 \end{figure}

@@ -1,8 +1,18 @@
 # Rapport (partie B)
 
-Sources LaTeX du rapport, à compiler sur **Overleaf** (pdfLaTeX + Biber, réglages par défaut).
+Sources LaTeX du rapport (pdfLaTeX + Biber).
 
-## Mettre le rapport sur Overleaf
+## Compiler sur le PC (MiKTeX installé)
+
+Dans un terminal PowerShell ouvert dans ce dossier `rapport/` :
+
+```powershell
+.\compiler.ps1
+```
+
+Le PDF est `main.pdf`. Le script affiche ensuite les erreurs, références manquantes et débordements de marge, ou « Aucune erreur ». Les figures sont lues directement dans `../figures/`.
+
+## Ou bien : mettre le rapport sur Overleaf
 
 1. Zipper le contenu de ce dossier `rapport/` et faire *New Project → Upload Project* sur Overleaf.
 2. Créer un dossier `figures/` dans le projet Overleaf et y déposer les PDF de A (dossier `figures/` du dépôt).
