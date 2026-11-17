@@ -41,7 +41,8 @@ P.Nf = ceil(P.K / P.gamma_f);             % classes de fréquence
 P.M  = P.Nf^2 * P.Nt;                     % nombre de clés possibles
 
 % --- Étape 5 : décision --------------------------------------------------
-P.s_thr = 30;           % seuil sur le score : provisoire, à calibrer (Q5)
+P.s_thr = 32;           % seuil sur le score : 1,5 x le plus fort score des 50 négatives
+                        % de calibration (21), voir experiences/campagne_evaluation (Q5)
 
 % --- Requêtes ------------------------------------------------------------
 P.Tq = 8;               % durée d'une requête (s)
