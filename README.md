@@ -16,15 +16,15 @@ Les deux phases utilisent **exactement** les mêmes fonctions d'extraction.
 
 ## Organisation du travail
 
-**Le plan complet est dans [PLAN.md](PLAN.md)** : répartition, tâches cochables, jalons, liste des figures, plan du rapport, script de la vidéo, listes de contrôle.
+**Le plan est dans [PLAN.md](PLAN.md)** : ce que le sujet demande, répartition, tâches cochables, planning, liste de contrôle avant dépôt.
 
 | | **A — Alessandro** | **B — coéquipière** |
 |---|---|---|
 | Rôle | Tout le MATLAB | Théorie, enregistrements réels, rapport, vidéo |
-| Dossiers | `src/`, `eval/`, `experiences/`, `app/`, `utils/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
-| Fournit à l'autre | Figures PDF, tableaux `.tex`, fiches de résultats | Formules théoriques, enregistrements en salle, brouhaha |
+| Dossiers | `src/`, `eval/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
+| Fournit à l'autre | Figures PDF, fiches de résultats | Enregistrements en salle, brouhaha |
 
-Jalons : J1 mar. 23 h (chaîne jouet), J2 mer. 13 h, J3 mer. 21 h, **J4 jeu. 18 h (gel du code)**, **J5 ven. 12 h (dépôt)**.
+Points fixes : mar. 23 h (chaîne jouet), mer. 21 h (toutes les mesures), **jeu. 18 h (gel du code)**, **ven. 12 h (dépôt)**.
 
 ---
 
@@ -52,8 +52,7 @@ yb  = ajouter_bruit(y, RSB_dB, bruit)            % bruit = 'blanc' ou vecteur de
 ym  = degrader_mp3(y, Fe0, debit_kbps, P)
 yf  = filtre_passe_bande(y, Fe0, 300, 3400)
 yr  = reverberation(y, Fe0, T60)
-res = evaluer(INDEX, requetes, P)                % TBD, TFD, confusions, scores, temps, IC 95 %
-s   = calibrer_seuil(scoresNegCalibration, TFD_vise)
+res = evaluer(INDEX, requetes, P)                % TBD, TFD, confusions, scores, temps
 ```
 
 Conventions :
@@ -73,8 +72,6 @@ Conventions :
 
 ```matlab
 main      % indexe la base, identifie un extrait, affiche spectrogramme, constellation et δ
-run_all   % régénère toutes les figures et tous les tableaux du rapport
-runtests('tests')
 ```
 
 ---
@@ -88,7 +85,6 @@ runtests('tests')
   Smax = movmax(movmax(SdB, 2*dk+1, 1), 2*dm+1, 2);
   ```
 
-- **Pas de Statistics Toolbox** : intervalles de Wilson et loi de Gumbel sont codés à la main.
 - **MP3** : `audiowrite` ne sait pas écrire de MP3. Installer ffmpeg (`brew install ffmpeg`). MATLAB lancé depuis le Dock ne voit pas le PATH du terminal : on met le chemin complet dans `P.ffmpeg`.
 - **Données** : `fma_small.zip` et `fma_metadata.zip`, liens dans le README de <https://github.com/mdeff/fma>, à dézipper dans `data/`.
 - **`ismember`** ne renvoie qu'une occurrence par clé, alors qu'il les faut toutes : on passe par les clés uniques de l'index avec leur début et leur nombre d'entrées.
