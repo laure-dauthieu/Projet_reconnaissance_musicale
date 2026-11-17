@@ -20,9 +20,9 @@ Les deux phases utilisent **exactement** les mêmes fonctions d'extraction.
 
 | | **A — Alessandro** | **B — Laure** |
 |---|---|---|
-| Rôle | Tout le MATLAB | Théorie, enregistrements réels, rapport, vidéo |
-| Dossiers | `src/`, `eval/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
-| Fournit à l'autre | Figures PDF, fiches de résultats | Enregistrements en salle, brouhaha |
+| Rôle | Chaîne MATLAB, base, dégradations, évaluation, mesures, interface | Théorie, figure Q2, enregistrements réels, rapport, vidéo |
+| Dossiers | `src/`, `eval/`, `experiences/`, `utils/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
+| Fournit à l'autre | Figures PDF, fiches de résultats (`resultats/notes_resultats.md`) | Enregistrements en salle, brouhaha |
 
 Points fixes : mar. 23 h (chaîne jouet), mer. 21 h (toutes les mesures), **jeu. 18 h (gel du code)**, **ven. 12 h (dépôt)**.
 
@@ -46,19 +46,21 @@ R      = identifier(x, INDEX, P)                 % .id (0 = inconnu), .score, .d
 Évaluation :
 
 ```matlab
-[base, horsBase] = preparer_base(dossierFMA, nBase, nHors, P)
-q   = extraire_requete(signalOrigine, Fe0, Tq)   % .y, .id_vrai (0 si négative), .t0
-yb  = ajouter_bruit(y, RSB_dB, bruit)            % bruit = 'blanc' ou vecteur de brouhaha
-ym  = degrader_mp3(y, Fe0, debit_kbps, P)
-yf  = filtre_passe_bande(y, Fe0, 300, 3400)
-yr  = reverberation(y, Fe0, T60)
-res = evaluer(INDEX, requetes, P)                % TBD, TFD, confusions, scores, temps
+[base, horsBase] = preparer_base(dossierData, nBase, nHors, graine)
+[y, t0] = extraire_requete(signalOrigine, Fe0, Tq, rs)  % extrait mono à Fe0, début t0 (s)
+yb  = ajouter_bruit(y, RSB_dB, bruit, rs)        % bruit = 'blanc' ou vecteur de brouhaha
+ym  = degrader_mp3(y, Fe0, debit_kbps, P)        % retard du codeur retiré
+yf  = filtre_passe_bande(y, Fe, 300, 3400, causal)
+yr  = reverberation(y, Fe, T60, rs)
+res = evaluer(INDEX, requetes, P)                % table : id_vrai, id_max, score, temps
+T   = taux_detection(res, s_thr)                 % TBD, TFD, confusion, non-détection
+s   = calibrer_seuil(scoresNegCalibration)       % 1,5 x le plus fort score négatif
 ```
 
 Conventions :
 
 - les signaux sont des vecteurs **colonne** en double ;
-- les dégradations s'appliquent à la fréquence d'origine, **avant** `pretraitement` ;
+- le **MP3** s'applique au signal d'origine (44,1 kHz), **avant** `pretraitement` ; le **bruit**, le **passe-bande** et la **réverbération** s'appliquent **après**, au signal à 8 kHz (sinon le passage à 8 kHz retirerait ~80 % d'un bruit blanc et fausserait le RSB) ;
 - les indices m (trame) et k (canal) commencent à 1 ;
 - aucun nombre magique dans les fonctions : tout passe par `P` ;
 - les notations sont celles de l'énoncé (`P.Fe`, `P.N`, `P.H`, `P.F`, `P.gamma_f`, `P.s_thr`…) ;
@@ -68,11 +70,26 @@ Conventions :
 
 ## Lancement
 
-À compléter au fil du projet :
+Depuis le dossier du projet, dans MATLAB :
 
 ```matlab
-main      % indexe la base, identifie un extrait, affiche spectrogramme, constellation et δ
+main                                    % chaîne « jouet » : 3 morceaux, constellation, histogramme des δ
+runtests('tests')                       % tests de la chaîne et des dégradations
+
+run('experiences/preparer_donnees.m')   % une fois : choix des 200 morceaux, index de la base (≈ 15 s)
+run('experiences/campagne_evaluation.m')% TBD/TFD pour toutes les dégradations, figures (≈ 2 min)
+run('experiences/figures_campagne.m')   % refaire seulement les figures, sans recalcul
+run('experiences/passage_echelle.m')    % temps de requête et taille de l'index (≈ 30 s)
+
+run('experiences/etude_q3_voisinage.m') % Q3 : ρ et p selon le voisinage (≈ 1 min)
+run('experiences/etude_q4_p_gamma_F.m') % Q4 : p, tableau pic/paire, γf ; choix de F (≈ 2 min)
+run('experiences/theorie_mesure.m')     % score prévu contre mesuré, RSB de rupture (≈ 1 min)
+run('experiences/etude_q6_genres.m')    % Q6 : TBD par genre (après la campagne)
 ```
+
+Les paramètres retenus et leur justification sont dans [resultats/parametres_finaux.md](resultats/parametres_finaux.md) ; les chiffres et interprétations de chaque figure dans [resultats/notes_resultats.md](resultats/notes_resultats.md).
+
+Prérequis : `fma_small` et `fma_metadata` dézippés dans `data/`. Sur Mac, `unzip` échoue sur ces archives : utiliser `bsdtar -xf fma_small.zip`.
 
 ---
 

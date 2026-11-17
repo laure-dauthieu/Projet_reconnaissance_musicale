@@ -4,7 +4,9 @@ Projet OBL-4101 : reconnaissance musicale par empreintes audio.
 **Rendu : vendredi 20 novembre 2026.** On vise un dépôt vendredi à **12 h** (tout retard coûte 5 points).
 
 - **A = Alessandro** : chaîne MATLAB, base, évaluation, mesures, démo et interface.
-- **B = Laure** : théorie, fonctions de dégradation, figure Q2, enregistrements au micro, rapport, vidéo.
+- **B = Laure** : théorie, figure Q2, enregistrements au micro, rapport, vidéo.
+
+**État au mardi 17 au soir** : A0 à A4 sont faits (branche `a/chaine`). Les fonctions de dégradation de B2 ont été codées et testées avec A2 : B2 se réduit à la figure Q2. Résultats et figures : `resultats/notes_resultats.md`.
 
 > **À vérifier avec l'enseignant dès mercredi matin** : le sujet est prévu pour un **trinôme** (zip `Nom1_Nom2_Nom3`). Si nous sommes deux, confirmer que c'est accepté et le nom du zip. Demander aussi comment déposer la vidéo : le §8 ne la met pas dans le zip.
 
@@ -83,48 +85,52 @@ Deux éléments ne sont pas listés par le sujet mais sont indispensables :
 
 ### A0. Dès mardi après-midi
 
-- [ ] Lancer le téléchargement de `fma_small.zip` (environ 7,2 Go) et de `fma_metadata.zip`, qui contient `tracks.csv` avec le genre de chaque morceau.
-- [ ] Vérifier que la **Signal Processing Toolbox** est installée (`resample`, `spectrogram`), avec `ver`. Vérifier aussi que `ffmpeg` est accessible depuis MATLAB (`system('ffmpeg -version')`).
+- [x] Lancer le téléchargement de `fma_small.zip` (environ 7,2 Go) et de `fma_metadata.zip`, qui contient `tracks.csv` avec le genre de chaque morceau.
+- [x] Vérifier que la **Signal Processing Toolbox** est installée (`resample`, `spectrogram`), avec `ver`. Vérifier aussi que `ffmpeg` est accessible depuis MATLAB (`system('ffmpeg -version')`).
 
 ### A1. Chaîne de reconnaissance (mardi)
 
-- [ ] `parametres.m` : renvoie une structure contenant tous les réglages, avec les valeurs de départ du sujet (tableau du §8). Toutes les fonctions la reçoivent en argument, ce qui permettra à l'interface de les modifier.
-- [ ] `pretraitement` : mono, puis `resample` à 8 kHz. Si le signal est déjà mono à 8 kHz, la fonction ne fait rien.
-- [ ] `calcul_spectrogramme` : Hann (`'periodic'`), N = 1 024, H = N/2, Nfft = N, sortie en dB avec + eps.
-- [ ] `detection_pics` :
+- [x] `parametres.m` : renvoie une structure contenant tous les réglages, avec les valeurs de départ du sujet (tableau du §8). Toutes les fonctions la reçoivent en argument, ce qui permettra à l'interface de les modifier.
+- [x] `pretraitement` : mono, puis `resample` à 8 kHz. Si le signal est déjà mono à 8 kHz, la fonction ne fait rien.
+- [x] `calcul_spectrogramme` : Hann (`'periodic'`), N = 1 024, H = N/2, Nfft = N, sortie en dB avec + eps.
+- [x] `detection_pics` :
   - maxima locaux sur ±3 trames × ±5 canaux, avec `Smax = movmax(movmax(SdB, 2*dk+1, 1), 2*dm+1, 2)` : pas d'`ordfilt2`, car l'Image Processing Toolbox n'est pas installée ;
   - seuil local : médiane de S_dB dans la bande, plus une marge. Attention aux plages constantes (silence), où chaque point est égal à son maximum local : c'est la marge qui doit les éliminer ;
   - nombre fixe de pics par bande et par seconde, sur 6 bandes géométriques (200 | 330 | 543 | 894 | 1 474 | 2 428 | 4 000 Hz). Cible : ρ ≈ 25 à 35 pics/s.
-- [ ] `generer_empreintes` : F cibles par ancre dans la zone Δt ∈ [0,1 ; 2] s, soit Δm ∈ [2 ; 31] trames (Nt = 30), et |Δk| ≤ 60. La clé u = (Qf(k1), Qf(k2), Δm) est codée en un seul entier : `u = (Qf(k1)*Nf + Qf(k2))*Nt + (Δm − Δm_min)`.
+- [x] `generer_empreintes` : F cibles par ancre dans la zone Δt ∈ [0,1 ; 2] s, soit Δm ∈ [2 ; 31] trames (Nt = 30), et |Δk| ≤ 60. La clé u = (Qf(k1), Qf(k2), Δm) est codée en un seul entier : `u = (Qf(k1)*Nf + Qf(k2))*Nt + (Δm − Δm_min)`.
   - Vérification : avec γf = 1, on doit trouver M = 513² × 30 ≈ 7,9·10⁶, la valeur du sujet.
-- [ ] `construire_index` : tableau `[clé, idMorceau, instant]` trié par clé. Pour récupérer **toutes** les entrées d'une clé (`ismember` n'en renvoie qu'une) : `[uk, debut] = unique(cles, 'first')`, nombre d'entrées = `diff([debut; n+1])`, puis `ismember(clés_requête, uk)` pour trouver les plages à lire.
-- [ ] `identifier` :
+- [x] `construire_index` : tableau `[clé, idMorceau, instant]` trié par clé. Pour récupérer **toutes** les entrées d'une clé (`ismember` n'en renvoie qu'une) : `[uk, debut] = unique(cles, 'first')`, nombre d'entrées = `diff([debut; n+1])`, puis `ismember(clés_requête, uk)` pour trouver les plages à lire.
+- [x] `identifier` :
   - histogramme des δ = m_r − m_q pour chaque morceau, avec `accumarray`. δ peut être négatif pour les appariements fortuits : il faut lui ajouter un décalage ;
   - score = maximum de l'histogramme ;
   - réponse « morceau de score maximal » si ce score dépasse s_thr, « inconnu » sinon.
-- [ ] `main.m` : chaîne « jouet » sur 3 morceaux, affichage de la constellation sur le spectrogramme et de l'histogramme des δ.
-- [ ] **Jalon (mardi 23 h)** : l'histogramme des δ présente un pic net pour le bon morceau.
-- [ ] Un petit script de test par fonction dans `tests/`.
+- [x] `main.m` : chaîne « jouet » sur 3 morceaux, affichage de la constellation sur le spectrogramme et de l'histogramme des δ.
+- [x] **Jalon (mardi 23 h)** : l'histogramme des δ présente un pic net pour le bon morceau.
+- [x] Un petit script de test par fonction dans `tests/`.
 
 ### A2. Base et requêtes (mercredi matin)
 
-- [ ] `preparer_base` :
+- [x] `preparer_base` :
   - 100 morceaux de `fma_small` répartis sur ses 8 genres, plus au moins 50 morceaux hors base, eux aussi répartis par genre ;
   - écarter les fichiers illisibles ou trop courts : quelques fichiers de FMA sont vides ou corrompus ;
   - écrire `liste_morceaux.csv` avec l'identifiant, le titre, l'artiste, le genre et l'appartenance à la base.
   - Les morceaux de `fma_small` sont des **extraits de 30 s** : le dire dans le rapport, car cela joue sur la taille de l'index.
-- [ ] `extraire_requete` : extrait de Tq secondes commençant à un instant tiré au hasard, **en échantillons** et non en trames. Ainsi, le décalage n'est généralement pas un multiple de H, comme dans la réalité. La propriété (1) n'est alors qu'approchée, ce qui est à discuter.
-- [ ] Graine aléatoire fixée (`rng`) pour que les résultats soient reproductibles.
-- [ ] Mercredi 11 h : envoyer à B la liste des morceaux à jouer pour les enregistrements au micro, avec les fichiers sur le Drive. Prévoir aussi quelques morceaux **hors base**, pour mesurer un TFD en conditions réelles.
+- [x] `extraire_requete` : extrait de Tq secondes commençant à un instant tiré au hasard, **en échantillons** et non en trames. Ainsi, le décalage n'est généralement pas un multiple de H, comme dans la réalité. La propriété (1) n'est alors qu'approchée, ce qui est à discuter.
+- [x] Graine aléatoire fixée (`rng`) pour que les résultats soient reproductibles.
+- [x] Mercredi 11 h : envoyer à B la liste des morceaux à jouer pour les enregistrements au micro, avec les fichiers sur le Drive. Prévoir aussi quelques morceaux **hors base**, pour mesurer un TFD en conditions réelles.
+  - Liste : `resultats/morceaux_a_enregistrer.csv` (20 de la base, 10 hors base). Fichiers : `data/a_enregistrer/`, **à déposer sur le Drive par A**.
 
 ### A3. Évaluation (mercredi)
 
-- [ ] `evaluer` : TBD et TFD, en séparant « mauvais morceau » (confusion) et « inconnu » (non-détection).
-- [ ] Fixer s_thr à partir des requêtes négatives, selon la méthode de Q5. Couper les négatives en deux moitiés : l'une sert à **calibrer** le seuil, l'autre à **mesurer** le TFD. Sinon le TFD annoncé est optimiste.
-- [ ] Générer les 5 figures attendues (section 1) et le tableau récapitulatif des 6 dégradations.
-- [ ] Mesurer le temps de requête et la taille de l'index pour plusieurs tailles de base, par exemple 25, 50 et 100 morceaux. Résultat attendu : la taille de l'index croît linéairement, et le temps de requête dépend très peu du nombre de morceaux.
+- [x] `evaluer` : TBD et TFD, en séparant « mauvais morceau » (confusion) et « inconnu » (non-détection).
+- [x] Fixer s_thr à partir des requêtes négatives, selon la méthode de Q5. Couper les négatives en deux moitiés : l'une sert à **calibrer** le seuil, l'autre à **mesurer** le TFD. Sinon le TFD annoncé est optimiste.
+- [x] Générer les 5 figures attendues (section 1) et le tableau récapitulatif des 6 dégradations (`resultats/synthese.csv`).
+  - [ ] Ajouter le brouhaha et l'enregistrement au micro dès que les fichiers de B sont là.
+- [x] Mesurer le temps de requête et la taille de l'index pour plusieurs tailles de base, par exemple 25, 50 et 100 morceaux. Résultat attendu : la taille de l'index croît linéairement, et le temps de requête dépend très peu du nombre de morceaux.
 
-### A4. Mesures pour les questions (mercredi après-midi et soir)
+### A4. Mesures pour les questions (mercredi après-midi et soir) — fait
+
+Scripts dans `experiences/` : `etude_q3_voisinage`, `etude_q4_p_gamma_F`, `theorie_mesure`, `etude_q6_genres`. Figures : `p_en_fonction_de_rho`, `p_par_bande`, `theorie_mesure`, `tbd_par_genre`. Résultats et interprétations : fin de `resultats/notes_resultats.md`.
 
 | Question | Mesure à produire |
 |---|---|
@@ -140,8 +146,8 @@ Définir p précisément dans le code et le rapport : c'est la proportion des pi
 
 Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'environ 1 100 échantillons à 44,1 kHz, soit environ 25 ms. Il faut recaler l'extrait par intercorrélation avant de comparer les pics.
 
-- [ ] Écrire pour B une fiche par figure dans `resultats/notes_resultats.md` : protocole, chiffres clés, ce qu'on observe.
-- [ ] Écrire dans `resultats/parametres_finaux.md` la valeur finale de chaque paramètre et la mesure qui la justifie.
+- [x] Écrire pour B une fiche par figure dans `resultats/notes_resultats.md` : protocole, chiffres clés, ce qu'on observe.
+- [x] Écrire dans `resultats/parametres_finaux.md` la valeur finale de chaque paramètre et la mesure qui la justifie.
 
 ### A5. Démo, interface et livraison (jeudi et vendredi)
 
@@ -173,20 +179,15 @@ Remarques utiles :
 - Le sujet donne κw = 1,30, qui est la valeur pour une fenêtre de **Hamming**. Pour la fenêtre de **Hann** utilisée, κw ≈ 1,44 (Harris, 1978), soit Δf ≈ 11 Hz pour N = 1 024. C'est justement cette valeur qui donne la séparation des demi-tons à partir de 190 Hz annoncée par le sujet.
 - Pour la réverbération, la propriété (3) suppose une réponse impulsionnelle bien plus courte que la fenêtre (L_h ≪ N, soit 128 ms). Avec T60 = 0,3 s, et surtout 1 s, cette hypothèse est fausse : c'est la « limite de (3) » du tableau du §7, à exploiter dans la discussion.
 
-### B2. Dégradations et figure Q2 (mercredi matin, à livrer à 13 h)
+### B2. Figure Q2 (mercredi matin, à livrer à 13 h)
 
-Ce sont de petites fonctions indépendantes, directement liées à la partie théorique. Elles allègent le chemin critique de A.
+Les quatre fonctions de dégradation sont **déjà faites et testées** par A (dans `eval/degradations/`, tests dans `tests/test_degradations.m`) : `ajouter_bruit`, `degrader_mp3`, `filtre_passe_bande`, `reverberation`. B n'a plus que la figure :
 
-- [ ] `ajouter_bruit` : bruit blanc ou brouhaha (segment tiré au hasard), mis à l'échelle pour obtenir le RSB voulu, avec Px calculé **sur l'extrait**.
-- [ ] `degrader_mp3` : écrire un WAV à 44,1 kHz, appeler `ffmpeg -b:a 64k`, relire le MP3, puis supprimer les fichiers temporaires. `audiowrite` ne sait pas écrire de MP3.
-- [ ] `filtre_passe_bande` : 300–3 400 Hz, par exemple un Butterworth d'ordre 4 appliqué avec `filter`.
-- [ ] `reverberation` : réponse impulsionnelle synthétique h[n] = b[n]·exp(−3·ln(10)·n / (T60·Fe)), où b est un bruit blanc. Elle est normalisée et précédée d'un trajet direct. Tester T60 = 0,3 et 1 s.
-- [ ] Un test par fonction dans `tests/`. Par exemple, vérifier que le RSB mesuré après `ajouter_bruit` est bien celui demandé.
-- [ ] **Figure Q2** : filtrer un morceau par le passe-bande, tracer S_y,dB − S_x,dB en fonction de k pour plusieurs trames, et superposer 20·log10|ĥ(f_k)|.
+- [ ] **Figure Q2** (`figures/difference_spectres_passe_bande.pdf`) : filtrer un morceau par le passe-bande (`filtre_passe_bande`), tracer S_y,dB − S_x,dB en fonction de k pour plusieurs trames (`calcul_spectrogramme`), et superposer 20·log10|ĥ(f_k)|. Utiliser `nouvelle_figure` et `sauver_figure` (dans `utils/`) pour garder le style des autres figures.
 
 ### B3. Enregistrements au micro (mercredi)
 
-- [ ] **Mercredi midi** : enregistrer quelques minutes de brouhaha à la cafétéria, sans musique. C'est l'heure où il y a le plus de monde. Les déposer sur le Drive avant 14 h.
+- [ ] **Mercredi midi** : enregistrer quelques minutes de brouhaha à la cafétéria, sans musique. C'est l'heure où il y a le plus de monde. Les déposer sur le Drive avant 14 h, sous le nom `brouhaha_cafet.wav` : la campagne d'évaluation le cherche dans `data/enregistrements/` et ajoute alors toute seule les conditions « bruit réel ».
 - [ ] **Mercredi après-midi** : jouer les morceaux de la liste de A sur une enceinte et les enregistrer avec un téléphone, en salle, à 2 distances (par exemple 1 m et 4 m). Inclure quelques morceaux hors base.
 - [ ] Noter le protocole : salle, enceinte, téléphone, distances, volume, format des fichiers.
 - [ ] Nommer les fichiers clairement, par exemple `micro_<idMorceau>_<distance>.wav`. Les déposer sur le Drive avant 19 h, et pas dans git.
@@ -229,7 +230,7 @@ Plan imposé par le sujet :
 
 | B fournit à A | Quand |
 |---|---|
-| Fonctions de dégradation testées et figure Q2 | mercredi 13 h |
+| Figure Q2 | mercredi 13 h |
 | Brouhaha | mercredi 14 h |
 | Enregistrements en salle | mercredi 19 h |
 | Retour sur les figures (lisibilité, ce qui manque) | mercredi soir |
@@ -244,7 +245,7 @@ On utilise les **notations du sujet** partout : code, figures, rapport, slides.
 |---|---|---|---|
 | Mar. 17 après-midi | Téléchargement de FMA, vérification des toolboxes (A0) | — | — |
 | Mar. 17 soir | Chaîne « jouet » (A1) | Lecture de Wang, Q1, Q2, propriétés (B1) | **23 h : pic net dans l'histogramme des δ** |
-| Mer. 18 matin | Base et requêtes (A2), passage à 100 morceaux | Dégradations et figure Q2 (B2) ; question à l'enseignant | 13 h : premiers TBD/TFD et dégradations intégrées |
+| Mer. 18 matin | Mesures des questions (A4), commencées en avance | Figure Q2 (B2) ; question à l'enseignant | 13 h : point sur A4 |
 | Mer. 18 midi | — | Brouhaha à la cafétéria (B3) | — |
 | Mer. 18 après-midi | Évaluation et mesures des questions (A3, A4) | Enregistrements au micro (B3) | — |
 | Mer. 18 soir | Figures finales et fiches | Rédaction théorie et conception | **21 h : toutes les mesures faites** |
@@ -272,12 +273,14 @@ On utilise les **notations du sujet** partout : code, figures, rapport, slides.
 README.md  PLAN.md  main.m  parametres.m  liste_morceaux.csv
 src/          pretraitement, calcul_spectrogramme, detection_pics,
               generer_empreintes, construire_index, identifier
-eval/         preparer_base, extraire_requete, evaluer
-degradations/ ajouter_bruit, degrader_mp3, filtre_passe_bande, reverberation
+eval/         preparer_base, extraire_requete, evaluer, taux_detection, calibrer_seuil
+eval/degradations/  ajouter_bruit, degrader_mp3, filtre_passe_bande, reverberation
+experiences/  preparer_donnees, campagne_evaluation, figures_campagne, passage_echelle
+utils/        nouvelle_figure, sauver_figure, morceau_synthetique
 interface/    interface de paramétrage et démo
 tests/        un test par fonction
-figures/      figures du rapport (PDF)
-resultats/    notes_resultats.md, parametres_finaux.md
+figures/      figures du rapport (PDF + PNG), aux noms de rapport/README.md
+resultats/    notes_resultats.md, synthese.csv, passage_echelle.csv, parametres_finaux.md
 rapport/      export Overleaf, rapport.pdf
 video/        slides, script
 data/  cache/ audio et index : NON versionnés

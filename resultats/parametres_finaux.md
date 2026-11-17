@@ -1,0 +1,22 @@
+# Paramètres finaux et leur justification
+
+Pour le tableau des paramètres du rapport (section Conception). Valeurs de `parametres.m`.
+« Mesure » renvoie à une figure ou à un fichier de `resultats/` ; « théorie » à un raisonnement du rapport.
+
+| Paramètre | Valeur | Justification | Source |
+|---|---|---|---|
+| Fe | 8 kHz | Shannon : bande utile 0–4 kHz, qui contient l'essentiel du contenu mélodique. Au-delà, surtout de la brillance, détruite en premier par le haut-parleur, la salle et le MP3. Coût de calcul divisé par 44,1/8 ≈ 5,5. `resample` inclut le filtre anti-repliement. | Théorie (Q1) |
+| Fenêtre | Hann (périodique) | Lobes secondaires bas (−31 dB) : un pic fort ne crée pas de faux maxima dans les canaux voisins. κw ≈ 1,44 (et non 1,30, valeur de Hamming donnée par le sujet). | Théorie (Q2), Harris 1978 |
+| N | 1 024 (128 ms) | Δf = κw·Fe/N ≈ 11,25 Hz : deux demi-tons sont séparés dès 190 Hz, tout le registre mélodique. Tw = 128 ms reste court devant la durée d'une note. N = 2 048 doublerait la résolution en fréquence mais rendrait la grille temporelle trop grossière (256 ms). | Théorie (Q2, tableau Tw / Δf) |
+| H | N/2 = 512 (64 ms) | Recouvrement de 50 %, pour lequel les fenêtres de Hann se somment à une constante : aucun instant n'est sous-pondéré. 15,6 trames/s. | Théorie |
+| Nfft | N | Pas de zéro-padding : il interpolerait le spectre sans améliorer la résolution réelle, et multiplierait les canaux, donc les clés possibles, sans information nouvelle. | Théorie |
+| Voisinage | ±3 trames × ±5 canaux | Avec le quota : ρ = 26 pics/s et p = 0,55 sous bruit à 10 dB. Sans quota, ρp² décroît quand le voisinage grandit : le voisinage seul ne suffit pas à fixer la densité, c'est le rôle du quota. | Mesure : `p_en_fonction_de_rho`, `q3_voisinage.csv` (Q3) |
+| Bandes | 6, géométriques, 200–4 000 Hz | Un découpage linéaire donnerait 5 bandes sur 6 au-dessus de 830 Hz, où la musique a peu d'énergie et où les pics sont les plus fragiles (p de 0,77 à 0,37 du bas vers le haut sous bruit à 10 dB). Sous 200 Hz : peu de canaux, harmoniques des basses mal séparées. | Sujet, mesure : `p_par_bande` |
+| Quota | 5 pics par bande et par seconde (ρ visé 30, mesuré 26) | Garde les pics les plus forts de chaque bande. À densité égale, p = 0,55 avec quota contre 0,42 sans (voisinage ±12 × ±5, ρ = 23). La densité mesurée est sous la cible car certaines bandes n'ont pas 5 candidats par seconde. | Mesure : `p_en_fonction_de_rho` (étoile) |
+| Seuil local | médiane de la bande (glissante sur 2 s) + 6 dB | Un seuil global serait détruit par le gain α. La médiane suit le niveau de la bande ; les 6 dB écartent les maxima du plancher de bruit et les plateaux de silence (où chaque point égale son maximum local). La sélection fine est faite par le quota. Valeur choisie a priori, non balayée. | Théorie (insensibilité au gain) |
+| Zone cible Δt | [0,1 ; 2] s, soit Δm ∈ [2 ; 31], Nt = 30 | Δt ≥ 0,1 s : deux trames voisines se recouvrent à 50 %, leurs pics ne sont pas indépendants. Δt ≤ 2 s : une requête de 3 s contient encore des paires complètes. | Sujet, théorie |
+| Zone cible Δk | ±60 canaux (±470 Hz) | Paires entre notes d'un même registre ; limite le nombre de cibles candidates sans restreindre F. | Sujet |
+| F | 10 cibles par ancre | À 0 dB, Tq = 5 s : TBD 78 % pour F = 5, 81,5 % pour F = 10, 81,5 % pour F = 15, alors que l'index passe de 0,37 à 0,68 puis 0,91 million d'entrées. Au-delà de 10, l'index grossit sans gain. F·p = 5,6 > 1 (condition du sujet). | Mesure : `q4_F.csv` |
+| γf | 1 | À 0 dB : TBD 81,5 % (γf = 1 et 2), 80,5 % (4), 71 % (8). Un γf plus grand augmente le score des bonnes requêtes mais aussi celui des négatives, donc le seuil (21 → 59). γf = 1 donne le TBD maximal avec le moins de parasites (87 attendus contre 5 412 pour γf = 8). | Mesure : `q4_gamma.csv` (Q4) |
+| s_thr | 35 | 1,5 × le plus fort score des 50 négatives de calibration (23). Sur les 50 négatives de test, le score monte jusqu'à 26 : la marge est nécessaire. TFD = 0 % sur les 50 négatives de test, dans toutes les conditions. | Mesure : `synthese.csv`, `histogrammes_scores` (Q5) |
+| Tq | 5 s (évaluation aussi à 3 et 10 s) | À 5 s : TBD 98,5 % sans dégradation, 92 % à 10 dB. La rupture (TBD = 50 %) passe de +2,4 dB à 3 s à −1,8 dB à 5 s et −6 dB à 10 s, soit environ 4 dB gagnés à chaque étape. C'est ce que prévoit s ∝ Tq·p² : doubler Tq compense une baisse de p d'un facteur √2, et p perd ce facteur en 4 à 5 dB de RSB dans cette zone. | Mesure : `tbd_en_fonction_du_rsb`, `theorie_mesure` |
