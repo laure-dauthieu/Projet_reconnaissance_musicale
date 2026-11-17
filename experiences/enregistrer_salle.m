@@ -41,6 +41,21 @@ if ~exist(dossierSortie, 'dir'), mkdir(dossierSortie); end
 rs = RandStream('mt19937ar', 'Seed', opts.graine);
 FeRec = 44100;
 
+% Périphériques audio. MATLAB garde la liste vue au démarrage : si l'enceinte
+% Bluetooth s'est reconnectée depuis, ses identifiants ont changé (« Device
+% Error »). audiodevreset relit la liste. On impose ensuite le micro du Mac,
+% pour ne pas enregistrer par erreur avec un iPhone proche (Continuité).
+idMicro = -1;                                     % -1 : entrée par défaut
+if ~opts.simulation
+    audiodevreset;
+    infos = audiodevinfo;
+    mac = find(contains({infos.input.Name}, 'MacBook'), 1);
+    if ~isempty(mac), idMicro = infos.input(mac).ID; end
+    fprintf('Sortie : celle choisie dans Réglages Système > Son (disponibles : %s)\n', ...
+        strjoin({infos.output.Name}, ', '));
+    fprintf('Micro : %s\n', ternaire(idMicro >= 0, infos.input(max(mac, 1)).Name, 'entrée par défaut'));
+end
+
 n = height(liste);
 debut = zeros(n, 1);  niveau = zeros(n, 1);  date = strings(n, 1);
 fichierProto = fullfile(dossierSortie, sprintf('protocole_%s.csv', distance));
@@ -68,7 +83,7 @@ for i = 1:n
         y = ajouter_bruit(y, 10, 'blanc', rs);
         y = 0.3 * y / max(abs(y));
     else
-        y = prise(extrait, fe, FeRec, i, n);
+        y = prise(extrait, fe, FeRec, idMicro, i, n);
     end
 
     niveau(i) = 20*log10(rms(y) + eps);
@@ -90,13 +105,13 @@ end
 fprintf('Terminé : %d prises dans data/enregistrements/\n', sum(date ~= ""));
 end
 
-function y = prise(extrait, fe, FeRec, i, n)
+function y = prise(extrait, fe, FeRec, idMicro, i, n)
 % Joue l'extrait sur la sortie audio et l'enregistre au micro.
 % Une enceinte Bluetooth peut se mettre en veille ou se reconnecter entre deux
 % morceaux (« Device Error ») : on réessaie jusqu'à 3 fois avant d'abandonner.
 for essai = 1:3
     try
-        rec = audiorecorder(FeRec, 16, 1);
+        rec = audiorecorder(FeRec, 16, 1, idMicro);
         lecteur = audioplayer(extrait / max(1, max(abs(extrait))), fe);
         record(rec);
         pause(0.3);                       % le micro démarre avant la musique
