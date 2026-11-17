@@ -32,13 +32,15 @@
 \DeclareRobustCommand{\aremplir}[1]{\textcolor{red}{\textbf{[À remplir : #1]}}}
 
 % ---------- Figures de A : cadre « figure à venir » tant que le PDF n'existe pas ----------
-% Usage : \inclurefig[largeur]{F12_tbd_rsb}{ce que la figure montrera}
-% Cherche figures/<nom>.pdf (Overleaf) puis ../figures/<nom>.pdf (dépôt git).
+% Usage : \inclurefig[largeur]{tbd_rsb}{ce que la figure montrera}
+% Cherche <nom>.pdf puis <nom>.png, dans figures/ (Overleaf) puis ../figures/ (dépôt git).
 \newcommand{\inclurefig}[3][\linewidth]{%
-  \IfFileExists{figures/#2.pdf}{\includegraphics[width=#1]{figures/#2}}{%
-  \IfFileExists{../figures/#2.pdf}{\includegraphics[width=#1]{../figures/#2}}{%
+  \IfFileExists{figures/#2.pdf}{\includegraphics[width=#1]{figures/#2.pdf}}{%
+  \IfFileExists{figures/#2.png}{\includegraphics[width=#1]{figures/#2.png}}{%
+  \IfFileExists{../figures/#2.pdf}{\includegraphics[width=#1]{../figures/#2.pdf}}{%
+  \IfFileExists{../figures/#2.png}{\includegraphics[width=#1]{../figures/#2.png}}{%
   \fbox{\parbox[c][3.2cm][c]{0.92\linewidth}{\centering\small\color{gray}
-    Figure à venir : #3\\[2pt] \texttt{\detokenize{#2.pdf}}}}}}}
+    Figure à venir : #3\\[2pt] \texttt{\detokenize{#2.pdf}}}}}}}}}
 
 % ---------- Tableaux de A (fichiers .tex booktabs, sans environnement table) ----------
 % Usage : \inclureTableau{T02}{ce que le tableau contiendra}
