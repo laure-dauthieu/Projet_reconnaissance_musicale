@@ -1,0 +1,29 @@
+% =====================================================================
+% Préambule commun au rapport (compilation pdfLaTeX + biber, Overleaf)
+% =====================================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[locale=FR]{siunitx}   % virgule décimale, espaces fines
+\sisetup{exponent-product=\times, per-mode=symbol}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\usepackage[backend=biber,style=numeric,sorting=nyt]{biblatex}
+\addbibresource{biblio.bib}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage[french,noabbrev]{cleveref}  % toujours après hyperref
+
+\input{macros}

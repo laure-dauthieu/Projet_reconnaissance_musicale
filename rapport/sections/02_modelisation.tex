@@ -1,0 +1,59 @@
+% ---------------------------------------------------------------------
+\section{Modélisation}
+\label{sec:modelisation}
+% ---------------------------------------------------------------------
+
+Entre le fichier d'origine $x(t)$ et l'extrait capté $y(t)$ s'intercalent un haut-parleur,
+une salle, un microphone, un codec et du bruit ambiant. L'énoncé les résume par
+\begin{equation}
+  y(t) = \alpha\,(h * x)(t - t_0) + b(t),
+  \tag{1}\label{eq:modele}
+\end{equation}
+auquel s'ajoute le codage perceptuel, qui n'est pas linéaire et ne s'écrit pas sous cette
+forme. Chaque terme a une cause physique et appelle une invariance précise de l'empreinte
+(\cref{tab:modele}).
+
+\begin{itemize}
+  \item $\alpha > 0$ est un \textbf{gain} inconnu : volume de lecture, distance à la source,
+        sensibilité du micro. Il est constant à l'échelle d'un extrait.
+  \item $h$ est la \textbf{réponse impulsionnelle} de la chaîne haut-parleur $\to$ salle
+        $\to$ micro. Sa partie courte (haut-parleur, micro, premières réflexions) colore le
+        spectre ; sa partie longue (réverbération tardive) étale le signal dans le temps.
+  \item $t_0$ est le \textbf{décalage} inconnu : on ignore où l'extrait a été capté.
+  \item $b(t)$ est un \textbf{bruit additif} indépendant de $x$ : souffle blanc, brouhaha
+        coloré et non stationnaire.
+  \item Le \textbf{codage MP3} supprime les composantes masquées et ajoute un bruit de
+        quantification mis en forme sous le seuil de masquage.
+\end{itemize}
+
+\begin{table}[h]
+  \centering\small
+  \caption{Terme du modèle~\eqref{eq:modele}, dégradation qui le simule et invariance visée.}
+  \label{tab:modele}
+  \begin{tabularx}{\linewidth}{@{}lXX@{}}
+    \toprule
+    Terme & Dégradation simulée & Invariance visée (où) \\
+    \midrule
+    $t_0$      & début de requête tiré au hasard, non aligné sur la grille
+               & translation du spectrogramme, vote sur $\delta$ (\cref{sec:proprietes,sec:decision}) \\
+    $\alpha$   & implicite dans toutes les conditions
+               & positions des maxima, seuil local (\cref{sec:maxima}) \\
+    $h$ court  & passe-bande \qtyrange{300}{3400}{\hertz}, haut-parleur de téléphone
+               & biais $g(k)$ indépendant du temps, condition (5) (\cref{sec:maxima}) \\
+    $h$ long   & réverbération $T_{60} = \qty{0.3}{\second}$ et \qty{1}{\second}
+               & hors modèle : limite de la propriété (2) (\cref{sec:limites}) \\
+    $b$        & bruit blanc (\qtyrange{20}{0}{\decibel}), brouhaha (\qtyrange{10}{0}{\decibel})
+               & survie des pics, RSB local par bande (\cref{sec:q6}) \\
+    MP3        & \num{128}, \num{64} et \qty{32}{\kilo\bit\per\second}
+               & les pics sont les masqueurs (\cref{sec:q6}) \\
+    tout       & enregistrements au micro en salle, à deux distances
+               & toutes à la fois (\cref{sec:reel}) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Les deux exigences sont antagonistes : une empreinte riche (beaucoup de pics, clés fines)
+est spécifique mais fragile, une empreinte pauvre est robuste mais confond les morceaux.
+Toute la conception (\cref{sec:conception}) consiste à quantifier ce compromis : la
+robustesse par la probabilité $p$ qu'un pic survive, la spécificité par le nombre de clés
+possibles $M$ et par le nombre d'appariements fortuits qu'il entraîne.

@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambule}
+
+\title{Reconnaissance musicale par empreintes audio\\[4pt]
+  \large Comment un téléphone reconnaît-il un morceau en 5 secondes ?}
+\author{Alessandro \aremplir{nom} \and Laure Dauthieu \and \aremplir{3\textsuperscript{e} membre du trinôme ?}\\[2pt]
+  \small ESIEE Paris -- OBL-4101 Traitement du signal -- 2026--2027}
+\date{20 novembre 2026}
+
+\begin{document}
+\maketitle
+% Les équations (1) à (8) de l'énoncé sont repérées par \tag ; les nôtres partent de (9).
+\setcounter{equation}{8}
+\input{sections/00_resume}
+
+\tableofcontents
+\clearpage
+
+\input{sections/01_introduction}
+\input{sections/02_modelisation}
+\input{sections/03_theorie}
+\input{sections/04_conception}
+\input{sections/05_resultats}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+\nocite{muller2015}
+\printbibliography[heading=bibintoc,title={Références}]
+
+\clearpage
+\appendix
+\input{sections/annexes}
+
+\end{document}

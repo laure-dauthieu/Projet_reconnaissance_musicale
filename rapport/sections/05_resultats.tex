@@ -1,0 +1,70 @@
+% ---------------------------------------------------------------------
+\section{Résultats}
+\label{sec:resultats}
+% ---------------------------------------------------------------------
+% Squelette (partie B3, à rédiger à partir de resultats/notes_resultats.md).
+% Règle : chaque taux est donné avec son seuil, sa durée Tq, sa dégradation et son
+% nombre de requêtes.
+
+\subsection{Protocole}
+\label{sec:protocole}
+
+\aremplir{Base : 100 morceaux de \texttt{fma\_small} répartis sur 8 genres ; requêtes
+positives (nombre, tirage de l'instant de début) et négatives (nombre, morceaux hors base) ;
+ordre extrait $\to$ dégradation $\to$ prétraitement ; calcul de $P_x$ sur l'extrait (8) ;
+séparation calibration / test des négatives ; graines aléatoires.}
+
+La définition (8) du rapport signal à bruit,
+\begin{equation}
+  \RSB_{\mathrm{dB}} = 10\log_{10}\frac{P_x}{P_b},
+  \tag{8}
+\end{equation}
+est appliquée avec $P_x$ calculé sur l'extrait servant de requête, et non sur le morceau
+entier : sinon, un extrait calme recevrait un bruit relatif bien plus fort que le \RSB{}
+annoncé.
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.9\linewidth]{constellation}{spectrogramme avec la constellation superposée}
+  \caption{Spectrogramme d'un extrait de \aremplir{morceau} avec la carte de constellation
+  superposée.}
+  \label{fig:constellation}
+\end{figure}
+
+\subsection{Taux de bonne et de fausse détection}
+\label{sec:tbd-tfd}
+
+\aremplir{TBD et TFD par dégradation, distinction « mauvais morceau » / « inconnu ».}
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.8\linewidth]{tbd_en_fonction_du_rsb}{TBD en fonction du RSB, une courbe par Tq = 3, 5, 10 s}
+  \caption{\TBD{} en fonction du \RSB{} (bruit blanc), une courbe par durée
+  $\Tq \in \{3, 5, 10\}$\,s, $\sthr = \aremplir{}$.}
+  \label{fig:tbd-rsb}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.7\linewidth]{tbd_en_fonction_du_debit_mp3}{TBD en fonction du débit MP3}
+  \caption{\TBD{} en fonction du débit MP3, $\Tq = \aremplir{}$\,s, $\sthr = \aremplir{}$.}
+  \label{fig:tbd-mp3}
+\end{figure}
+
+\subsection{Conditions réelles}
+\label{sec:reel}
+
+\aremplir{Enregistrements au micro à deux distances, brouhaha : protocole (salle, matériel,
+distances) et résultats.}
+
+\subsection{Passage à l'échelle}
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.8\linewidth]{temps_et_taille_index}{temps de requête et taille de l'index en fonction du nombre de morceaux}
+  \caption{Temps de requête et taille de l'index en fonction du nombre de morceaux indexés.}
+  \label{fig:passage-echelle}
+\end{figure}
+
+\aremplir{Comparer à la \cref{sec:index} : taille proportionnelle à $N_b$, temps de requête
+presque constant.}

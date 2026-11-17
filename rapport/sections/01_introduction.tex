@@ -1,0 +1,38 @@
+% ---------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+% ---------------------------------------------------------------------
+
+Reconnaître un morceau à partir de quelques secondes captées par un téléphone, dans un
+bar bruyant, à un instant quelconque du morceau, demande une représentation du signal
+qui concilie deux exigences opposées. Elle doit être \emph{robuste} : insensible au
+volume, au haut-parleur, à la salle, au microphone, au codage MP3, au bruit ambiant et à
+la position de l'extrait. Elle doit aussi être \emph{spécifique} : deux morceaux différents
+ne doivent presque jamais produire la même empreinte.
+
+Deux familles de solutions se sont imposées au début des années 2000. Haitsma et
+Kalker~\cite{haitsma2002} découpent le spectre en 33~bandes logarithmiques entre 300 et
+\qty{2000}{\hertz} et codent, trame après trame, le signe des différences d'énergie entre
+bandes voisines et trames successives : on obtient une suite de mots de 32~bits, et deux
+extraits sont comparés par leur taux d'erreur binaire. Wang~\cite{wang2003}, à l'origine
+de Shazam, ne garde au contraire que les maxima locaux du spectrogramme, une
+\emph{carte de constellation}, et forme des clés à partir de \emph{paires} de pics : la clé
+code les deux fréquences et l'écart de temps, l'instant absolu étant rangé à part. Une
+requête vote alors pour un décalage temporel, et le bon morceau se signale par une
+accumulation de votes sur un seul décalage. Ces deux approches partagent la même idée :
+ne retenir que des comparaisons \emph{relatives} entre valeurs voisines du plan
+temps-fréquence, qui survivent au gain et au filtrage.
+
+Nous avons suivi la méthode de Wang, implémentée sous MATLAB et évaluée sur
+\aremplir{100} morceaux de la base libre FMA~\cite{fma2017}. Au-delà d'une chaîne qui
+fonctionne, nous avons cherché à \emph{prédire} les performances : le score attendu du bon
+morceau, le plancher du seuil de décision et l'effet de chaque dégradation sur les pics,
+puis à confronter ces prédictions à la mesure. \aremplir{Résultat principal en une
+phrase, par exemple : « à $\Tq = \qty{5}{\second}$, le système reconnaît x~\% des extraits
+jusqu'à y~dB de RSB, et la théorie prévoyait la rupture à z~dB. »}
+
+La \cref{sec:modelisation} décrit le modèle de dégradation, la \cref{sec:theorie} démontre
+les propriétés d'invariance sur lesquelles repose la méthode, la \cref{sec:conception}
+justifie chaque étape et chaque paramètre, la \cref{sec:resultats} présente le protocole et
+les mesures, et la \cref{sec:discussion} analyse les échecs. Les notations sont celles de
+l'énoncé (\cref{sec:notations}).

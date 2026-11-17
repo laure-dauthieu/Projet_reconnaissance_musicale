@@ -1,0 +1,313 @@
+% ---------------------------------------------------------------------
+\section{Théorie}
+\label{sec:theorie}
+% ---------------------------------------------------------------------
+
+Nous gardons la numérotation de l'énoncé : les équations (1) à (8) et les propriétés (1)
+(translation) et (2) (filtrage) y renvoient directement. Nos propres équations sont
+numérotées à partir de (9).
+
+\subsection{Prétraitement et théorème de Shannon (Q1)}
+\label{sec:shannon}
+
+Le signal est ramené en mono (moyenne des canaux) puis rééchantillonné à
+$\Fe = \qty{8}{\kilo\hertz}$.
+
+\paragraph{Ce qu'impose Shannon.} Un signal échantillonné à $\Fe$ n'est représenté sans
+ambiguïté que s'il ne contient aucune composante au-delà de $\Fe/2$ : une sinusoïde de
+fréquence $f_0 \in\, ]\Fe/2, \Fe[$ donne exactement les mêmes échantillons qu'une
+sinusoïde de fréquence $\Fe - f_0$. Choisir $\Fe = \qty{8}{\kilo\hertz}$, c'est donc décider
+que seule la bande $[0, \qty{4}{\kilo\hertz}]$ servira, et s'obliger à éliminer tout ce qui
+est au-dessus \emph{avant} de décimer.
+
+\paragraph{Pourquoi la bande \qtyrange{0}{4}{\kilo\hertz} suffit.} L'identité d'un morceau
+tient à sa mélodie, à son harmonie et à son rythme, c'est-à-dire aux fondamentales des
+notes et à leurs premiers harmoniques. La fondamentale la plus aiguë du piano
+(do\textsubscript{8}) vaut \qty{4186}{\hertz} ; celles des voix chantées et de la quasi-totalité
+des instruments mélodiques restent sous \qty{2}{\kilo\hertz}. L'essentiel de l'énergie
+musicale est concentré dans cette zone, et c'est là que se trouvent les maxima les plus
+marqués du spectrogramme, donc les pics les plus stables. La bande téléphonique
+(\qtyrange{300}{3400}{\hertz}) a été dimensionnée sur le même constat : elle suffit à
+reconnaître une voix ou une mélodie.
+
+\paragraph{Ce que l'on perd.} On perd la \og brillance \fg{} : harmoniques élevés,
+cymbales, attaques, sifflantes. Trois raisons rendent cette perte acceptable :
+\begin{enumerate}
+  \item ce contenu est peu énergétique, donc il porte peu de pics, et des pics fragiles ;
+  \item c'est celui que le canal détruit en premier : un petit haut-parleur coupe vers
+        \qty{3.4}{\kilo\hertz}, l'absorption de l'air et des parois croît avec la fréquence,
+        et le codeur MP3 supprime les hautes fréquences dès que le débit baisse. Une
+        empreinte qui s'appuierait sur ces fréquences serait présente dans la référence et
+        absente de la requête ;
+  \item le coût diminue : le nombre d'échantillons est divisé par
+        $\num{44100}/\num{8000} \approx \num{5.5}$, comme le nombre de canaux $K$ à
+        résolution temporelle égale. Avec le facteur $\log_2 N$ de la FFT ($N$ passerait de
+        1024 à environ 5600 pour garder $\Tw = \qty{128}{\milli\second}$), le coût de la
+        TFCT baisse d'un facteur de l'ordre de 7.
+\end{enumerate}
+
+\paragraph{Pourquoi \texttt{resample} et pas une décimation naïve.} Garder un échantillon
+sur $k$ sans filtrer replierait toute la bande \qtyrange{4}{22}{\kilo\hertz} dans
+\qtyrange{0}{4}{\kilo\hertz}, en créant de faux pics. Le plus grave est que ce contenu
+n'est pas le même dans la référence (fichier d'origine, aigus intacts) et dans la requête
+(aigus coupés par le canal ou le MP3) : les faux pics différeraient des deux côtés et
+détruiraient l'appariement sans cause visible. La fonction \texttt{resample} applique un
+filtre passe-bas anti-repliement avant de décimer, ce qui supprime le problème.
+
+\subsection{Transformée de Fourier à court terme et compromis temps-fréquence (Q2)}
+\label{sec:tfct}
+
+Le contenu musical évolue en permanence : une TFD calculée sur tout le morceau
+mélangerait toutes les notes et ne dirait rien de leur succession. On calcule donc la
+transformée de Fourier à court terme et le spectrogramme en décibels
+\begin{equation}
+  X[m,k] = \sum_{n=0}^{N-1} x[n+mH]\, w[n]\, e^{-j2\pi kn/\Nfft},
+  \qquad
+  \SdB[m,k] = 10\log_{10}\bigl(|X[m,k]|^2 + \varepsilon\bigr),
+  \tag{2}
+\end{equation}
+avec une fenêtre de Hann périodique, $H = N/2$ et $\Nfft = N$. La trame $m$ et le canal $k$
+correspondent à $t_m = mH/\Fe$ et $f_k = k\Fe/\Nfft$.
+
+\paragraph{Résolutions.} La résolution temporelle est la durée de la fenêtre,
+$\Tw = N/\Fe$. La résolution fréquentielle est la largeur à \qty{-3}{\decibel} du lobe
+principal de la fenêtre, $\Delta f = \kw\,\Fe/N$, où $\kw$ ne dépend que de la forme de la
+fenêtre. L'énoncé donne $\kw = \num{1.30}$, qui est la valeur de la fenêtre de
+\emph{Hamming} ; pour la fenêtre de \emph{Hann} que nous utilisons, $\kw = \num{1.44}$
+\cite{harris1978}. Le produit
+\begin{equation}
+  \Delta f \cdot \Tw = \kw
+\end{equation}
+ne dépend pas de $N$ : toute précision gagnée en fréquence est perdue en temps, et
+inversement. Monter d'un demi-ton multiplie la fréquence par $2^{1/12}$ ; deux notes voisines
+sont séparées si leur écart $f\,(2^{1/12}-1)$ dépasse $\Delta f$, donc au-dessus de
+\begin{equation}
+  f_{\min} = \frac{\Delta f}{2^{1/12}-1} \approx \num{16.8}\,\Delta f .
+\end{equation}
+Le nombre de trames par seconde vaut $\Fe/H = 2\Fe/N$. Le \cref{tab:resolutions} donne
+ces grandeurs pour les quatre valeurs de $N$ demandées.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Résolutions de la TFCT à $\Fe = \qty{8}{\kilo\hertz}$, fenêtre de Hann
+  ($\kw = \num{1.44}$), $H = N/2$. Dernière colonne : nombre $\Nt$ de valeurs entières de
+  $\dm$ dans la zone cible $\Delta t \in [\num{0.1} ; 2]$\,s (\cref{sec:empreintes}).}
+  \label{tab:resolutions}
+  \begin{tabular}{@{}rrrrrr@{}}
+    \toprule
+    $N$ & $\Tw$ (ms) & $\Delta f$ (Hz) & trames/s & $f_{\min}$ (Hz) & $\Nt$ \\
+    \midrule
+    256  & 32  & 45          & \num{62.5}  & 757 & 119 \\
+    512  & 64  & \num{22.5}  & \num{31.25} & 378 & 59 \\
+    1024 & 128 & \num{11.25} & \num{15.6}  & 189 & 30 \\
+    2048 & 256 & \num{5.6}   & \num{7.8}   & 95  & 15 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Choix de $N = 1024$.} Quatre arguments vont dans le même sens.
+\begin{enumerate}
+  \item \emph{Fréquence.} Avec $\Delta f \approx \qty{11}{\hertz}$, deux demi-tons sont
+        séparés dès \qty{190}{\hertz}, donc sur tout le registre mélodique. À $N = 512$, il
+        faudrait monter à \qty{380}{\hertz} : les notes graves voisines se fondraient dans
+        un même lobe et leurs pics deviendraient instables.
+  \item \emph{Temps.} $\Tw = \qty{128}{\milli\second}$ reste plus court que la durée
+        typique d'une note (\qtyrange{100}{500}{\milli\second}), si bien qu'une trame
+        contient le plus souvent une seule configuration harmonique. À $N = 2048$, une
+        trame de \qty{256}{\milli\second} mélangerait souvent deux notes successives.
+  \item \emph{Spécificité des clés.} Le nombre de trames par seconde fixe le nombre $\Nt$
+        de valeurs de $\dm$ possibles dans la zone cible, donc le nombre de clés $M$
+        (\cref{sec:empreintes}). Passer à $N = 2048$ divise $\Nt$ et $M$ par deux.
+  \item \emph{Robustesse au filtrage.} La propriété (2) exige que la réponse
+        impulsionnelle soit courte devant la fenêtre (\cref{sec:proprietes}). Une fenêtre
+        plus longue l'étend à des réponses plus longues : c'est le seul argument en faveur
+        de $N$ plus grand, et il ne l'emporte pas sur les trois précédents.
+\end{enumerate}
+$N = 1024$ est le plus petit $N$ qui sépare les demi-tons sur tout le registre
+mélodique ; tout $N$ plus grand dégrade la résolution temporelle et la spécificité sans
+bénéfice musical.
+
+\paragraph{Choix de $H = N/2$ et de $\Nfft = N$.} Avec $H = N/2$, les fenêtres de Hann
+périodiques successives se recouvrent de moitié et leur somme est constante
+($w[n] + w[n + N/2] = 1$) : chaque échantillon pèse autant dans l'analyse, et aucun
+événement bref ne tombe dans un creux entre deux trames. Prendre $\Nfft > N$ (remplissage
+par des zéros) interpolerait le spectre sans améliorer $\Delta f$, qui ne dépend que de $N$ :
+on multiplierait les canaux, donc les clés possibles, sans information nouvelle, et les pics
+passeraient plus facilement d'un canal à son voisin.
+
+\subsection{Les deux propriétés qui fondent la méthode}
+\label{sec:proprietes}
+
+\paragraph{Propriété (1) : un décalage temporel translate le spectrogramme.}
+Soit $y[n] = x[n - m_0H]$ avec $m_0$ entier. D'après (2),
+\begin{equation}
+  X_y[m,k]
+  = \sum_{n=0}^{N-1} x[n + mH - m_0H]\, w[n]\, e^{-j2\pi kn/\Nfft}
+  = \sum_{n=0}^{N-1} x[n + (m-m_0)H]\, w[n]\, e^{-j2\pi kn/\Nfft}
+  = X_x[m-m_0, k],
+  \label{eq:translation}
+\end{equation}
+donc $S_y[m,k] = S_x[m-m_0,k]$ : le spectrogramme est translaté de $m_0$ trames. Le
+résultat est exact, sans approximation, et vaut même pour la phase, parce que chaque
+trame est analysée dans son propre repère temporel. C'est lui qui permet de retrouver la
+position de l'extrait (\cref{sec:decision}).
+
+\emph{Décalage quelconque.} Si $n_0 = m_0H + r$ avec $0 < r < H$, la trame $m$ de $y$
+analyse un segment de $x$ qui commence $r$ échantillons avant la trame $m-m_0$ de sa
+grille : elle tombe \emph{entre} deux trames de $x$, et~\eqref{eq:translation} ne
+s'applique plus. Dans un passage stable, $|X|$ varie peu d'une position de fenêtre à
+l'autre et les pics restent en place ; près d'une attaque ou d'une fin de note, le
+maximum temporel d'un pic peut passer d'une trame à sa voisine. En rapportant chaque
+trame de $y$ à la trame de $x$ la plus proche, l'écart est d'au plus $H/2 = N/4$
+échantillons, soit un quart de fenêtre quel que soit $N$. Deux conséquences :
+les votes du bon morceau se répartissent sur $\delta = m_0$ et $\delta = m_0 + 1$ au lieu
+d'une seule case, ce qui abaisse le score ; et une paire dont un seul pic a migré voit son
+$\dm$ changer d'une unité, donc sa clé est perdue.
+
+\paragraph{Propriété (2) : un filtrage ajoute un biais qui ne dépend que de la fréquence.}
+Soit $y = \alpha\,(h * x)$ avec $\alpha > 0$ et $h$ causal de longueur $L_h$. On prolonge
+$w$ par zéro hors de $[0, N-1]$. En reportant $y[n+mH] = \alpha\sum_l h[l]\,x[n+mH-l]$
+dans (2), puis en posant $n' = n - l$ :
+\begin{align}
+  X_y[m,k]
+  &= \alpha \sum_{n} \sum_{l=0}^{L_h-1} h[l]\, x[n+mH-l]\, w[n]\, e^{-j2\pi kn/\Nfft} \nonumber\\
+  &= \alpha \sum_{l=0}^{L_h-1} h[l]\, e^{-j2\pi kl/\Nfft}
+     \sum_{n'} x[n'+mH]\, w[n'+l]\, e^{-j2\pi kn'/\Nfft} .
+  \label{eq:filtrage-exact}
+\end{align}
+Si la fenêtre ne variait pas sur la durée de $h$, on pourrait remplacer $w[n'+l]$ par $w[n']$
+et la somme intérieure deviendrait $X_x[m,k]$. On écrit donc $w[n'+l] = w[n'] + (w[n'+l] - w[n'])$ :
+\begin{equation}
+  X_y[m,k] = \alpha\,\hhat(f_k)\, X_x[m,k] + \varepsilon[m,k],
+  \qquad
+  \hhat(f_k) = \sum_{l=0}^{L_h-1} h[l]\, e^{-j2\pi f_k l/\Fe},
+  \label{eq:filtrage}
+\end{equation}
+avec
+\[
+  \varepsilon[m,k] = \alpha \sum_{l} h[l]\, e^{-j2\pi kl/\Nfft}
+  \sum_{n'} x[n'+mH]\,\bigl(w[n'+l] - w[n']\bigr)\, e^{-j2\pi kn'/\Nfft} .
+\]
+Le terme $\varepsilon$ vient de ce que la fenêtre ne voit pas exactement le même segment
+de $x$ pour chaque retard $l$. Pour la fenêtre de Hann
+$w[n] = \tfrac12\bigl(1 - \cos(2\pi n/N)\bigr)$, la pente est au plus $\pi/N$, et la fenêtre
+est nulle à ses deux bords, donc continue une fois prolongée par zéro. Par conséquent
+$|w[n'+l] - w[n']| \le \pi l/N$ pour tout $n'$, bords compris, et
+\[
+  |\varepsilon[m,k]| \;\le\; \alpha\,\frac{\pi}{N}
+  \sum_{l} l\,|h[l]| \sum_{n'=-L_h}^{N-1} |x[n'+mH]| .
+\]
+Rapportée à $|X_x[m,k]|$, l'erreur est d'ordre $L_h/N$ : elle est négligeable si $L_h \ll N$.
+(Avec une fenêtre rectangulaire, discontinue à ses bords, elle serait d'ordre 1 : la
+continuité de la fenêtre de Hann est ici essentielle.) En prenant le module au carré puis le
+logarithme, on obtient la relation (3) de l'énoncé :
+\begin{equation}
+  S_{y,\mathrm{dB}}[m,k] \approx S_{x,\mathrm{dB}}[m,k] + g(k),
+  \qquad g(k) = 20\log_{10}\alpha + 20\log_{10}|\hhat(f_k)| .
+  \tag{3}
+\end{equation}
+Le biais $g(k)$ ne dépend pas de la trame $m$ : dans le spectrogramme en décibels, le gain
+et le filtrage de toute la chaîne se réduisent à un décalage vertical qui ne dépend que de
+la fréquence. On ne garde que le module : la phase de $X_y$ contient un terme qui dépend
+de $t_0$, inconnu, et la réverbération la rend aléatoire.
+
+\paragraph{Vérification expérimentale (Q2).} Si (3) est vraie, $S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$
+tracé en fonction de $k$ donne la même courbe $g(k)$ pour toutes les trames, et cette
+courbe suit $20\log_{10}|\hhat(f_k)|$. Pour un passe-bande de Butterworth
+\qtyrange{300}{3400}{\hertz}, dont la réponse impulsionnelle décroît en quelques
+millisecondes ($L_h \ll N = 1024$), les courbes doivent se superposer dans la bande
+passante. Hors bande, $|X_y|$ tombe au niveau du bruit numérique et la différence devient
+erratique : la relation ne vaut que là où le signal filtré reste au-dessus de ce plancher.
+La \cref{fig:filtrage} le confirme : \aremplir{dispersion entre trames dans la bande
+passante (en dB), écart à $20\log_{10}|\hhat|$, comportement hors bande}.
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.8\linewidth]{difference_spectres_passe_bande}{S_y,dB - S_x,dB en fonction de k pour plusieurs trames, passe-bande 300-3400 Hz}
+  \caption{Vérification de la propriété (2) : différence $S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$
+  en fonction de la fréquence pour \aremplir{5} trames d'un même morceau, après un filtre
+  passe-bande \qtyrange{300}{3400}{\hertz}. En pointillés : $20\log_{10}|\hhat(f)|$.
+  \aremplir{Ce qu'il faut y voir.}}
+  \label{fig:filtrage}
+\end{figure}
+
+\subsection{Invariance des maxima locaux et condition (5)}
+\label{sec:maxima}
+
+La carte de constellation est l'ensemble des maxima locaux du spectrogramme (définition
+(4), \cref{sec:pics}). Deux résultats justifient ce choix.
+
+\paragraph{Invariance au gain.} Si $y = \alpha x$ avec $\alpha > 0$, alors
+$X_y = \alpha X_x$ et $S_y = \alpha^2 S_x$. La fonction $s \mapsto \alpha^2 s$ est strictement
+croissante, donc elle conserve l'ordre des valeurs : pour tout voisinage $V$,
+\[
+  S_y[m,k] = \max_{V(m,k)} S_y \iff S_x[m,k] = \max_{V(m,k)} S_x .
+\]
+L'ensemble des positions des maxima locaux est donc \emph{rigoureusement} identique pour
+$x$ et $y$. On ne conserve que ces positions $(m,k)$, jamais les amplitudes, qui dépendent
+de $\alpha$. Le seuil doit respecter la même invariance : un seuil local (médiane de $\SdB$
+dans la bande, plus une marge) se décale de $20\log_{10}\alpha$ en même temps que les pics,
+et un quota de pics par bande ne dépend que du classement des valeurs ; un seuil global
+$\tau$ fixé en décibels ferait au contraire apparaître ou disparaître des pics avec le
+volume. Seule la constante $\varepsilon$ de (2) échappe à l'invariance, mais elle
+n'intervient que dans le silence numérique, où elle crée des plateaux de valeurs égales que
+le test d'égalité prendrait pour des pics : le seuil local, strictement au-dessus de la
+médiane, les élimine.
+
+\paragraph{Invariance au filtrage : la condition (5).} Soit $(m,k_0)$ un pic de $S_x$ et
+\[
+  \mu = S_{x,\mathrm{dB}}[m,k_0] - \max_{(m',k') \in V(m,k_0) \setminus \{(m,k_0)\}} S_{x,\mathrm{dB}}[m',k']
+  \;>\; 0
+\]
+son avance en décibels sur son concurrent le plus fort dans le voisinage. Notons
+$\Delta g(V) = \max_{|k'-k_0| \le \kv} |g(k') - g(k_0)|$ la variation du biais sur la
+largeur du voisinage. D'après (3), pour tout $(m',k') \in V(m,k_0)$ distinct du pic,
+\[
+  S_{y,\mathrm{dB}}[m,k_0] - S_{y,\mathrm{dB}}[m',k']
+  = \underbrace{S_{x,\mathrm{dB}}[m,k_0] - S_{x,\mathrm{dB}}[m',k']}_{\ge\, \mu}
+  + \underbrace{g(k_0) - g(k')}_{\ge\, -\Delta g(V)}
+  \;\ge\; \mu - \Delta g(V) .
+\]
+Le pic reste donc le maximum de son voisinage dès que
+\begin{equation}
+  \Delta g(V) < \mu \quad \Longrightarrow \quad \text{le pic survit au filtrage.}
+  \tag{5}
+\end{equation}
+La condition est suffisante, pas nécessaire : un pic peut survivre avec
+$\Delta g(V) \ge \mu$ si son concurrent le plus proche en valeur n'est pas celui que le filtre
+favorise. Elle est toujours remplie pour un gain seul ($g$ constant, $\Delta g = 0$). Pour un
+filtre dont la réponse varie de $|g'|$ dB par canal, $\Delta g(V) \approx |g'|\,\kv$, qui ne
+dépend que de la \emph{demi-largeur fréquentielle} $\kv$ du voisinage : la largeur
+temporelle $\mv$ n'intervient pas, puisque $g$ ne dépend pas de $m$.
+
+On en tire la règle de dimensionnement de l'énoncé. Un voisinage étroit en fréquence
+donne un $\Delta g$ petit, donc des pics robustes au filtrage, mais il produit beaucoup de
+pics, dont certains peu dominants ($\mu$ faible). Un voisinage large ne garde que des pics
+très dominants, donc une empreinte compacte et spécifique, mais il exige
+$|g'|\,\kv < \mu$ sur une plus grande largeur. Dans la bande passante du filtre
+\qtyrange{300}{3400}{\hertz}, $g$ est presque plat et presque tous les pics survivent ; près
+des fréquences de coupure, la pente atteint plusieurs décibels sur $\pm 5$ canaux, et seuls
+les pics nettement dominants restent en place.
+
+\subsection{Limites des deux propriétés}
+\label{sec:limites}
+
+\paragraph{Réverbération.} La propriété (2) suppose $L_h \ll N$. Une réverbération de temps
+$T_{60}$ décroît de \qty{60}{\decibel} en $T_{60}$, donc de \qty{20}{\decibel} en $T_{60}/3$ ;
+sa longueur utile est $L_h \approx T_{60}\Fe/3$, soit environ 800 échantillons pour
+$T_{60} = \qty{0.3}{\second}$ (comparable à $N$ : cas limite) et \num{2700} pour
+$T_{60} = \qty{1}{\second}$ (plus du double de $N$). La borne sur $\varepsilon$ n'est plus
+petite, et la courbe $S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$ dépend de la trame. Une meilleure
+image est celle d'un \emph{bruit additif produit par le signal lui-même} : la queue
+réverbérée d'une note se superpose aux trames suivantes. Elle comble les creux entre les
+notes, efface les pics des notes brèves et laisse survivre ceux des notes tenues, plus
+énergétiques que la traîne.
+
+\paragraph{Décalage non entier.} La propriété (1) n'est exacte que pour un décalage multiple
+de $H$ ; dans le cas réaliste, une partie des pics migre d'une trame
+(\cref{sec:proprietes}).
+
+\paragraph{Tempo et hauteur.} Ni (1) ni (2) ne couvrent un changement de tempo, qui
+modifie les écarts $\dm$, ni un changement de hauteur, qui multiplie toutes les fréquences
+par un même facteur et change donc les canaux $k$ et les écarts $\dk$ : la méthode n'y est
+pas invariante.

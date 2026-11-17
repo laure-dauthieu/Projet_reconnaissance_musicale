@@ -1,0 +1,52 @@
+% =====================================================================
+% Macros : notations de l'énoncé et cadres « à venir »
+% =====================================================================
+
+% ---------- Notations (identiques à l'énoncé, au code et aux slides) ----------
+\newcommand{\Fe}{F_e}
+\newcommand{\Nfft}{N_{\mathrm{fft}}}
+\newcommand{\Tw}{T_w}
+\newcommand{\Tq}{T_q}
+\newcommand{\SdB}{S_{\mathrm{dB}}}
+\newcommand{\sthr}{s_{\mathrm{thr}}}
+\newcommand{\gf}{\gamma_f}
+\newcommand{\Nf}{N_f}
+\newcommand{\Nt}{N_t}
+\newcommand{\Nu}{N_u}
+\newcommand{\nq}{n_q}
+\newcommand{\Meff}{M_{\mathrm{eff}}}
+\newcommand{\kw}{\kappa_w}
+\newcommand{\mv}{m_v}
+\newcommand{\kv}{k_v}
+\newcommand{\dm}{\Delta m}
+\newcommand{\dk}{\Delta k}
+\newcommand{\RSB}{\ensuremath{\mathrm{RSB}}}
+\newcommand{\TBD}{\ensuremath{\mathrm{TBD}}}
+\newcommand{\TFD}{\ensuremath{\mathrm{TFD}}}
+\newcommand{\hhat}{\hat{h}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+
+% ---------- Texte à compléter (rouge, bien visible) ----------
+% Avant le rendu : chercher « À remplir » dans le PDF, il ne doit plus y en avoir.
+\DeclareRobustCommand{\aremplir}[1]{\textcolor{red}{\textbf{[À remplir : #1]}}}
+
+% ---------- Figures de A : cadre « figure à venir » tant que le PDF n'existe pas ----------
+% Usage : \inclurefig[largeur]{F12_tbd_rsb}{ce que la figure montrera}
+% Cherche figures/<nom>.pdf (Overleaf) puis ../figures/<nom>.pdf (dépôt git).
+\newcommand{\inclurefig}[3][\linewidth]{%
+  \IfFileExists{figures/#2.pdf}{\includegraphics[width=#1]{figures/#2}}{%
+  \IfFileExists{../figures/#2.pdf}{\includegraphics[width=#1]{../figures/#2}}{%
+  \fbox{\parbox[c][3.2cm][c]{0.92\linewidth}{\centering\small\color{gray}
+    Figure à venir : #3\\[2pt] \texttt{\detokenize{#2.pdf}}}}}}}
+
+% ---------- Tableaux de A (fichiers .tex booktabs, sans environnement table) ----------
+% Usage : \inclureTableau{T02}{ce que le tableau contiendra}
+\newcommand{\inclureTableau}[2]{%
+  \IfFileExists{tableaux/#1.tex}{\input{tableaux/#1}}{%
+  \IfFileExists{../resultats/tableaux/#1.tex}{\input{../resultats/tableaux/#1}}{%
+  \fbox{\parbox[c][1.6cm][c]{0.92\linewidth}{\centering\small\color{gray}
+    Tableau à venir : #2\\[2pt] \texttt{\detokenize{#1.tex}}}}}}}
+
+% Case de tableau à remplir (version courte, pour ne pas élargir les tableaux)
+\DeclareRobustCommand{\aq}{\textcolor{red}{\textbf{?}}}
