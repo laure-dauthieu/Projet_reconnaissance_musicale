@@ -6,7 +6,7 @@ Projet OBL-4101 : reconnaissance musicale par empreintes audio.
 - **A = Alessandro** : chaîne MATLAB, base, évaluation, mesures, démo et interface.
 - **B = Laure** : théorie, figure Q2, enregistrements au micro, rapport, vidéo.
 
-**État au mardi 17 en fin d'après-midi** : A0 à A3 sont faits (branche `a/chaine`). Les fonctions de dégradation de B2 ont été codées et testées avec A2 : B2 se réduit à la figure Q2. Résultats et figures : `resultats/notes_resultats.md`.
+**État au mardi 17 au soir** : A0 à A4 sont faits (branche `a/chaine`). Les fonctions de dégradation de B2 ont été codées et testées avec A2 : B2 se réduit à la figure Q2. Résultats et figures : `resultats/notes_resultats.md`.
 
 > **À vérifier avec l'enseignant dès mercredi matin** : le sujet est prévu pour un **trinôme** (zip `Nom1_Nom2_Nom3`). Si nous sommes deux, confirmer que c'est accepté et le nom du zip. Demander aussi comment déposer la vidéo : le §8 ne la met pas dans le zip.
 
@@ -128,7 +128,9 @@ Deux éléments ne sont pas listés par le sujet mais sont indispensables :
   - [ ] Ajouter le brouhaha et l'enregistrement au micro dès que les fichiers de B sont là.
 - [x] Mesurer le temps de requête et la taille de l'index pour plusieurs tailles de base, par exemple 25, 50 et 100 morceaux. Résultat attendu : la taille de l'index croît linéairement, et le temps de requête dépend très peu du nombre de morceaux.
 
-### A4. Mesures pour les questions (mercredi après-midi et soir)
+### A4. Mesures pour les questions (mercredi après-midi et soir) — fait
+
+Scripts dans `experiences/` : `etude_q3_voisinage`, `etude_q4_p_gamma_F`, `theorie_mesure`, `etude_q6_genres`. Figures : `p_en_fonction_de_rho`, `p_par_bande`, `theorie_mesure`, `tbd_par_genre`. Résultats et interprétations : fin de `resultats/notes_resultats.md`.
 
 | Question | Mesure à produire |
 |---|---|
@@ -144,8 +146,8 @@ Définir p précisément dans le code et le rapport : c'est la proportion des pi
 
 Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'environ 1 100 échantillons à 44,1 kHz, soit environ 25 ms. Il faut recaler l'extrait par intercorrélation avant de comparer les pics.
 
-- [ ] Écrire pour B une fiche par figure dans `resultats/notes_resultats.md` : protocole, chiffres clés, ce qu'on observe.
-- [ ] Écrire dans `resultats/parametres_finaux.md` la valeur finale de chaque paramètre et la mesure qui la justifie.
+- [x] Écrire pour B une fiche par figure dans `resultats/notes_resultats.md` : protocole, chiffres clés, ce qu'on observe.
+- [x] Écrire dans `resultats/parametres_finaux.md` la valeur finale de chaque paramètre et la mesure qui la justifie.
 
 ### A5. Démo, interface et livraison (jeudi et vendredi)
 

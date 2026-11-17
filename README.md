@@ -80,7 +80,14 @@ run('experiences/preparer_donnees.m')   % une fois : choix des 200 morceaux, ind
 run('experiences/campagne_evaluation.m')% TBD/TFD pour toutes les dégradations, figures (≈ 2 min)
 run('experiences/figures_campagne.m')   % refaire seulement les figures, sans recalcul
 run('experiences/passage_echelle.m')    % temps de requête et taille de l'index (≈ 30 s)
+
+run('experiences/etude_q3_voisinage.m') % Q3 : ρ et p selon le voisinage (≈ 1 min)
+run('experiences/etude_q4_p_gamma_F.m') % Q4 : p, tableau pic/paire, γf ; choix de F (≈ 2 min)
+run('experiences/theorie_mesure.m')     % score prévu contre mesuré, RSB de rupture (≈ 1 min)
+run('experiences/etude_q6_genres.m')    % Q6 : TBD par genre (après la campagne)
 ```
+
+Les paramètres retenus et leur justification sont dans [resultats/parametres_finaux.md](resultats/parametres_finaux.md) ; les chiffres et interprétations de chaque figure dans [resultats/notes_resultats.md](resultats/notes_resultats.md).
 
 Prérequis : `fma_small` et `fma_metadata` dézippés dans `data/`. Sur Mac, `unzip` échoue sur ces archives : utiliser `bsdtar -xf fma_small.zip`.
 
