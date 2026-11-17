@@ -1,15 +1,15 @@
 % ---------------------------------------------------------------------
 \section{Discussion des cas d'échec}
-\label{sec:discussion}
+\label{sec-discussion}
 % ---------------------------------------------------------------------
 
 \subsection{\texorpdfstring{Pourquoi le MP3 à \qty{64}{\kilo\bit\per\second} gêne moins qu'un bruit blanc à \qty{10}{\decibel} (Q6)}{Pourquoi le MP3 à 64 kbit/s gêne moins qu'un bruit blanc à 10 dB (Q6)}}
-\label{sec:q6}
+\label{sec-q6}
 
 Avec $\Tq = \qty{5}{\second}$, $\sthr = 35$ et 200 requêtes positives, le MP3 à
 \qty{64}{\kilo\bit\per\second} conserve \qty{98.5}{\percent} de bonnes détections, autant que
 sans dégradation, contre \qty{92}{\percent} sous un bruit blanc à \qty{10}{\decibel}
-(\cref{tab:synthese}) : 3 non-détections contre 16. Les scores le montrent encore mieux : le
+(\cref{tab-synthese}) : 3 non-détections contre 16. Les scores le montrent encore mieux : le
 score médian vaut 225 en MP3 \qty{64}{\kilo\bit\per\second}, presque autant que les 232 sans
 dégradation, contre 139 sous bruit à \qty{10}{\decibel}. Avec $s \approx 1250\,p^2$, cela
 correspond à $p \approx \num{0.42}$ en MP3 contre $p \approx \num{0.33}$ sous bruit : le
@@ -17,7 +17,7 @@ codeur ne détruit presque aucun pic, le bruit en détruit environ un quart. Mê
 \qty{32}{\kilo\bit\per\second}, le MP3 ne coûte qu'une requête de plus, alors que le bruit
 blanc fait perdre des détections dès \qty{20}{\decibel} et 32 points à \qty{0}{\decibel}.
 \aremplir{Si A mesure $p$ directement (A4) : remplacer ces estimations par les valeurs du
-\cref{tab:pic-paire}.} Deux dégradations de « niveau » comparable ont donc des effets très
+\cref{tab-pic-paire}.} Deux dégradations de « niveau » comparable ont donc des effets très
 différents. L'explication tient à la manière dont chacune répartit son bruit dans le plan
 temps-fréquence, comparée à la définition (4) des pics.
 
@@ -31,7 +31,7 @@ c'est-à-dire des composantes les plus fortes de leur voisinage temps-fréquence
 situe typiquement de \qtyrange{10}{20}{\decibel} sous un masqueur tonal. Un pic au sens de
 (4) est, par définition, le maximum de son voisinage $V$ : c'est précisément un masqueur.
 Le codeur le conserve, et le bruit qu'il ajoute autour reste nettement plus bas que lui.
-Dans les termes de la \cref{sec:maxima}, l'avance $\mu$ du pic sur ses voisins n'est que
+Dans les termes de la \cref{sec-maxima}, l'avance $\mu$ du pic sur ses voisins n'est que
 peu entamée, et il reste en place. Le codage supprime surtout les composantes faibles,
 qui ne sont pas des pics : il simplifie le spectrogramme sans toucher à sa constellation.
 Enfin, le bruit de quantification suit l'enveloppe spectrale du signal : le rapport signal
@@ -65,13 +65,13 @@ est disponible, l'ajouter ici : $p$ à peu près constant selon la bande en MP3,
 vers les hautes fréquences sous bruit blanc.} À \qty{32}{\kilo\bit\per\second}, le codeur
 manque de bits : le bruit de quantification peut dépasser le seuil de masquage, et des
 composantes moyennes disparaissent par blocs. Les pics les plus dominants résistent
-pourtant : on ne perd qu'une requête de plus sur 200 (\cref{fig:tbd-mp3}).
+pourtant : on ne perd qu'une requête de plus sur 200 (\cref{fig-tbd-mp3}).
 
 \subsection{Genres difficiles}
-\label{sec:genres}
+\label{sec-genres}
 
 \aremplir{Constat mesuré (A4 de A, pas encore fait) : \TBD{} par genre
-(\cref{fig:genres}), genres les plus et les moins bien reconnus, avec $\Tq$, $\sthr$ et la
+(\cref{fig-genres}), genres les plus et les moins bien reconnus, avec $\Tq$, $\sthr$ et la
 dégradation. Avec environ 25 requêtes positives par genre, un écart de deux ou trois
 requêtes n'est pas significatif : regrouper plusieurs dégradations pour conclure.}
 
@@ -82,7 +82,7 @@ La théorie permet d'anticiper quels genres posent problème, et pourquoi.
         Les notes sont stables, leurs harmoniques dépassent nettement le fond : les pics ont
         une forte avance $\mu$ et survivent bien au bruit et au filtrage. On attend un bon
         \TBD{}. En contrepartie, les notes tenues produisent des clés répétées sur plusieurs
-        trames, donc des votes fortuits cohérents (\cref{sec:decision}) : les scores
+        trames, donc des votes fortuits cohérents (\cref{sec-decision}) : les scores
         négatifs peuvent y être plus élevés.
   \item \emph{Musiques à spectre dense ou bruité (Rock saturé, Experimental).} Une guitare
         saturée ou une texture bruitée remplit le spectre de façon presque uniforme : la
@@ -93,7 +93,7 @@ La théorie permet d'anticiper quels genres posent problème, et pourquoi.
         est concentrée dans des transitoires brefs et dans les basses ; une voix parlée a
         une hauteur qui glisse en permanence. Les pics sont peu nombreux dans les bandes
         moyennes et hautes, ou instables en fréquence, et un décalage non aligné sur la
-        grille (\cref{sec:proprietes}) déplace facilement un transitoire d'une trame.
+        grille (\cref{sec-proprietes}) déplace facilement un transitoire d'une trame.
   \item \emph{Musiques en boucles (Electronic, Hip-Hop).} Une boucle répétée produit les
         mêmes clés à chaque répétition : l'histogramme des $\delta$ du bon morceau présente
         plusieurs pics, ce qui ne gêne pas l'identification mais rend la position estimée
@@ -109,22 +109,22 @@ sont-ils ? Exemple d'échec analysé : spectrogramme et constellation d'une requ
   \inclurefig[0.8\linewidth]{tbd_par_genre}{TBD par genre}
   \caption{\TBD{} par genre pour \aremplir{dégradation, $\Tq$, $\sthr$, nombre de requêtes
   par genre}.}
-  \label{fig:genres}
+  \label{fig-genres}
 \end{figure}
 
 \subsection{Réverbération et enregistrements réels}
-\label{sec:echecs-reverb}
+\label{sec-echecs-reverb}
 
 La réverbération sort du cadre de la propriété (2) dès que sa réponse dépasse la durée de
-la fenêtre (\cref{sec:limites}). Elle agit comme un bruit additif fabriqué par le signal
+la fenêtre (\cref{sec-limites}). Elle agit comme un bruit additif fabriqué par le signal
 lui-même : on attend une dégradation modérée à $T_{60} = \qty{0.3}{\second}$ et nette à
 $T_{60} = \qty{1}{\second}$, plus marquée pour les morceaux rapides que pour les morceaux
 lents. La mesure le confirme : avec $\Tq = \qty{5}{\second}$ et $\sthr = 35$, le \TBD{}
 passe à \qty{89}{\percent} pour $T_{60} = \qty{0.3}{\second}$ et à \qty{51}{\percent} pour
 $T_{60} = \qty{1}{\second}$, sans aucune fausse détection. Avec le bruit à \qty{0}{\decibel},
 c'est l'une des deux conditions où les scores des positives descendent dans la zone des
-négatives (\cref{fig:histo-scores}) et où la courbe \TBD{}/\TFD{} oblige à un vrai
-compromis (\cref{fig:tbd-tfd}) : la réverbération longue ne déplace pas seulement quelques
+négatives (\cref{fig-histo-scores}) et où la courbe \TBD{}/\TFD{} oblige à un vrai
+compromis (\cref{fig-tbd-tfd}) : la réverbération longue ne déplace pas seulement quelques
 pics, elle en remplace une grande partie. \aremplir{Enregistrements en salle à 1 et 4~m : \TBD{} mesurés, et comparaison avec
 la réverbération simulée.}
 

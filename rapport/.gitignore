@@ -1,0 +1,12 @@
+# Fichiers intermédiaires de LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.log
+*.out
+*.run.xml
+*.toc
+*.synctex.gz
+# PDF de travail (le PDF final sera rapport.pdf)
+main.pdf
