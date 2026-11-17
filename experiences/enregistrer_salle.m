@@ -3,6 +3,7 @@ function enregistrer_salle(distance, varargin)
 %   enregistrer_salle('1m')                  enregistrement réel
 %   enregistrer_salle('4m')
 %   enregistrer_salle('1m', 'duree', 12)     durée de chaque prise (s, défaut 12)
+%   enregistrer_salle('test', 'nombre', 2)   seulement les 2 premiers morceaux (essai)
 %   enregistrer_salle('1m', 'simulation', true)
 %       sans micro ni enceinte : la « prise » est l'extrait passé par une
 %       réverbération et un bruit, pour tester toute la chaîne.
@@ -27,12 +28,13 @@ function enregistrer_salle(distance, varargin)
 %             data/enregistrements/protocole_<distance>.csv (id, rôle, début de
 %             l'extrait, niveau de la prise, date)
 
-opts = struct('duree', 12, 'simulation', false, 'graine', 21);
+opts = struct('duree', 12, 'simulation', false, 'graine', 21, 'nombre', Inf);
 for i = 1:2:numel(varargin), opts.(varargin{i}) = varargin{i+1}; end
 
 racine = fileparts(fileparts(mfilename('fullpath')));
 addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'eval'), fullfile(racine, 'eval', 'degradations'));
 liste = readtable(fullfile(racine, 'resultats', 'morceaux_a_enregistrer.csv'), 'TextType', 'string');
+liste = liste(1:min(height(liste), opts.nombre), :);
 dossierSortie = fullfile(racine, 'data', 'enregistrements');
 if ~exist(dossierSortie, 'dir'), mkdir(dossierSortie); end
 rs = RandStream('mt19937ar', 'Seed', opts.graine);
