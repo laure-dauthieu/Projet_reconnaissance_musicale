@@ -1,0 +1,18 @@
+# Audio et données (dépôt public, fichiers lourds)
+data/
+cache/
+*.mp3
+*.wav
+*.flac
+*.m4a
+*.zip
+
+# MATLAB
+*.mat
+*.asv
+*.autosave
+slprj/
+*.mex*
+
+# Système
+.DS_Store
