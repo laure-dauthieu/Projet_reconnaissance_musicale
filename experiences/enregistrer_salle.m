@@ -4,6 +4,7 @@ function enregistrer_salle(distance, varargin)
 %   enregistrer_salle('4m')
 %   enregistrer_salle('1m', 'duree', 12)     durée de chaque prise (s, défaut 12)
 %   enregistrer_salle('test', 'nombre', 2)   seulement les 2 premiers morceaux (essai)
+%   enregistrer_salle('1m', 'depart', 12)    reprendre au 12e morceau après une erreur
 %   enregistrer_salle('1m', 'simulation', true)
 %       sans micro ni enceinte : la « prise » est l'extrait passé par une
 %       réverbération et un bruit, pour tester toute la chaîne.
@@ -28,7 +29,7 @@ function enregistrer_salle(distance, varargin)
 %             data/enregistrements/protocole_<distance>.csv (id, rôle, début de
 %             l'extrait, niveau de la prise, date)
 
-opts = struct('duree', 12, 'simulation', false, 'graine', 21, 'nombre', Inf);
+opts = struct('duree', 12, 'simulation', false, 'graine', 21, 'nombre', Inf, 'depart', 1);
 for i = 1:2:numel(varargin), opts.(varargin{i}) = varargin{i+1}; end
 
 racine = fileparts(fileparts(mfilename('fullpath')));
@@ -42,13 +43,23 @@ FeRec = 44100;
 
 n = height(liste);
 debut = zeros(n, 1);  niveau = zeros(n, 1);  date = strings(n, 1);
+fichierProto = fullfile(dossierSortie, sprintf('protocole_%s.csv', distance));
+if opts.depart > 1 && exist(fichierProto, 'file')
+    % reprise : on garde les lignes des prises déjà faites
+    ancien = readtable(fichierProto, 'TextType', 'string');
+    [dejaFait, loc] = ismember(liste.id, ancien.id);
+    debut(dejaFait) = ancien.debut_extrait_s(loc(dejaFait));
+    niveau(dejaFait) = ancien.niveau_dBFS(loc(dejaFait));
+    date(dejaFait) = string(ancien.date(loc(dejaFait)));
+end
 fprintf('%d morceaux, prises de %d s, distance %s%s\n', n, opts.duree, distance, ...
     ternaire(opts.simulation, ' (SIMULATION)', ''));
 for i = 1:n
     [x, fe] = audioread(chemin_morceau(racine, liste.id(i)));
     x = mean(x, 2);
     nq = round(opts.duree * fe);
-    d = randi(rs, numel(x) - nq + 1);
+    d = randi(rs, numel(x) - nq + 1);    % tiré même si on saute : mêmes extraits à la reprise
+    if i < opts.depart, continue; end
     extrait = x(d:d + nq - 1);
     debut(i) = (d - 1) / fe;
 
@@ -57,14 +68,7 @@ for i = 1:n
         y = ajouter_bruit(y, 10, 'blanc', rs);
         y = 0.3 * y / max(abs(y));
     else
-        rec = audiorecorder(FeRec, 16, 1);
-        lecteur = audioplayer(extrait / max(1, max(abs(extrait))), fe);
-        record(rec);
-        pause(0.3);                       % le micro démarre avant la musique
-        playblocking(lecteur);
-        pause(0.5);                       % queue de réverbération
-        stop(rec);
-        y = getaudiodata(rec);
+        y = prise(extrait, fe, FeRec, i, n);
     end
 
     niveau(i) = 20*log10(rms(y) + eps);
@@ -75,12 +79,41 @@ for i = 1:n
     if max(abs(y)) > 0.99, alerte = '  ATTENTION : saturation, baisser le volume';
     elseif niveau(i) < -50, alerte = '  ATTENTION : niveau très faible, monter le volume'; end
     fprintf('[%2d/%d] %s (%s) : niveau %.0f dBFS%s\n', i, n, nom, liste.role(i), niveau(i), alerte);
+
+    % protocole réécrit après chaque prise : rien n'est perdu en cas d'arrêt
+    fait = date ~= "";
+    protocole = table(liste.id(fait), liste.role(fait), liste.genre(fait), debut(fait), ...
+        niveau(fait), date(fait), 'VariableNames', ...
+        {'id', 'role', 'genre', 'debut_extrait_s', 'niveau_dBFS', 'date'});
+    writetable(protocole, fichierProto);
+end
+fprintf('Terminé : %d prises dans data/enregistrements/\n', sum(date ~= ""));
 end
 
-protocole = table(liste.id, liste.role, liste.genre, debut, niveau, date, ...
-    'VariableNames', {'id', 'role', 'genre', 'debut_extrait_s', 'niveau_dBFS', 'date'});
-writetable(protocole, fullfile(dossierSortie, sprintf('protocole_%s.csv', distance)));
-fprintf('Terminé : %d prises dans data/enregistrements/\n', n);
+function y = prise(extrait, fe, FeRec, i, n)
+% Joue l'extrait sur la sortie audio et l'enregistre au micro.
+% Une enceinte Bluetooth peut se mettre en veille ou se reconnecter entre deux
+% morceaux (« Device Error ») : on réessaie jusqu'à 3 fois avant d'abandonner.
+for essai = 1:3
+    try
+        rec = audiorecorder(FeRec, 16, 1);
+        lecteur = audioplayer(extrait / max(1, max(abs(extrait))), fe);
+        record(rec);
+        pause(0.3);                       % le micro démarre avant la musique
+        playblocking(lecteur);
+        pause(0.5);                       % queue de réverbération
+        stop(rec);
+        y = getaudiodata(rec);
+        return
+    catch err
+        try stop(rec); catch, end         %#ok<CTCH>
+        fprintf('  [%d/%d] erreur audio (%s), nouvel essai dans 2 s...\n', i, n, err.message);
+        pause(2);
+    end
+end
+error('enregistrer_salle:audio', ['Échec audio au morceau %d/%d après 3 essais. ' ...
+    'Vérifier que l''enceinte est connectée et choisie en sortie, puis reprendre avec ' ...
+    'enregistrer_salle(distance, ''depart'', %d).'], i, n, i);
 end
 
 function f = chemin_morceau(racine, id)
