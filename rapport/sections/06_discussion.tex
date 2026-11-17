@@ -6,9 +6,18 @@
 \subsection{\texorpdfstring{Pourquoi le MP3 à \qty{64}{\kilo\bit\per\second} gêne moins qu'un bruit blanc à \qty{10}{\decibel} (Q6)}{Pourquoi le MP3 à 64 kbit/s gêne moins qu'un bruit blanc à 10 dB (Q6)}}
 \label{sec:q6}
 
-\aremplir{Constat mesuré : \TBD{} = x~\% en MP3 \qty{64}{\kilo\bit\per\second} contre y~\% sous
-bruit blanc à \qty{10}{\decibel} ($\Tq$, $\sthr$, nombre de requêtes), et $p$ = x contre y
-(\cref{tab:pic-paire}).} Deux dégradations de « niveau » comparable ont donc des effets très
+Avec $\Tq = \qty{5}{\second}$, $\sthr = 35$ et 200 requêtes positives, le MP3 à
+\qty{64}{\kilo\bit\per\second} conserve \qty{98.5}{\percent} de bonnes détections, autant que
+sans dégradation, contre \qty{92}{\percent} sous un bruit blanc à \qty{10}{\decibel}
+(\cref{tab:synthese}) : 3 non-détections contre 16. Les scores le montrent encore mieux : le
+score médian vaut 225 en MP3 \qty{64}{\kilo\bit\per\second}, presque autant que les 232 sans
+dégradation, contre 139 sous bruit à \qty{10}{\decibel}. Avec $s \approx 1250\,p^2$, cela
+correspond à $p \approx \num{0.42}$ en MP3 contre $p \approx \num{0.33}$ sous bruit : le
+codeur ne détruit presque aucun pic, le bruit en détruit environ un quart. Même à
+\qty{32}{\kilo\bit\per\second}, le MP3 ne coûte qu'une requête de plus, alors que le bruit
+blanc fait perdre des détections dès \qty{20}{\decibel} et 32 points à \qty{0}{\decibel}.
+\aremplir{Si A mesure $p$ directement (A4) : remplacer ces estimations par les valeurs du
+\cref{tab:pic-paire}.} Deux dégradations de « niveau » comparable ont donc des effets très
 différents. L'explication tient à la manière dont chacune répartit son bruit dans le plan
 temps-fréquence, comparée à la définition (4) des pics.
 
@@ -54,15 +63,17 @@ exactement ce que retiennent les pics. Le bruit blanc ne tient aucun compte du s
 son effet est maximal là où la musique est faible. \aremplir{Si la mesure de $p$ par bande
 est disponible, l'ajouter ici : $p$ à peu près constant selon la bande en MP3, décroissant
 vers les hautes fréquences sous bruit blanc.} À \qty{32}{\kilo\bit\per\second}, le codeur
-manque de bits : le bruit de quantification dépasse le seuil de masquage, les composantes
-moyennes disparaissent par blocs et certains pics secondaires avec elles, ce qui explique
-la baisse du \TBD{} à bas débit (\cref{fig:tbd-mp3}).
+manque de bits : le bruit de quantification peut dépasser le seuil de masquage, et des
+composantes moyennes disparaissent par blocs. Les pics les plus dominants résistent
+pourtant : on ne perd qu'une requête de plus sur 200 (\cref{fig:tbd-mp3}).
 
 \subsection{Genres difficiles}
 \label{sec:genres}
 
-\aremplir{Constat mesuré : \TBD{} par genre (\cref{fig:genres}), genres les plus et les
-moins bien reconnus, avec $\Tq$, $\sthr$ et la dégradation.}
+\aremplir{Constat mesuré (A4 de A, pas encore fait) : \TBD{} par genre
+(\cref{fig:genres}), genres les plus et les moins bien reconnus, avec $\Tq$, $\sthr$ et la
+dégradation. Avec environ 25 requêtes positives par genre, un écart de deux ou trois
+requêtes n'est pas significatif : regrouper plusieurs dégradations pour conclure.}
 
 La théorie permet d'anticiper quels genres posent problème, et pourquoi.
 
@@ -108,8 +119,14 @@ La réverbération sort du cadre de la propriété (2) dès que sa réponse dép
 la fenêtre (\cref{sec:limites}). Elle agit comme un bruit additif fabriqué par le signal
 lui-même : on attend une dégradation modérée à $T_{60} = \qty{0.3}{\second}$ et nette à
 $T_{60} = \qty{1}{\second}$, plus marquée pour les morceaux rapides que pour les morceaux
-lents. \aremplir{Résultats de la réverbération et des enregistrements en salle à 1 et
-4~m : \TBD{} mesurés, et comparaison avec les dégradations simulées.}
+lents. La mesure le confirme : avec $\Tq = \qty{5}{\second}$ et $\sthr = 35$, le \TBD{}
+passe à \qty{89}{\percent} pour $T_{60} = \qty{0.3}{\second}$ et à \qty{51}{\percent} pour
+$T_{60} = \qty{1}{\second}$, sans aucune fausse détection. Avec le bruit à \qty{0}{\decibel},
+c'est l'une des deux conditions où les scores des positives descendent dans la zone des
+négatives (\cref{fig:histo-scores}) et où la courbe \TBD{}/\TFD{} oblige à un vrai
+compromis (\cref{fig:tbd-tfd}) : la réverbération longue ne déplace pas seulement quelques
+pics, elle en remplace une grande partie. \aremplir{Enregistrements en salle à 1 et 4~m : \TBD{} mesurés, et comparaison avec
+la réverbération simulée.}
 
 \subsection{Limites de la méthode}
 

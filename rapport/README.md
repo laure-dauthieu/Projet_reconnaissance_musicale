@@ -31,19 +31,23 @@ Tant qu'une figure manque, un cadre gris « Figure à venir » s'affiche à sa p
 
 Les passages qui dépendent des mesures de A sont en **rouge** dans le PDF : `[À remplir : …]` dans le texte, `?` dans les tableaux. Avant le rendu, il ne doit plus en rester (chercher « À remplir » dans le PDF).
 
-## Noms de fichiers attendus dans `figures/`
+## Figures utilisées (dossier `figures/` du dépôt)
 
-Ces noms sont utilisés par le rapport. Si A choisit d'autres noms, il suffit de changer le nom dans l'appel `\inclurefig{...}` correspondant.
+Le rapport cherche `<nom>.pdf`, puis `<nom>.png`. Pour changer de figure, il suffit de changer le nom dans l'appel `\inclurefig{...}` correspondant.
 
-| Fichier | Figure | Section |
-|---|---|---|
-| `difference_spectres_passe_bande.pdf` | S_y,dB − S_x,dB pour plusieurs trames (Q2) | Théorie |
-| `p_en_fonction_de_rho.pdf` | p sous bruit à 10 dB en fonction de ρ (Q3) | Conception |
-| `histogramme_delta.pdf` | Histogramme des δ, bon et mauvais morceau | Conception |
-| `histogrammes_scores.pdf` | Scores positifs et négatifs, abscisse log (Q5) | Conception |
-| `courbe_tbd_tfd.pdf` | TBD en fonction du TFD | Conception |
-| `constellation.pdf` | Spectrogramme et constellation | Résultats |
-| `tbd_en_fonction_du_rsb.pdf` | TBD selon le RSB, Tq = 3, 5, 10 s | Résultats |
-| `tbd_en_fonction_du_debit_mp3.pdf` | TBD selon le débit MP3 | Résultats |
-| `temps_et_taille_index.pdf` | Temps de requête et taille de l'index | Résultats |
-| `tbd_par_genre.pdf` | TBD par genre (Q6) | Discussion |
+| Fichier | Figure | Section | Disponible |
+|---|---|---|---|
+| `difference_spectres_passe_bande` | S_y,dB − S_x,dB pour plusieurs trames (Q2) | Théorie | non (B2, Laure) |
+| `p_en_fonction_de_rho` | p sous bruit à 10 dB en fonction de ρ (Q3) | Conception | non (A4) |
+| `histogramme_delta` | Histogramme des δ, bon et mauvais morceau | Conception | oui |
+| `histogrammes_scores` | Scores positifs et négatifs, abscisse log (Q5) | Conception | oui |
+| `courbe_tbd_tfd` | TBD en fonction du TFD | Conception | oui |
+| `constellation` | Spectrogramme et constellation | Résultats | oui |
+| `tbd_en_fonction_du_rsb` | TBD selon le RSB, Tq = 3, 5, 10 s | Résultats | oui |
+| `tbd_en_fonction_du_debit_mp3` | TBD selon le débit MP3 | Résultats | oui |
+| `temps_et_taille_index` | Temps de requête et taille de l'index | Résultats | oui |
+| `tbd_par_genre` | TBD par genre (Q6) | Discussion | non (A4) |
+
+## Liste des morceaux
+
+`sections/liste_morceaux.tex` est généré à partir de `liste_morceaux.csv` : si la liste change, relancer `python generer_liste_morceaux.py ../liste_morceaux.csv sections/liste_morceaux.tex` depuis ce dossier.

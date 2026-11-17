@@ -4,10 +4,33 @@
 % ---------------------------------------------------------------------
 % Squelette (partie B3).
 
-\aremplir{Bilan : ce que le système fait, avec ses chiffres clés ; ce que la théorie
-prévoyait (invariance au gain et au filtrage, score en $F\rho\Tq p^2$, plancher de seuil,
-supériorité du MP3 sur le bruit blanc) et ce que la mesure a confirmé ou contredit.}
+Nous avons construit une chaîne complète de reconnaissance par empreintes, de la
+constellation de pics jusqu'à la décision, et l'avons évaluée sur 100 morceaux avec des
+requêtes positives et négatives. Avec des requêtes de \qty{5}{\second} et un seuil
+$\sthr = 35$, elle reconnaît \qty{98.5}{\percent} des extraits non dégradés, \qty{92}{\percent}
+sous un bruit blanc à \qty{10}{\decibel}, \qtyrange{98}{98.5}{\percent} des extraits codés en
+MP3 ou filtrés en bande téléphonique, sans aucune fausse détection sur 50 requêtes négatives
+par condition et sans jamais confondre deux morceaux. Une requête prend environ
+\qty{2}{\milli\second}, presque indépendamment de la taille de la base.
 
-\aremplir{Perspectives : empreintes invariantes au tempo et à la hauteur (rapports de
-fréquences et rapports d'écarts temporels au lieu de différences), comparaison avec
-l'approche par signes de différences d'énergie de Haitsma et Kalker, base plus grande.}
+La théorie a permis d'anticiper l'essentiel de ces résultats. Les propriétés (1) et (2)
+expliquent l'invariance de la constellation au gain, au décalage et au filtrage court, donc
+la robustesse au passe-bande. Le modèle de score $F\rho\Tq p^2$ explique pourquoi une requête
+plus longue résiste mieux au bruit, et donne la proportion de pics $p^*$ sous laquelle une
+requête doit échouer. Le principe du codage perceptuel explique pourquoi le MP3 épargne les
+pics alors que le bruit blanc noie les bandes hautes. Enfin, la limite $L_h \ll N$ de la
+propriété (2) désignait la réverbération longue comme le point faible de la méthode : c'est
+bien la dégradation qui la met le plus en échec (\qty{51}{\percent} à $T_{60} = \qty{1}{\second}$).
+La théorie s'est en revanche montrée trop optimiste sur un point : le modèle uniforme prévoit
+des scores négatifs de 1 ou 2, nous mesurons jusqu'à 26, parce que les clés ne sont pas
+uniformes et que les notes tenues produisent des votes fortuits cohérents. Le seuil doit donc
+être calibré sur des requêtes négatives, et validé sur d'autres.
+\aremplir{Compléter avec la mesure de $p(\RSB)$ et les enregistrements réels.}
+
+Plusieurs pistes prolongeraient ce travail : une tolérance $\delta \pm 1$ dans le vote, pour
+récupérer les pics qui changent de trame quand la requête n'est pas alignée ; un seuil fixé
+par un modèle de queue (Gumbel) plutôt que par un facteur choisi à la main ; une base plus
+grande, avec plus de requêtes négatives pour mesurer des \TFD{} inférieurs à
+\qty{1}{\percent} ; enfin, des clés invariantes au tempo et à la hauteur, construites sur des
+rapports de fréquences et des rapports d'écarts temporels plutôt que sur des différences, ce
+que ni la méthode de Wang ni celle de Haitsma et Kalker ne permettent.

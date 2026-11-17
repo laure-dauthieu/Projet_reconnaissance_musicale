@@ -5,12 +5,16 @@
 \noindent Nous identifions un morceau à partir d'un extrait court, bruité et pris à un
 instant inconnu, en suivant la méthode de Wang : constellation de maxima locaux du
 spectrogramme, clés formées de paires de pics, index inversé et vote sur le décalage
-temporel. Sur une base de \aremplir{100} morceaux et \aremplir{x} requêtes positives et
-\aremplir{y} négatives, le système atteint un \TBD{} de \aremplir{x~\%} pour un \TFD{} de
-\aremplir{y~\%} ($\Tq = \aremplir{5}$\,s, $\sthr = \aremplir{s}$, bruit blanc à
-\qty{10}{\decibel}). La théorie explique pourquoi l'empreinte est invariante au gain et au
-filtrage, prévoit un score en $F\rho\Tq p^2$ et fixe un plancher au seuil de décision ;
-\aremplir{phrase sur la confrontation à la mesure}.
+temporel. Sur une base de 100 morceaux, avec 200 requêtes positives et 50 négatives de
+test par condition, le système atteint un \TBD{} de \qty{92}{\percent} sans aucune fausse
+détection ($\TFD = 0/50$, soit moins d'environ \qty{6}{\percent}) pour $\Tq = \qty{5}{\second}$,
+$\sthr = 35$ et un bruit blanc à \qty{10}{\decibel} ; le MP3, même à
+\qty{32}{\kilo\bit\per\second}, et le passe-bande téléphonique le gênent à peine, la
+réverbération de \qty{1}{\second} le met en échec ($\TBD = \qty{51}{\percent}$). La théorie
+explique pourquoi l'empreinte est invariante au gain et au filtrage, prévoit un score en
+$F\rho\Tq p^2$ et fixe un plancher au seuil de décision ; elle prédit aussi qu'un extrait
+plus long résiste mieux au bruit, ce que confirme la mesure (à \qty{0}{\decibel}, \TBD{} de
+\qty{38.5}{\percent} à $\Tq = \qty{3}{\second}$ et de \qty{85.5}{\percent} à \qty{10}{\second}).
 \end{abstract}
 
 \begin{table}[h]
