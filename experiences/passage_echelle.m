@@ -7,7 +7,7 @@
 %   construction, la taille de l'index et le temps médian de 50 requêtes de
 %   5 s (extraits non dégradés de morceaux indexés).
 %
-%   Produit : resultats/passage_echelle.csv, figures/passage_echelle (.pdf, .png)
+%   Produit : resultats/passage_echelle.csv, figures/temps_et_taille_index (.pdf, .png)
 
 clear; close all;
 racine = fileparts(fileparts(mfilename('fullpath')));
@@ -92,4 +92,4 @@ plot(tailles, tailleMo, 's-');  set(gca, 'XScale', 'log', 'YScale', 'log');  gri
 xticks(tailles);
 xlabel('nombre de morceaux indexés');  ylabel('taille de l''index (Mo)');
 title('Taille de l''index');
-sauver_figure(fig, 'passage_echelle');
+sauver_figure(fig, 'temps_et_taille_index');

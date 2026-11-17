@@ -4,8 +4,9 @@ function [y, t0] = extraire_requete(x, Fe0, Tq, rs)
 %   [y, t0] = extraire_requete(x, Fe0, Tq, rs)   rs : RandStream (reproductible)
 %
 %   x  : signal à sa fréquence d'origine Fe0 (mono ou stéréo).
-%   y  : extrait mono, toujours à Fe0. Les dégradations s'appliquent à ce
-%        signal, avant pretraitement, comme dans un vrai téléphone.
+%   y  : extrait mono, toujours à Fe0. Le MP3 s'applique à ce signal (avant
+%        pretraitement) ; les autres dégradations au signal prétraité à 8 kHz
+%        (voir experiences/campagne_evaluation.m).
 %   t0 : instant de début de l'extrait dans le morceau (s).
 %
 %   L'instant est tiré en échantillons d'origine : il ne tombe donc pas, en

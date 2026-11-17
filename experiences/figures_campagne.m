@@ -2,7 +2,8 @@
 %   Prérequis : experiences/campagne_evaluation.m (resultats/campagne.mat).
 %   Séparé de la campagne pour pouvoir retoucher les figures sans tout relancer.
 %
-%   Produit : figures/tbd_rsb, tbd_mp3, tbd_tfd, histo_scores (.pdf et .png)
+%   Produit : figures/tbd_en_fonction_du_rsb, tbd_en_fonction_du_debit_mp3, courbe_tbd_tfd,
+%            histogrammes_scores (.pdf et .png)
 
 racine = fileparts(fileparts(mfilename('fullpath')));
 addpath(racine, fullfile(racine, 'utils'), fullfile(racine, 'eval'));
@@ -24,11 +25,11 @@ for j = 1:3
     plot(synthese.parametre(sel), 100 * synthese.TBD(sel), marq{j}, 'Color', pal(j, :), ...
         'LineWidth', 1.5, 'MarkerSize', 6, 'DisplayName', sprintf('T_q = %d s', Tqs(j)));
 end
-set(gca, 'XDir', 'reverse');  xticks(0:5:20);  xlim([-1 21]);  ylim([50 101.5]);  grid on;
-xlabel('RSB (dB)');  ylabel('TBD (%)');
+set(gca, 'XDir', 'reverse');  xticks(0:5:20);  xlim([-1 21]);  ylim([0 101.5]);  yticks(0:10:100);
+grid on;  xlabel('RSB (dB)');  ylabel('TBD (%)');
 legend('Location', 'southwest');
 title(sprintf('Bruit blanc additif (s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
-sauver_figure(fig, 'tbd_rsb');
+sauver_figure(fig, 'tbd_en_fonction_du_rsb');
 
 %% Figure 2 : TBD en fonction du débit MP3
 fig = nouvelle_figure(12, 8);  hold on;
@@ -41,7 +42,7 @@ set(gca, 'XScale', 'log');  xticks([32 64 128]);  xlim([25 160]);  ylim([50 101.
 legend('Location', 'southeast');
 xlabel('débit MP3 (kbit/s)');  ylabel('TBD (%)');
 title(sprintf('Codage MP3 (T_q = 5 s, s_{thr} = %d, N^+ = %d)', s_thr, nPos));
-sauver_figure(fig, 'tbd_mp3');
+sauver_figure(fig, 'tbd_en_fonction_du_debit_mp3');
 
 %% Figure 3 : TBD en fonction du TFD en balayant le seuil (Tq = 5 s)
 % La courbe balaie tous les seuils : elle ne dépend pas du seuil retenu, on
@@ -84,7 +85,7 @@ lg = legend(ax, 'NumColumns', 3, 'FontSize', 8);
 lg.Layout.Tile = 'south';
 title(tl, sprintf('TBD en fonction du TFD en balayant le seuil (T_q = 5 s, N^+ = %d, N^- = %d)', ...
     nPos, sum(resultats{1}.id_vrai == 0)), 'FontSize', 10);
-sauver_figure(fig, 'tbd_tfd');
+sauver_figure(fig, 'courbe_tbd_tfd');
 
 %% Figure 4 : histogrammes des scores positifs et négatifs (Tq = 5 s, abscisse log)
 cs = find([C.Tq] == 5);
@@ -105,4 +106,4 @@ set(gca, 'XScale', 'log');  grid on;
 xlabel('score s (hauteur du pic de l''histogramme des \delta)');  ylabel('nombre de requêtes');
 legend('Location', 'northwest');
 title('Scores, T_q = 5 s, toutes dégradations');
-sauver_figure(fig, 'histo_scores');
+sauver_figure(fig, 'histogrammes_scores');

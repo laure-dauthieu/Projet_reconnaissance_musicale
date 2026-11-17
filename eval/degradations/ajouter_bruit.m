@@ -8,6 +8,10 @@ function yb = ajouter_bruit(y, RSB_dB, bruit, rs)
 %
 %   RSB_dB = 10 log10(Px / Pb), avec Px calculé sur l'extrait y lui-même et
 %   non sur le morceau entier (sujet, équation (8)).
+%
+%   À appliquer au signal déjà ramené à 8 kHz : ajouté à 44,1 kHz, le bruit
+%   blanc perdrait environ 80 % de sa puissance au rééchantillonnage, et le
+%   RSB réel serait meilleur d'environ 7 dB que le RSB demandé.
 
 if nargin < 3 || isempty(bruit), bruit = 'blanc'; end
 if nargin < 4, rs = RandStream.getGlobalStream; end

@@ -83,11 +83,9 @@ for j = 1:2
     title(sprintf('%s : score %d', noms{c}, R.scores(c)), 'Interpreter', 'none');
 end
 
-%% Sauvegarde
-dossierFig = fullfile(racine, 'figures');
-if ~exist(dossierFig, 'dir'), mkdir(dossierFig); end
-exportgraphics(fig1, fullfile(dossierFig, 'jouet_constellation.png'), 'Resolution', 120);
-exportgraphics(fig2, fullfile(dossierFig, 'jouet_histogramme_delta.png'), 'Resolution', 120);
+%% Sauvegarde (noms attendus par le rapport)
+sauver_figure(fig1, 'constellation');
+sauver_figure(fig2, 'histogramme_delta');
 
 function s = ternaire(c, a, b)
 if c, s = a; else, s = b; end
