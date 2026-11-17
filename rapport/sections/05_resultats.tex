@@ -172,9 +172,28 @@ $p(\RSB)$, en déduire le \RSB{} où $p$ croise $p^*$ pour chaque $\Tq$, et le s
 \subsection{Conditions réelles}
 \label{sec-reel}
 
-\aremplir{Brouhaha enregistré à la cafétéria (\RSB{} de 10, 5 et \qty{0}{\decibel}) et
-enregistrements au micro en salle à deux distances : protocole (salle, enceinte, téléphone,
-distances, volume, format) et résultats, à reporter dans le \cref{tab-synthese}.}
+\paragraph{Bruit réel.} Nous avons enregistré \aremplir{x}~minutes de brouhaha à la
+cafétéria de l'école, à l'heure de plus forte affluence et sans musique diffusée (niveau
+d'environ \aremplir{x}~dB au sonomètre). Contrairement au bruit blanc, ce bruit est
+coloré, concentré dans la bande de la voix (environ \qtyrange{300}{3000}{\hertz}), et non
+stationnaire. Pour chaque requête, un segment de la durée de l'extrait est tiré au hasard
+dans l'enregistrement, ramené à \qty{8}{\kilo\hertz}, puis mis à l'échelle pour obtenir le
+\RSB{} voulu (10, 5 et \qty{0}{\decibel}), avec $P_x$ calculé sur l'extrait.
+
+\paragraph{Enregistrements en salle.} 30 morceaux, 20 de la base et 10 hors base, ont été
+joués sur une enceinte \aremplir{modèle} dans une salle de \aremplir{L × l × h}~m, et
+enregistrés par un téléphone \aremplir{modèle} posé à \qty{1}{\metre} puis à \qty{4}{\metre}
+de l'enceinte, en \aremplir{format}, sans traitement automatique (réduction de bruit
+désactivée). Le volume, fixé pour toute la séance, donnait \aremplir{x}~dB à
+\qty{1}{\metre} et \aremplir{y}~dB à \qty{4}{\metre}, pour un bruit ambiant de
+\aremplir{z}~dB. Chaque prise dure 12 à 15~s et commence à un instant quelconque du morceau.
+Cette condition combine tous les termes du modèle (1) à la fois : gain, réponse du
+haut-parleur et de la salle, bruit ambiant, et décalage inconnu. À \qty{4}{\metre}, le champ
+réverbéré de la salle domine le champ direct, si bien qu'on s'attend à un comportement
+proche de la réverbération simulée (\cref{sec-limites}). Les 10 morceaux hors base doivent
+être rejetés : ils donnent un \TFD{} en conditions réelles.
+\aremplir{Résultats (A) : \TBD{} à 1 et \qty{4}{\metre}, \TFD{} sur les 10 morceaux hors base,
+à reporter dans le \cref{tab-synthese} et à comparer à la réverbération simulée.}
 
 \subsection{Passage à l'échelle}
 
