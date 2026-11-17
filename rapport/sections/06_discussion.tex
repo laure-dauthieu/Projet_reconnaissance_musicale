@@ -1,0 +1,119 @@
+% ---------------------------------------------------------------------
+\section{Discussion des cas d'échec}
+\label{sec:discussion}
+% ---------------------------------------------------------------------
+
+\subsection{\texorpdfstring{Pourquoi le MP3 à \qty{64}{\kilo\bit\per\second} gêne moins qu'un bruit blanc à \qty{10}{\decibel} (Q6)}{Pourquoi le MP3 à 64 kbit/s gêne moins qu'un bruit blanc à 10 dB (Q6)}}
+\label{sec:q6}
+
+\aremplir{Constat mesuré : \TBD{} = x~\% en MP3 \qty{64}{\kilo\bit\per\second} contre y~\% sous
+bruit blanc à \qty{10}{\decibel} ($\Tq$, $\sthr$, nombre de requêtes), et $p$ = x contre y
+(\cref{tab:pic-paire}).} Deux dégradations de « niveau » comparable ont donc des effets très
+différents. L'explication tient à la manière dont chacune répartit son bruit dans le plan
+temps-fréquence, comparée à la définition (4) des pics.
+
+\paragraph{Le codage perceptuel épargne les pics.} Un codeur MP3 découpe le signal en
+sous-bandes, estime pour chaque trame un \emph{seuil de masquage}, c'est-à-dire le niveau
+en dessous duquel l'oreille ne perçoit rien en présence des composantes fortes voisines, et
+alloue ses bits de façon à maintenir le bruit de quantification sous ce
+seuil~\cite{painter2000}. Les composantes situées sous le seuil sont grossièrement
+quantifiées ou supprimées. Or ce seuil est construit à partir des \emph{masqueurs},
+c'est-à-dire des composantes les plus fortes de leur voisinage temps-fréquence ; il se
+situe typiquement de \qtyrange{10}{20}{\decibel} sous un masqueur tonal. Un pic au sens de
+(4) est, par définition, le maximum de son voisinage $V$ : c'est précisément un masqueur.
+Le codeur le conserve, et le bruit qu'il ajoute autour reste nettement plus bas que lui.
+Dans les termes de la \cref{sec:maxima}, l'avance $\mu$ du pic sur ses voisins n'est que
+peu entamée, et il reste en place. Le codage supprime surtout les composantes faibles,
+qui ne sont pas des pics : il simplifie le spectrogramme sans toucher à sa constellation.
+Enfin, le bruit de quantification suit l'enveloppe spectrale du signal : le rapport signal
+à bruit \emph{local} est à peu près le même dans toutes les bandes.
+
+\paragraph{Le bruit blanc noie les pics des bandes hautes.} Un bruit blanc de variance
+$\sigma_b^2$ ajoute en chaque point du spectrogramme une contribution de puissance moyenne
+\[
+  \E\bigl|B[m,k]\bigr|^2 = \sigma_b^2 \sum_{n=0}^{N-1} w[n]^2 ,
+\]
+\emph{la même dans tous les canaux}. Le spectre musical, lui, décroît avec la fréquence :
+l'essentiel de l'énergie est sous \qty{1}{\kilo\hertz}. Le \RSB{} de \qty{10}{\decibel} est
+un rapport \emph{global}, dominé par les basses fréquences ; le rapport local dans le canal
+$k$ vaut
+\[
+  \RSB_{\text{local}}(k) = \RSB + 10\log_{10} \frac{S_x(k)}{\overline{S_x}} ,
+\]
+où $\overline{S_x}$ est la moyenne du spectre sur tous les canaux. Dans une bande où le
+spectre musical est \qty{20}{\decibel} sous sa moyenne, ce qui est courant entre 2 et
+\qty{4}{\kilo\hertz}, le rapport local tombe à \qty{-10}{\decibel} : le bruit y domine, et
+ses propres fluctuations créent des maxima locaux qui remplacent ceux de la musique. Le
+quota par bande aggrave l'effet : il impose de prendre le même nombre de pics dans les
+bandes hautes que dans les basses, et ce sont alors des pics de bruit, différents à chaque
+requête. Une bonne partie des pics des deux ou trois bandes supérieures est perdue, donc
+$p$ chute, et le score, qui varie en $p^2$, chute encore plus.
+
+\paragraph{En résumé.} Le MP3 est conçu pour préserver ce qui domine localement, et c'est
+exactement ce que retiennent les pics. Le bruit blanc ne tient aucun compte du signal, et
+son effet est maximal là où la musique est faible. \aremplir{Si la mesure de $p$ par bande
+est disponible, l'ajouter ici : $p$ à peu près constant selon la bande en MP3, décroissant
+vers les hautes fréquences sous bruit blanc.} À \qty{32}{\kilo\bit\per\second}, le codeur
+manque de bits : le bruit de quantification dépasse le seuil de masquage, les composantes
+moyennes disparaissent par blocs et certains pics secondaires avec elles, ce qui explique
+la baisse du \TBD{} à bas débit (\cref{fig:tbd-mp3}).
+
+\subsection{Genres difficiles}
+\label{sec:genres}
+
+\aremplir{Constat mesuré : \TBD{} par genre (\cref{fig:genres}), genres les plus et les
+moins bien reconnus, avec $\Tq$, $\sthr$ et la dégradation.}
+
+La théorie permet d'anticiper quels genres posent problème, et pourquoi.
+
+\begin{itemize}
+  \item \emph{Musiques tonales et tenues (Folk, Instrumental, une partie d'International).}
+        Les notes sont stables, leurs harmoniques dépassent nettement le fond : les pics ont
+        une forte avance $\mu$ et survivent bien au bruit et au filtrage. On attend un bon
+        \TBD{}. En contrepartie, les notes tenues produisent des clés répétées sur plusieurs
+        trames, donc des votes fortuits cohérents (\cref{sec:decision}) : les scores
+        négatifs peuvent y être plus élevés.
+  \item \emph{Musiques à spectre dense ou bruité (Rock saturé, Experimental).} Une guitare
+        saturée ou une texture bruitée remplit le spectre de façon presque uniforme : la
+        platitude spectrale est élevée, les maxima locaux dépassent à peine leurs voisins
+        ($\mu$ faible), et le moindre bruit les déplace. La condition (5) et son équivalent
+        pour le bruit sont rarement remplies : $p$ est faible.
+  \item \emph{Musiques dominées par les percussions et la voix parlée (Hip-Hop).} L'énergie
+        est concentrée dans des transitoires brefs et dans les basses ; une voix parlée a
+        une hauteur qui glisse en permanence. Les pics sont peu nombreux dans les bandes
+        moyennes et hautes, ou instables en fréquence, et un décalage non aligné sur la
+        grille (\cref{sec:proprietes}) déplace facilement un transitoire d'une trame.
+  \item \emph{Musiques en boucles (Electronic, Hip-Hop).} Une boucle répétée produit les
+        mêmes clés à chaque répétition : l'histogramme des $\delta$ du bon morceau présente
+        plusieurs pics, ce qui ne gêne pas l'identification mais rend la position estimée
+        ambiguë. Des sons de synthèse ou des échantillons de batterie partagés entre
+        morceaux peuvent en revanche créer des coïncidences cohérentes avec de mauvais
+        morceaux.
+\end{itemize}
+\aremplir{Confronter ces hypothèses à la mesure : les genres prévus comme difficiles le
+sont-ils ? Exemple d'échec analysé : spectrogramme et constellation d'une requête ratée.}
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.8\linewidth]{tbd_par_genre}{TBD par genre}
+  \caption{\TBD{} par genre pour \aremplir{dégradation, $\Tq$, $\sthr$, nombre de requêtes
+  par genre}.}
+  \label{fig:genres}
+\end{figure}
+
+\subsection{Réverbération et enregistrements réels}
+\label{sec:echecs-reverb}
+
+La réverbération sort du cadre de la propriété (2) dès que sa réponse dépasse la durée de
+la fenêtre (\cref{sec:limites}). Elle agit comme un bruit additif fabriqué par le signal
+lui-même : on attend une dégradation modérée à $T_{60} = \qty{0.3}{\second}$ et nette à
+$T_{60} = \qty{1}{\second}$, plus marquée pour les morceaux rapides que pour les morceaux
+lents. \aremplir{Résultats de la réverbération et des enregistrements en salle à 1 et
+4~m : \TBD{} mesurés, et comparaison avec les dégradations simulées.}
+
+\subsection{Limites de la méthode}
+
+La méthode n'est invariante ni au changement de tempo (les écarts $\dm$ changent) ni au
+changement de hauteur (les canaux changent) : une version accélérée, transposée ou jouée
+en direct n'est pas reconnue. Elle identifie un \emph{enregistrement}, pas une
+\emph{œuvre}.

@@ -1,0 +1,49 @@
+% ---------------------------------------------------------------------
+\section{Notations}
+\label{sec:notations}
+% ---------------------------------------------------------------------
+
+Les notations sont celles de l'énoncé ; celles que nous ajoutons sont signalées par un
+astérisque.
+
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+  \toprule
+  Symbole & Signification \\
+  \midrule
+  $x(t)$, $y(t)$ & morceau d'origine, extrait capté \\
+  $\alpha$, $h$, $t_0$, $b(t)$ & gain, réponse impulsionnelle haut-parleur $\to$ salle $\to$ micro, décalage, bruit additif (1) \\
+  $\Fe$ & fréquence d'échantillonnage \\
+  $N$, $H$, $\Nfft$ & longueur de fenêtre, avance entre trames, points de la TFD \\
+  $K = \Nfft/2 + 1$ & nombre de canaux \\
+  $S[m,k]$, $\SdB[m,k]$ & spectrogramme (trame $m$, canal $k$), en décibels (2) \\
+  $t_m = mH/\Fe$, $f_k = k\Fe/\Nfft$ & instant de la trame $m$, fréquence du canal $k$ \\
+  $\Tw$, $\Delta f$, $\kw$ & résolution temporelle, résolution fréquentielle, constante de la fenêtre \\
+  $g(k)$ & biais introduit par le gain et le filtrage (3) \\
+  $V$, $\mv$, $\kv$ & voisinage de $(2\mv+1)$ trames sur $(2\kv+1)$ canaux \\
+  $\mu$, $\Delta g(V)$ & avance d'un pic sur ses voisins, variation de $g$ sur le voisinage (5) \\
+  $\rho$ & densité de pics (pics/s) \\
+  $p$ & probabilité qu'un pic survive à la dégradation \\
+  $F$ & nombre de cibles par ancre \\
+  $u$, $Q_f$, $\gf$ & clé, classe de fréquence, nombre de canaux par classe (6) \\
+  $\dm$, $\dk$ & écarts en trames et en canaux entre ancre et cible \\
+  $M = \Nf^2\Nt$ & nombre de clés possibles, $\Nf$ classes de fréquence, $\Nt$ valeurs de $\dm$ \\
+  $\Tq$ & durée de la requête \\
+  $\nq$, $\Nu$ & nombre de clés de la requête, nombre d'entrées de l'index \\
+  $\delta = m_r - m_q$ & décalage entre instants d'ancre dans la référence et dans la requête (7) \\
+  $s$, $\sthr$ & score (maximum de l'histogramme des $\delta$), seuil de décision \\
+  $N^+$, $N^-$ & nombres de requêtes positives et négatives \\
+  \TBD{}, \TFD{} & taux de bonne détection, taux de fausse détection \\
+  $\RSB_{\mathrm{dB}}$, $P_x$, $P_b$ & rapport signal à bruit, puissances du signal et du bruit (8) \\
+  $L_h$* & longueur de la réponse impulsionnelle $h$ \\
+  $N_b$*, $D$* & nombre de morceaux de la base, nombre de cases de l'histogramme des $\delta$ \\
+  $\Meff$* & alphabet effectif $1/\sum_u \pi_u^2$ \\
+  $\mu_G$*, $\beta$* & paramètres de la loi de Gumbel des scores négatifs \\
+  \bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Liste des morceaux}
+\label{sec:liste-morceaux}
+
+\aremplir{Liste des morceaux (\texttt{liste\_morceaux.csv}) ou renvoi au fichier joint.}

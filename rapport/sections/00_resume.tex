@@ -1,0 +1,38 @@
+% ---------------------------------------------------------------------
+% Résumé (5 lignes, chiffres clés) + où trouver les réponses Q1 à Q6
+% ---------------------------------------------------------------------
+\begin{abstract}
+\noindent Nous identifions un morceau à partir d'un extrait court, bruité et pris à un
+instant inconnu, en suivant la méthode de Wang : constellation de maxima locaux du
+spectrogramme, clés formées de paires de pics, index inversé et vote sur le décalage
+temporel. Sur une base de \aremplir{100} morceaux et \aremplir{x} requêtes positives et
+\aremplir{y} négatives, le système atteint un \TBD{} de \aremplir{x~\%} pour un \TFD{} de
+\aremplir{y~\%} ($\Tq = \aremplir{5}$\,s, $\sthr = \aremplir{s}$, bruit blanc à
+\qty{10}{\decibel}). La théorie explique pourquoi l'empreinte est invariante au gain et au
+filtrage, prévoit un score en $F\rho\Tq p^2$ et fixe un plancher au seuil de décision ;
+\aremplir{phrase sur la confrontation à la mesure}.
+\end{abstract}
+
+\begin{table}[h]
+  \centering\small
+  \caption{Où trouver les réponses aux questions de l'énoncé.}
+  \label{tab:ou-reponses}
+  \begin{tabularx}{\linewidth}{@{}lXl@{}}
+    \toprule
+    Question & Sujet & Où \\
+    \midrule
+    Q1 & Choix de $\Fe = \qty{8}{\kilo\hertz}$ : Shannon, ce que l'on perd
+       & \cref{sec:shannon} \\
+    Q2 & Tableau $\Tw$, $\Delta f$, trames/s ; choix de $N$ ; propriété (2) démontrée et vérifiée
+       & \cref{sec:tfct,sec:proprietes}, \cref{tab:resolutions,fig:filtrage} \\
+    Q3 & Voisinage, densité $\rho$, survie $p$ ; pourquoi $\rho p^2$
+       & \cref{sec:pics}, \cref{fig:p-rho} \\
+    Q4 & $p$ mesuré, tableau pic/paire ; choix de $\gf$
+       & \cref{sec:empreintes}, \cref{tab:pic-paire,tab:gammaf} \\
+    Q5 & Histogrammes des scores ; seuil automatique
+       & \cref{sec:decision}, \cref{fig:histo-scores,fig:tbd-tfd} \\
+    Q6 & MP3 contre bruit blanc ; genres difficiles
+       & \cref{sec:q6,sec:genres}, \cref{fig:genres} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

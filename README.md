@@ -18,7 +18,7 @@ Les deux phases utilisent **exactement** les mêmes fonctions d'extraction.
 
 **Le plan est dans [PLAN.md](PLAN.md)** : ce que le sujet demande, répartition, tâches cochables, planning, liste de contrôle avant dépôt.
 
-| | **A — Alessandro** | **B — coéquipière** |
+| | **A — Alessandro** | **B — Laure** |
 |---|---|---|
 | Rôle | Tout le MATLAB | Théorie, enregistrements réels, rapport, vidéo |
 | Dossiers | `src/`, `eval/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
