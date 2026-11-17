@@ -254,3 +254,42 @@ Script `experiences/etude_q6_genres.m`, à partir des requêtes de la campagne. 
 - **Autres pistes pour la discussion** (non mesurées) : en Hip-Hop et en Electronic, une grande partie de l'énergie est dans les basses sous 200 Hz, hors de nos bandes, et l'énergie aiguë vient surtout de percussions brèves (charleston) plutôt que de notes tenues ; en Experimental, beaucoup de textures bruitées sans maxima nets.
 - **Ni la densité de pics brute (62 à 74 pics/s), ni le score sans dégradation ne prédisent la robustesse** : Pop a le plus faible score sans bruit (164) et résiste le mieux.
 - **Réverbération à 1 s** : International, Experimental et Electronic sont les plus touchés (38 à 42 %). La réverbération étale l'énergie dans le temps et brouille surtout les attaques et les notes courtes.
+
+---
+
+# Parties de B reprises par A
+
+## Figure `difference_spectres_passe_bande` (Q2, B2)
+
+Script `experiences/figure_q2_filtrage.m`. Extrait de 10 s d'un morceau Rock de la base (genre riche en énergie dans toute la bande), signal à 8 kHz. Chiffres : `q2_filtrage.csv`.
+
+- **(a) Passe-bande 300–3 400 Hz** (Butterworth d'ordre 4, appliqué une seule fois, causal, comme un vrai haut-parleur) : S_y,dB − S_x,dB pour **5 trames** (t = 0,3 ; 3,1 ; 4,4 ; 7,9 ; 9,9 s), et g(k) = 20·log10|ĥ(f_k)| en tirets.
+  - **Les 5 courbes se superposent et suivent g(k)** dans toute la bande et sur les flancs du filtre.
+  - **Écart-type entre trames dans la bande 400–3 000 Hz : 0,07 dB** (médiane sur les canaux, calculée sur les 155 trames). Écart médian à g(k) : 0,002 dB.
+  - Quelques pics isolés (vers 1 kHz et 3,1 kHz sur une trame) : ce sont des canaux où le morceau a très peu d'énergie dans cette trame. La différence de deux petites valeurs en dB y devient imprécise ; ce n'est pas un défaut de la propriété.
+  - Sous 200 Hz et au-dessus de 3,9 kHz, le filtre atténue de plus de 60 dB : on sort du cadre de la figure.
+- **(b) Dispersion entre trames en fonction de la fréquence**, sur les 155 trames :
+  - passe-bande : quasi nulle (médiane 0,07 dB) ;
+  - **réverbération T60 = 1 s : environ 8 dB à toutes les fréquences** (médiane 7,6 dB).
+- **Pourquoi** : la réponse impulsionnelle du passe-bande dure quelques millisecondes, très peu devant la fenêtre N = 1 024 (128 ms). La convolution reste locale à la trame, d'où un biais g(k) indépendant de m (propriété (2)). La réverbération dure 1 s, soit 8 000 échantillons, bien plus que N : l'énergie d'une trame déborde sur les suivantes, et le « biais » dépend du contenu des trames précédentes. C'est la « limite de (3) » du tableau du §7.
+
+## Seuil par la loi de Gumbel (Q5, complément)
+
+Ajustement par la méthode des moments : β = σ·√6/π, μ = s̄ − 0,5772·β, puis s_thr = μ − β·ln(−ln(1 − α)) pour un TFD visé α (par requête). TFD réel mesuré sur les négatives de test des 24 conditions (1 200 scores).
+
+| Scores de calibration utilisés | s̄ | σ_s | β | μ | seuil α = 1 % | TFD réel | seuil α = 0,1 % | TFD réel |
+|---|---|---|---|---|---|---|---|---|
+| 50 (sans dégradation, Tq = 5 s) | 7,86 | 2,71 | 2,11 | 6,64 | 16,4 | **5,0 %** | 21,2 | 1,6 % |
+| 1 200 (toutes conditions) | 8,09 | 3,01 | 2,34 | 6,74 | 17,5 | **4,3 %** | 22,9 | 1,1 % |
+
+- **La loi de Gumbel sous-estime la queue des scores négatifs** : en visant α = 1 %, on obtient 4 à 5 % de fausses détections réelles. Même à α = 0,1 %, le TFD réel dépasse 1 %.
+- Explication probable : un maximum de variables de Poisson indépendantes suit à peu près une loi de Gumbel, mais nos scores négatifs ont une queue plus lourde. Certaines clés sont très fréquentes dans l'index et dans les requêtes (slide 12), et leurs votes fortuits peuvent tomber dans la même case de δ.
+- **Conclusion pour le rapport** : la méthode automatique donne un ordre de grandeur (16 à 23) ; le seuil retenu (35 = 1,5 × le maximum de calibration) est plus prudent, et c'est lui qui donne TFD = 0 sur les négatives de test (maximum mesuré : 26).
+
+## Enregistrements en salle et brouhaha (B3) : outils prêts, prises à faire
+
+Trois fonctions MATLAB, testées en mode simulation (prises fictives puis supprimées) :
+
+- `enregistrer_salle('1m')` puis `enregistrer_salle('4m')` : le Mac joue chacun des 30 morceaux de `morceaux_a_enregistrer.csv` (20 de la base, 10 hors base) sur l'enceinte, et l'enregistre en même temps avec son micro, 12 s par morceau, début tiré au hasard. Fichiers `data/enregistrements/micro_<id>_<distance>.wav` et protocole `protocole_<distance>.csv` (début de l'extrait, niveau de la prise, date). Alerte affichée en cas de saturation ou de niveau trop faible. Environ 7 minutes par distance.
+- `enregistrer_brouhaha()` : 3 minutes au micro, dans un lieu bruyant sans musique, vers `data/enregistrements/brouhaha_cafet.wav`. La campagne l'ajoute ensuite toute seule (brouhaha 10, 5, 0 dB).
+- `evaluer_enregistrements` : identifie chaque prise (5 premières secondes, puis prise entière), et donne TBD, TFD, confusions et scores par distance (`resultats/enregistrements*.csv`).

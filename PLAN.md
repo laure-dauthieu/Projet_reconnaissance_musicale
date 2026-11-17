@@ -183,9 +183,11 @@ Remarques utiles :
 
 Les quatre fonctions de dégradation sont **déjà faites et testées** par A (dans `eval/degradations/`, tests dans `tests/test_degradations.m`) : `ajouter_bruit`, `degrader_mp3`, `filtre_passe_bande`, `reverberation`. B n'a plus que la figure :
 
-- [ ] **Figure Q2** (`figures/difference_spectres_passe_bande.pdf`) : filtrer un morceau par le passe-bande (`filtre_passe_bande`), tracer S_y,dB − S_x,dB en fonction de k pour plusieurs trames (`calcul_spectrogramme`), et superposer 20·log10|ĥ(f_k)|. Utiliser `nouvelle_figure` et `sauver_figure` (dans `utils/`) pour garder le style des autres figures.
+- [x] **Figure Q2** (`figures/difference_spectres_passe_bande.pdf`) — **faite par A** (`experiences/figure_q2_filtrage.m`), voir `resultats/notes_resultats.md`. : filtrer un morceau par le passe-bande (`filtre_passe_bande`), tracer S_y,dB − S_x,dB en fonction de k pour plusieurs trames (`calcul_spectrogramme`), et superposer 20·log10|ĥ(f_k)|. Utiliser `nouvelle_figure` et `sauver_figure` (dans `utils/`) pour garder le style des autres figures.
 
 ### B3. Enregistrements au micro (mercredi)
+
+**Repris par A** (B ne pouvait pas utiliser MATLAB) : les prises se font avec le Mac de A, qui joue les morceaux sur une enceinte et les enregistre au micro (`experiences/enregistrer_salle.m`, `enregistrer_brouhaha.m`), puis `evaluer_enregistrements.m`. Reste à faire physiquement : poser l'enceinte à 1 m puis à 4 m, et enregistrer le brouhaha à la cafétéria.
 
 - [ ] **Mercredi midi** : enregistrer quelques minutes de brouhaha à la cafétéria, sans musique. C'est l'heure où il y a le plus de monde. Les déposer sur le Drive avant 14 h, sous le nom `brouhaha_cafet.wav` : la campagne d'évaluation le cherche dans `data/enregistrements/` et ajoute alors toute seule les conditions « bruit réel ».
 - [ ] **Mercredi après-midi** : jouer les morceaux de la liste de A sur une enceinte et les enregistrer avec un téléphone, en salle, à 2 distances (par exemple 1 m et 4 m). Inclure quelques morceaux hors base.

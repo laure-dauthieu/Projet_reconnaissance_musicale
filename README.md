@@ -85,6 +85,14 @@ run('experiences/etude_q3_voisinage.m') % Q3 : ρ et p selon le voisinage (≈ 1
 run('experiences/etude_q4_p_gamma_F.m') % Q4 : p, tableau pic/paire, γf ; choix de F (≈ 2 min)
 run('experiences/theorie_mesure.m')     % score prévu contre mesuré, RSB de rupture (≈ 1 min)
 run('experiences/etude_q6_genres.m')    % Q6 : TBD par genre (après la campagne)
+run('experiences/figure_q2_filtrage.m') % Q2 : S_y,dB − S_x,dB pour un passe-bande et une réverbération
+
+% Enregistrements réels (micro du Mac, enceinte en sortie audio)
+addpath('experiences')
+enregistrer_brouhaha()                  % 3 min de bruit de cafétéria, sans musique
+enregistrer_salle('1m')                 % 30 morceaux joués et enregistrés, enceinte à 1 m (≈ 7 min)
+enregistrer_salle('4m')                 % idem à 4 m
+run('experiences/evaluer_enregistrements.m')  % TBD et TFD par distance
 ```
 
 Les paramètres retenus et leur justification sont dans [resultats/parametres_finaux.md](resultats/parametres_finaux.md) ; les chiffres et interprétations de chaque figure dans [resultats/notes_resultats.md](resultats/notes_resultats.md).
