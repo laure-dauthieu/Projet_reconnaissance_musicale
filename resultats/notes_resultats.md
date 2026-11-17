@@ -67,10 +67,12 @@ Tq = 5 s, s_thr = 32.
 
 ## Figure `tbd_tfd` : TBD en fonction du TFD en balayant le seuil
 
-- Tq = 5 s, six conditions. Le cercle noir marque le seuil retenu (s_thr = 32).
-- Pour toutes les conditions sauf la réverbération à 1 s, la courbe colle au coin en haut à gauche : on peut obtenir un TBD de 96 à 100 % avec un TFD nul.
-- **La réverbération à 1 s est la seule condition où l'on doit vraiment choisir** entre bonnes détections et fausses alarmes : pour atteindre 90 % de TBD, il faudrait accepter environ 4 % de TFD.
-- L'axe TFD avance par pas de 2 % (1 négative sur 50).
+- Tq = 5 s, six conditions. Le cercle sur chaque courbe marque le seuil retenu (s_thr = 32).
+- **Deux panneaux** : (a) vue d'ensemble ; (b) zoom sur le coin en haut à gauche, où les courbes des conditions faciles se superposent.
+- La courbe balaie tous les seuils, elle ne dépend pas du seuil retenu : on y utilise donc **les 100 négatives** (calibration et test), d'où un TFD qui avance par pas de 1 %. Le dire dans la légende du rapport.
+- **MP3 32 kbit/s, passe-bande et sans dégradation atteignent 100 % de TBD dès 1 à 2 % de TFD** : leurs courbes se confondent avec le bord supérieur, ce n'est pas un défaut de tracé.
+- Au seuil retenu, toutes les conditions sont à TFD = 0 ; les TBD vont de 98 % (sans dégradation) à 55 % (réverbération 1 s).
+- **La réverbération à 1 s est la seule condition où l'on doit vraiment choisir** entre bonnes détections et fausses alarmes : pour atteindre 90 % de TBD, il faudrait accepter environ 5 % de TFD.
 
 ## Autres dégradations (`synthese.csv`)
 

@@ -10,7 +10,7 @@
 %   Produit :
 %     resultats/synthese.csv       TBD, TFD, confusions, non-détections par condition
 %     resultats/campagne.mat       scores de toutes les requêtes
-%     figures/tbd_rsb, tbd_mp3, tbd_tfd, histo_scores (.pdf et .png)
+%     figures/tbd_rsb, tbd_mp3, tbd_tfd, histo_scores, via figures_campagne.m
 
 clear; close all;
 racine = fileparts(fileparts(mfilename('fullpath')));
@@ -102,73 +102,9 @@ writetable(synthese, fullfile(dossierRes, 'synthese.csv'));
 save(fullfile(dossierRes, 'campagne.mat'), 'C', 'resultats', 's_thr', 'synthese', 'calib');
 disp(synthese(:, {'condition', 'Tq', 'seuil', 'TBD', 'TFD', 'confusion', 'non_detection', 'N_pos', 'N_neg'}));
 
-%% Figure 1 : TBD en fonction du RSB, une courbe par Tq
-fig = nouvelle_figure(12, 8);  hold on;
-marq = {'o-', 's-', '^-'};  Tqs = [3 5 10];
-for j = 1:3
-    sel = synthese.degradation == "bruit blanc" & synthese.Tq == Tqs(j);
-    plot(synthese.parametre(sel), 100 * synthese.TBD(sel), marq{j}, ...
-        'DisplayName', sprintf('T_q = %d s', Tqs(j)));
-end
-set(gca, 'XDir', 'reverse');  xticks(0:5:20);  ylim([50 100]);  grid on;
-xlabel('RSB (dB)');  ylabel('TBD (%)');
-legend('Location', 'southwest');
-title(sprintf('Bruit blanc additif, s_{thr} = %d, N^+ = %d', s_thr, nB));
-sauver_figure(fig, 'tbd_rsb');
+%% Figures (script séparé, relançable seul)
+run(fullfile(racine, 'experiences', 'figures_campagne.m'));
 
-%% Figure 2 : TBD en fonction du débit MP3
-fig = nouvelle_figure(12, 8);  hold on;
-sel = synthese.degradation == "MP3";
-plot(synthese.parametre(sel), 100 * synthese.TBD(sel), 'o-', 'DisplayName', 'MP3');
-ref = synthese.degradation == "aucune" & synthese.Tq == 5;
-yline(100 * synthese.TBD(ref), '--', 'DisplayName', 'sans dégradation');
-set(gca, 'XScale', 'log');  xticks([32 64 128]);  xlim([25 160]);  ylim([50 100]);  grid on;
-legend('Location', 'southeast');
-xlabel('débit MP3 (kbit/s)');  ylabel('TBD (%)');
-title(sprintf('Codage MP3, T_q = 5 s, s_{thr} = %d', s_thr));
-sauver_figure(fig, 'tbd_mp3');
-
-%% Figure 3 : TBD en fonction du TFD en balayant le seuil (Tq = 5 s)
-fig = nouvelle_figure(12, 9);  hold on;
-choix = {'sans dégradation', 'bruit blanc 10 dB', 'bruit blanc 0 dB', 'MP3 32 kbit/s', ...
-    'passe-bande 300-3400 Hz', 'réverbération T60 = 1 s'};
-seuils = 0:max(cellfun(@(r) max(r.score), resultats)) + 1;
-for k = 1:numel(choix)
-    c = find(strcmp({C.nom}, choix{k}) & [C.Tq] == 5);
-    r = resultats{c};
-    T = taux_detection(r(~r.calib, :), seuils);
-    plot(100 * T.TFD, 100 * T.TBD, '-', 'DisplayName', choix{k});
-end
-c = find(strcmp({C.nom}, 'sans dégradation') & [C.Tq] == 5);
-Tsel = taux_detection(resultats{c}(~resultats{c}.calib, :), s_thr);
-plot(100 * Tsel.TFD, 100 * Tsel.TBD, 'ko', 'MarkerSize', 8, 'DisplayName', ...
-    sprintf('seuil retenu s_{thr} = %d', s_thr));
-grid on;  xlim([0 50]);  ylim([50 100]);
-xlabel('TFD (%)');  ylabel('TBD (%)');
-legend('Location', 'southeast');
-title('Balayage du seuil, T_q = 5 s');
-sauver_figure(fig, 'tbd_tfd');
-
-%% Figure 4 : histogrammes des scores positifs et négatifs (Tq = 5 s, abscisse log)
-cs = find([C.Tq] == 5);
-sPos = [];  sNeg = [];
-for c = cs
-    r = resultats{c};
-    sPos = [sPos; r.score(r.id_vrai > 0)]; %#ok<AGROW>
-    sNeg = [sNeg; r.score(r.id_vrai == 0)]; %#ok<AGROW>
-end
-fig = nouvelle_figure(14, 8);  hold on;
-bords = logspace(0, log10(max(sPos) + 1), 40);
-histogram(max(sNeg, 1), bords, 'FaceAlpha', 0.6, 'DisplayName', ...
-    sprintf('requêtes négatives (%d)', numel(sNeg)));
-histogram(max(sPos, 1), bords, 'FaceAlpha', 0.6, 'DisplayName', ...
-    sprintf('requêtes positives (%d)', numel(sPos)));
-xline(s_thr, 'k--', sprintf('s_{thr} = %d', s_thr), 'LineWidth', 1.2, 'HandleVisibility', 'off');
-set(gca, 'XScale', 'log');  grid on;
-xlabel('score s (hauteur du pic de l''histogramme des \delta)');  ylabel('nombre de requêtes');
-legend('Location', 'northwest');
-title('Scores, T_q = 5 s, toutes dégradations');
-sauver_figure(fig, 'histo_scores');
 
 function c = cond(nom, degradation, param, Tq, f)
 c = struct('nom', nom, 'degradation', degradation, 'param', param, 'Tq', Tq, 'f', f);
