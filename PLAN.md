@@ -125,7 +125,7 @@ Deux éléments ne sont pas listés par le sujet mais sont indispensables :
 - [x] `evaluer` : TBD et TFD, en séparant « mauvais morceau » (confusion) et « inconnu » (non-détection).
 - [x] Fixer s_thr à partir des requêtes négatives, selon la méthode de Q5. Couper les négatives en deux moitiés : l'une sert à **calibrer** le seuil, l'autre à **mesurer** le TFD. Sinon le TFD annoncé est optimiste.
 - [x] Générer les 5 figures attendues (section 1) et le tableau récapitulatif des 6 dégradations (`resultats/synthese.csv`).
-  - [ ] Ajouter le brouhaha et l'enregistrement au micro dès que les fichiers de B sont là.
+  - [x] Brouhaha réel ajouté à la campagne (10, 5, 0 dB) ; enregistrements en salle à 1 m et 3 m évalués (`evaluer_enregistrements.m`).
 - [x] Mesurer le temps de requête et la taille de l'index pour plusieurs tailles de base, par exemple 25, 50 et 100 morceaux. Résultat attendu : la taille de l'index croît linéairement, et le temps de requête dépend très peu du nombre de morceaux.
 
 ### A4. Mesures pour les questions (mercredi après-midi et soir) — fait
@@ -155,7 +155,7 @@ Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'envi
   - quelques curseurs pour N, la taille du voisinage, F, γf et s_thr ;
   - un bouton « Enregistrer », qui utilise `audiorecorder` pendant Tq secondes, et un bouton « Identifier » ;
   - l'affichage du spectrogramme, de la constellation, de l'histogramme des δ et du résultat.
-- [ ] Évaluer les enregistrements en salle de B et les ajouter au tableau récapitulatif.
+- [x] Enregistrements en salle (B3, repris par A) : faits à 1 m et 3 m, évalués sur 5 s, 10 s et la prise entière.
 - [ ] **Jeudi 18 h : gel du code.**
 - [ ] Vendredi : README final, commentaires, zip.
 
