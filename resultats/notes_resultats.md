@@ -293,3 +293,29 @@ Trois fonctions MATLAB, testées en mode simulation (prises fictives puis suppri
 - `enregistrer_salle('1m')` puis `enregistrer_salle('4m')` : le Mac joue chacun des 30 morceaux de `morceaux_a_enregistrer.csv` (20 de la base, 10 hors base) sur l'enceinte, et l'enregistre en même temps avec son micro, 12 s par morceau, début tiré au hasard. Fichiers `data/enregistrements/micro_<id>_<distance>.wav` et protocole `protocole_<distance>.csv` (début de l'extrait, niveau de la prise, date). Alerte affichée en cas de saturation ou de niveau trop faible. Environ 7 minutes par distance.
 - `enregistrer_brouhaha()` : 3 minutes au micro, dans un lieu bruyant sans musique, vers `data/enregistrements/brouhaha_cafet.wav`. La campagne l'ajoute ensuite toute seule (brouhaha 10, 5, 0 dB).
 - `evaluer_enregistrements` : identifie chaque prise (5 premières secondes, puis prise entière), et donne TBD, TFD, confusions et scores par distance (`resultats/enregistrements*.csv`).
+
+## Brouhaha réel (bruit de la cantine)
+
+Enregistré au téléphone (Dictaphone) à la cantine le mercredi 18 novembre vers midi, 3 min 24 s, sans musique. Fichier AAC mono à 48 kHz, 63 kbit/s, converti en WAV à 44,1 kHz (`data/enregistrements/brouhaha_cafet.wav`, non versionné : conversations enregistrées).
+
+Caractéristiques mesurées :
+
+- **non stationnaire** : niveau par seconde de −29 à −17 dBFS (médiane −25) ;
+- **coloré** : 58 % de l'énergie sous 500 Hz, 32 % entre 500 et 2 000 Hz, 3 % entre 2 et 4 kHz. Un bruit blanc répartirait l'énergie uniformément.
+
+Ajouté après le passage à 8 kHz, segment tiré au hasard, même formule de RSB (Px sur l'extrait), Tq = 5 s, s_thr = 35, N⁺ = 200, N⁻ = 50 :
+
+| RSB | bruit blanc | brouhaha réel |
+|---|---|---|
+| 10 dB | 92,0 % | 90,5 % |
+| 5 dB | 84,0 % | 79,0 % |
+| 0 dB | 66,5 % | 50,0 % |
+
+TFD = 0 % dans les trois conditions. Toutes les erreurs sont des non-détections.
+
+- **À RSB égal, le brouhaha est plus difficile que le bruit blanc**, et l'écart grandit avec le niveau de bruit (1,5 point à 10 dB, 16,5 points à 0 dB). Figure `tbd_en_fonction_du_rsb` (losanges noirs).
+- Explications proposées :
+  - **le brouhaha met son énergie là où sont les pics de la musique** : sous 900 Hz, où se trouvent 3 des 6 bandes et beaucoup de pics, alors qu'un bruit blanc dépense une grande partie de sa puissance dans les aigus, où il y a moins de pics à détruire ;
+  - **la parole est elle-même faite de maxima locaux** (harmoniques des voix) : elle crée des pics « concurrents » qui prennent la place de ceux de la musique dans le quota de chaque bande ;
+  - **il est non stationnaire** : à RSB moyen fixé, les moments forts (rires, vaisselle) ont un RSB local bien pire que la moyenne et détruisent localement beaucoup de pics.
+- C'est l'inverse de ce qu'on observe pour le MP3 (Q6) : ce qui compte n'est pas la puissance totale du bruit, mais **où** elle tombe par rapport aux pics.

@@ -17,18 +17,23 @@ pal = [0.00 0.45 0.74;   % bleu
        0.60 0.40 0.20;   % brun
        0.00 0.00 0.00];  % noir
 
-%% Figure 1 : TBD en fonction du RSB, une courbe par Tq
+%% Figure 1 : TBD en fonction du RSB, une courbe par Tq (bruit blanc), et brouhaha
 fig = nouvelle_figure(12, 8);  hold on;
 marq = {'o-', 's--', '^:'};  Tqs = [3 5 10];
 for j = 1:3
     sel = synthese.degradation == "bruit blanc" & synthese.Tq == Tqs(j);
     plot(synthese.parametre(sel), 100 * synthese.TBD(sel), marq{j}, 'Color', pal(j, :), ...
-        'LineWidth', 1.5, 'MarkerSize', 6, 'DisplayName', sprintf('T_q = %d s', Tqs(j)));
+        'LineWidth', 1.5, 'MarkerSize', 6, 'DisplayName', sprintf('bruit blanc, T_q = %d s', Tqs(j)));
+end
+sel = synthese.degradation == "brouhaha";
+if any(sel)
+    plot(synthese.parametre(sel), 100 * synthese.TBD(sel), 'kd-', 'LineWidth', 1.8, ...
+        'MarkerSize', 7, 'MarkerFaceColor', 'k', 'DisplayName', 'brouhaha réel, T_q = 5 s');
 end
 set(gca, 'XDir', 'reverse');  xticks(0:5:20);  xlim([-1 21]);  ylim([0 101.5]);  yticks(0:10:100);
 grid on;  xlabel('RSB (dB)');  ylabel('TBD (%)');
 legend('Location', 'southwest');
-title(sprintf('Bruit blanc additif (s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
+title(sprintf('Bruit additif (s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
 sauver_figure(fig, 'tbd_en_fonction_du_rsb');
 
 %% Figure 2 : TBD en fonction du débit MP3

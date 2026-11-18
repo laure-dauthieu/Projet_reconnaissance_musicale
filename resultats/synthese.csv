@@ -1,25 +1,28 @@
 condition,degradation,parametre,Tq,temps_median_ms,seuil,TBD,TFD,confusion,non_detection,N_pos,N_neg
-sans dégradation,aucune,NaN,3,1.44270833333333,35,0.945,0,0,0.055,200,50
-bruit blanc 20 dB,bruit blanc,20,3,1.408875,35,0.905,0,0,0.095,200,50
-bruit blanc 15 dB,bruit blanc,15,3,1.33541666666667,35,0.87,0,0,0.13,200,50
-bruit blanc 10 dB,bruit blanc,10,3,1.48995833333333,35,0.81,0,0,0.19,200,50
-bruit blanc 5 dB,bruit blanc,5,3,1.23235416666667,35,0.62,0,0,0.38,200,50
-bruit blanc 0 dB,bruit blanc,0,3,1.22235416666667,35,0.385,0,0,0.615,200,50
-sans dégradation,aucune,NaN,5,1.8884375,35,0.985,0,0,0.015,200,50
-bruit blanc 20 dB,bruit blanc,20,5,1.920625,35,0.975,0,0,0.025,200,50
-bruit blanc 15 dB,bruit blanc,15,5,1.89770833333333,35,0.95,0,0,0.05,200,50
-bruit blanc 10 dB,bruit blanc,10,5,1.92983333333333,35,0.92,0,0,0.08,200,50
-bruit blanc 5 dB,bruit blanc,5,5,1.95204166666667,35,0.84,0,0,0.16,200,50
-bruit blanc 0 dB,bruit blanc,0,5,1.9484375,35,0.665,0,0,0.335,200,50
-sans dégradation,aucune,NaN,10,3.38202083333333,35,0.995,0,0,0.005,200,50
-bruit blanc 20 dB,bruit blanc,20,10,3.373375,35,0.99,0,0,0.01,200,50
-bruit blanc 15 dB,bruit blanc,15,10,3.37877083333333,35,0.99,0,0,0.01,200,50
-bruit blanc 10 dB,bruit blanc,10,10,3.4044375,35,0.985,0,0,0.015,200,50
-bruit blanc 5 dB,bruit blanc,5,10,3.37608333333333,35,0.94,0,0,0.06,200,50
-bruit blanc 0 dB,bruit blanc,0,10,3.37891666666667,35,0.855,0,0,0.145,200,50
-MP3 128 kbit/s,MP3,128,5,1.93985416666667,35,0.985,0,0,0.015,200,50
-MP3 64 kbit/s,MP3,64,5,1.93225,35,0.985,0,0,0.015,200,50
-MP3 32 kbit/s,MP3,32,5,1.92516666666667,35,0.98,0,0,0.02,200,50
-passe-bande 300-3400 Hz,passe-bande,NaN,5,1.90795833333333,35,0.985,0,0,0.015,200,50
-réverbération T60 = 0.3 s,réverbération,0.3,5,1.88725,35,0.89,0,0,0.11,200,50
-réverbération T60 = 1 s,réverbération,1,5,1.89520833333333,35,0.51,0,0,0.49,200,50
+sans dégradation,aucune,NaN,3,1.45395833333333,35,0.945,0,0,0.055,200,50
+bruit blanc 20 dB,bruit blanc,20,3,1.36833333333333,35,0.905,0,0,0.095,200,50
+bruit blanc 15 dB,bruit blanc,15,3,1.31425,35,0.87,0,0,0.13,200,50
+bruit blanc 10 dB,bruit blanc,10,3,1.46735416666667,35,0.81,0,0,0.19,200,50
+bruit blanc 5 dB,bruit blanc,5,3,1.23525,35,0.62,0,0,0.38,200,50
+bruit blanc 0 dB,bruit blanc,0,3,1.2045625,35,0.385,0,0,0.615,200,50
+sans dégradation,aucune,NaN,5,1.88366666666667,35,0.985,0,0,0.015,200,50
+bruit blanc 20 dB,bruit blanc,20,5,1.8820625,35,0.975,0,0,0.025,200,50
+bruit blanc 15 dB,bruit blanc,15,5,1.91733333333333,35,0.95,0,0,0.05,200,50
+bruit blanc 10 dB,bruit blanc,10,5,1.89329166666667,35,0.92,0,0,0.08,200,50
+bruit blanc 5 dB,bruit blanc,5,5,1.90841666666667,35,0.84,0,0,0.16,200,50
+bruit blanc 0 dB,bruit blanc,0,5,1.90708333333333,35,0.665,0,0,0.335,200,50
+sans dégradation,aucune,NaN,10,3.3291875,35,0.995,0,0,0.005,200,50
+bruit blanc 20 dB,bruit blanc,20,10,3.32291666666667,35,0.99,0,0,0.01,200,50
+bruit blanc 15 dB,bruit blanc,15,10,3.51991666666667,35,0.99,0,0,0.01,200,50
+bruit blanc 10 dB,bruit blanc,10,10,3.36795833333333,35,0.985,0,0,0.015,200,50
+bruit blanc 5 dB,bruit blanc,5,10,3.34079166666667,35,0.94,0,0,0.06,200,50
+bruit blanc 0 dB,bruit blanc,0,10,3.374375,35,0.855,0,0,0.145,200,50
+MP3 128 kbit/s,MP3,128,5,1.93658333333333,35,0.985,0,0,0.015,200,50
+MP3 64 kbit/s,MP3,64,5,1.93470833333333,35,0.985,0,0,0.015,200,50
+MP3 32 kbit/s,MP3,32,5,1.93785416666667,35,0.98,0,0,0.02,200,50
+passe-bande 300-3400 Hz,passe-bande,NaN,5,1.92429166666667,35,0.985,0,0,0.015,200,50
+réverbération T60 = 0.3 s,réverbération,0.3,5,1.90977083333333,35,0.89,0,0,0.11,200,50
+réverbération T60 = 1 s,réverbération,1,5,1.94433333333333,35,0.51,0,0,0.49,200,50
+brouhaha 10 dB,brouhaha,10,5,1.93885416666667,35,0.905,0,0,0.095,200,50
+brouhaha 5 dB,brouhaha,5,5,1.90966666666667,35,0.79,0,0,0.21,200,50
+brouhaha 0 dB,brouhaha,0,5,1.8905625,35,0.5,0,0,0.5,200,50
