@@ -1,0 +1,5 @@
+distance,Tq,s_thr,N_pos,TBD,confusion,N_neg,TFD,score_median_pos,score_max_neg
+1m,5 s,35,20,0.8,0,10,0,53,14
+1m,prise entière,35,20,1,0,10,0,228.5,17
+3m,5 s,35,20,0.2,0,10,0,28,10
+3m,prise entière,35,20,0.8,0,10,0,63,17

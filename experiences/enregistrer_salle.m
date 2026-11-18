@@ -1,7 +1,7 @@
 function enregistrer_salle(distance, varargin)
 %ENREGISTRER_SALLE  Joue les morceaux sur une enceinte et les enregistre au micro.
 %   enregistrer_salle('1m')                  enregistrement réel
-%   enregistrer_salle('4m')
+%   enregistrer_salle('3m')
 %   enregistrer_salle('1m', 'duree', 12)     durée de chaque prise (s, défaut 12)
 %   enregistrer_salle('test', 'nombre', 2)   seulement les 2 premiers morceaux (essai)
 %   enregistrer_salle('1m', 'depart', 12)    reprendre au 12e morceau après une erreur

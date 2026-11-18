@@ -1,0 +1,121 @@
+id,distance,positive,Tq,score,reponse,issue
+10443,1m,1,5,31,0,non-détection
+10443,1m,1,13.1,281,27,bonne détection
+10443,3m,1,5,8,0,non-détection
+10443,3m,1,13.1,62,27,bonne détection
+10993,1m,1,5,93,31,bonne détection
+10993,1m,1,13.1,309,31,bonne détection
+10993,3m,1,5,11,0,non-détection
+10993,3m,1,13.1,29,0,non-détection
+11775,1m,1,5,85,47,bonne détection
+11775,1m,1,13.1,229,47,bonne détection
+11775,3m,1,5,33,0,non-détection
+11775,3m,1,13.1,59,47,bonne détection
+11861,1m,1,5,38,41,bonne détection
+11861,1m,1,13.1,276,41,bonne détection
+11861,3m,1,5,14,0,non-détection
+11861,3m,1,13.1,15,0,non-détection
+23016,1m,0,5,11,0,rejet correct
+23016,1m,0,13.1,13,0,rejet correct
+23016,3m,0,5,10,0,rejet correct
+23016,3m,0,13.1,10,0,rejet correct
+26014,1m,1,5,23,0,non-détection
+26014,1m,1,13.1,91,48,bonne détection
+26014,3m,1,5,11,0,non-détection
+26014,3m,1,13.2,58,48,bonne détection
+39278,1m,1,5,63,19,bonne détection
+39278,1m,1,13.1,301,19,bonne détection
+39278,3m,1,5,30,0,non-détection
+39278,3m,1,13.1,65,19,bonne détection
+41018,1m,1,5,46,75,bonne détection
+41018,1m,1,13.1,116,75,bonne détection
+41018,3m,1,5,7,0,non-détection
+41018,3m,1,13.1,29,0,non-détection
+48861,1m,1,5,51,22,bonne détection
+48861,1m,1,13.2,228,22,bonne détection
+48861,3m,1,5,31,0,non-détection
+48861,3m,1,13.2,149,22,bonne détection
+55808,1m,1,5,106,9,bonne détection
+55808,1m,1,13.1,138,9,bonne détection
+55808,3m,1,5,10,0,non-détection
+55808,3m,1,13.1,19,0,non-détection
+56015,1m,0,5,6,0,rejet correct
+56015,1m,0,13.1,6,0,rejet correct
+56015,3m,0,5,7,0,rejet correct
+56015,3m,0,13.1,12,0,rejet correct
+66390,1m,0,5,12,0,rejet correct
+66390,1m,0,13.1,17,0,rejet correct
+66390,3m,0,5,10,0,rejet correct
+66390,3m,0,13.1,12,0,rejet correct
+67638,1m,1,5,24,0,non-détection
+67638,1m,1,13.1,136,5,bonne détection
+67638,3m,1,5,38,5,bonne détection
+67638,3m,1,13.1,80,5,bonne détection
+68821,1m,1,5,40,94,bonne détection
+68821,1m,1,13.1,267,94,bonne détection
+68821,3m,1,5,32,0,non-détection
+68821,3m,1,13.2,60,94,bonne détection
+70425,1m,1,5,75,78,bonne détection
+70425,1m,1,13.2,154,78,bonne détection
+70425,3m,1,5,27,0,non-détection
+70425,3m,1,13.2,81,78,bonne détection
+73761,1m,1,5,161,72,bonne détection
+73761,1m,1,13.1,301,72,bonne détection
+73761,3m,1,5,24,0,non-détection
+73761,3m,1,13.1,39,72,bonne détection
+75372,1m,0,5,6,0,rejet correct
+75372,1m,0,13.1,7,0,rejet correct
+75372,3m,0,5,8,0,rejet correct
+75372,3m,0,13.2,8,0,rejet correct
+91443,1m,1,5,57,38,bonne détection
+91443,1m,1,13.1,209,38,bonne détection
+91443,3m,1,5,25,0,non-détection
+91443,3m,1,13.1,79,38,bonne détection
+93986,1m,0,5,9,0,rejet correct
+93986,1m,0,13.1,14,0,rejet correct
+93986,3m,0,5,8,0,rejet correct
+93986,3m,0,13.1,10,0,rejet correct
+97037,1m,1,5,53,52,bonne détection
+97037,1m,1,13.1,231,52,bonne détection
+97037,3m,1,5,61,52,bonne détection
+97037,3m,1,13,79,52,bonne détection
+114534,1m,0,5,11,0,rejet correct
+114534,1m,0,13.1,14,0,rejet correct
+114534,3m,0,5,8,0,rejet correct
+114534,3m,0,13.1,11,0,rejet correct
+116873,1m,1,5,80,28,bonne détection
+116873,1m,1,13.1,188,28,bonne détection
+116873,3m,1,5,59,28,bonne détection
+116873,3m,1,13.1,80,28,bonne détection
+120315,1m,1,5,53,57,bonne détection
+120315,1m,1,13.1,274,57,bonne détection
+120315,3m,1,5,30,0,non-détection
+120315,3m,1,13.1,107,57,bonne détection
+122397,1m,1,5,24,0,non-détection
+122397,1m,1,13.1,204,96,bonne détection
+122397,3m,1,5,29,0,non-détection
+122397,3m,1,13.1,47,96,bonne détection
+136707,1m,0,5,14,0,rejet correct
+136707,1m,0,13.2,16,0,rejet correct
+136707,3m,0,5,9,0,rejet correct
+136707,3m,0,13.1,17,0,rejet correct
+139110,1m,1,5,103,36,bonne détection
+139110,1m,1,13.1,358,36,bonne détection
+139110,3m,1,5,48,36,bonne détection
+139110,3m,1,13.1,318,36,bonne détection
+145043,1m,0,5,6,0,rejet correct
+145043,1m,0,13.1,6,0,rejet correct
+145043,3m,0,5,5,0,rejet correct
+145043,3m,0,13.1,6,0,rejet correct
+146458,1m,0,5,10,0,rejet correct
+146458,1m,0,13.1,10,0,rejet correct
+146458,3m,0,5,7,0,rejet correct
+146458,3m,0,13.1,8,0,rejet correct
+148288,1m,1,5,36,85,bonne détection
+148288,1m,1,13.1,91,85,bonne détection
+148288,3m,1,5,9,0,non-détection
+148288,3m,1,13.1,64,85,bonne détection
+148537,1m,0,5,8,0,rejet correct
+148537,1m,0,13.1,14,0,rejet correct
+148537,3m,0,5,7,0,rejet correct
+148537,3m,0,13.1,8,0,rejet correct

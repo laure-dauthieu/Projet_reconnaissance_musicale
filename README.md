@@ -91,7 +91,7 @@ run('experiences/figure_q2_filtrage.m') % Q2 : S_y,dB − S_x,dB pour un passe-b
 addpath('experiences')
 enregistrer_brouhaha()                  % 3 min de bruit de cafétéria, sans musique
 enregistrer_salle('1m')                 % 30 morceaux joués et enregistrés, enceinte à 1 m (≈ 7 min)
-enregistrer_salle('4m')                 % idem à 4 m
+enregistrer_salle('3m')                 % idem à 3 m
 run('experiences/evaluer_enregistrements.m')  % TBD et TFD par distance
 ```
 

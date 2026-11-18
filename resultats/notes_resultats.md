@@ -17,7 +17,7 @@ Toutes les figures sont dans `figures/`, en PDF (à insérer dans le rapport) et
   - le bruit, le passe-bande et la réverbération sont appliqués **après** le passage à 8 kHz. Un bruit blanc ajouté à 44,1 kHz s'étalerait jusqu'à 22 kHz et le passage à 8 kHz en retirerait environ 80 % : le RSB réel serait meilleur de 10·log10(22,05/4) ≈ 7,4 dB que le RSB annoncé.
 - **Paramètres** : ceux de départ du sujet (`parametres.m`) : N = 1024, H = 512, voisinage ±3 trames × ±5 canaux, 6 bandes, F = 10, γf = 1.
 - Graines aléatoires fixées : relancer les scripts redonne les mêmes chiffres.
-- **Pas encore mesuré** : le brouhaha et l'enregistrement au micro en salle (en attente des enregistrements).
+- Le brouhaha réel et les enregistrements en salle (1 m et 3 m) sont mesurés : sections à la fin de ce fichier.
 
 ## Seuil de décision (Q5)
 
@@ -288,13 +288,36 @@ Ajustement par la méthode des moments : β = σ·√6/π, μ = s̄ − 0,5772·
 - Explication probable : un maximum de variables de Poisson indépendantes suit à peu près une loi de Gumbel, mais nos scores négatifs ont une queue plus lourde. Certaines clés sont très fréquentes dans l'index et dans les requêtes (slide 12), et leurs votes fortuits peuvent tomber dans la même case de δ.
 - **Conclusion pour le rapport** : la méthode automatique donne un ordre de grandeur (16 à 23) ; le seuil retenu (35 = 1,5 × le maximum de calibration) est plus prudent, et c'est lui qui donne TFD = 0 sur les négatives de test (maximum mesuré : 26).
 
-## Enregistrements en salle et brouhaha (B3) : outils prêts, prises à faire
+## Enregistrements en salle à 1 m et 3 m (B3)
 
-Trois fonctions MATLAB, testées en mode simulation (prises fictives puis supprimées) :
+Dégradation « enregistrement au micro, en salle, 2 distances » du sujet (§7). Toute la chaîne réelle à la fois : haut-parleur, salle, micro, bruit ambiant.
 
-- `enregistrer_salle('1m')` puis `enregistrer_salle('4m')` : le Mac joue chacun des 30 morceaux de `morceaux_a_enregistrer.csv` (20 de la base, 10 hors base) sur l'enceinte, et l'enregistre en même temps avec son micro, 12 s par morceau, début tiré au hasard. Fichiers `data/enregistrements/micro_<id>_<distance>.wav` et protocole `protocole_<distance>.csv` (début de l'extrait, niveau de la prise, date). Alerte affichée en cas de saturation ou de niveau trop faible. Environ 7 minutes par distance.
-- `enregistrer_brouhaha()` : 3 minutes au micro, dans un lieu bruyant sans musique, vers `data/enregistrements/brouhaha_cafet.wav`. La campagne l'ajoute ensuite toute seule (brouhaha 10, 5, 0 dB).
-- `evaluer_enregistrements` : identifie chaque prise (5 premières secondes, puis prise entière), et donne TBD, TFD, confusions et scores par distance (`resultats/enregistrements*.csv`).
+**Protocole**
+
+- Le Mac joue l'extrait sur une enceinte Bluetooth et l'enregistre en même temps avec son micro intégré (`experiences/enregistrer_salle.m`, 44,1 kHz mono).
+- 30 morceaux (`resultats/morceaux_a_enregistrer.csv`) : 20 de la base et 10 hors base, de tous les genres. Un extrait de 12 s par morceau, début tiré au hasard (graine fixée : **les mêmes extraits aux deux distances**).
+- Même salle, même enceinte, **même volume** aux deux distances. 1 m : mardi 17 novembre au soir ; 3 m : mercredi 18 novembre au soir.
+- Chaque prise est une requête : on la prétraite comme une requête ordinaire, puis on l'identifie avec ses **5 premières secondes** et avec la **prise entière** (environ 13 s). Seuil inchangé, s_thr = 35. Script `experiences/evaluer_enregistrements.m`, résultats dans `resultats/enregistrements.csv` (par prise) et `enregistrements_synthese.csv`.
+- **Pourquoi 3 m et pas 4 m** : le sujet demande « 2 distances » sans les fixer. On a pris 1 m (son direct dominant) et 3 m, la plus grande distance possible dans la salle disponible, où le son réverbéré domine déjà.
+
+**Résultats** (N⁺ = 20, N⁻ = 10 par distance)
+
+| Distance | Requête | TBD | Confusions | TFD | Score médian (positives) | Score max (négatives) |
+|---|---|---|---|---|---|---|
+| 1 m | 5 s | 80 % (16/20) | 0 | 0/10 | 53 | 14 |
+| 1 m | prise entière | 100 % (20/20) | 0 | 0/10 | 228 | 17 |
+| 3 m | 5 s | **20 %** (4/20) | 0 | 0/10 | 28 | 10 |
+| 3 m | prise entière | 80 % (16/20) | 0 | 0/10 | 63 | 17 |
+
+Niveau des prises : de −39 à −26 dBFS à 1 m (médiane −31), de −37 à −24 dBFS à 3 m (médiane −29). Aucune saturation.
+
+**Interprétation**
+
+- **Aucune fausse détection, aucune confusion**, aux deux distances : toutes les erreurs sont des non-détections. Le seuil calibré sur les négatives simulées tient sur des enregistrements réels (score max des négatives réelles : 17, contre 23 en simulation).
+- **Le passage de 1 m à 3 m fait chuter le TBD sur 5 s de 80 à 20 %**, et le score médian de 53 à 28, **alors que le niveau enregistré n'a pas baissé** (médiane −29 dBFS contre −31). Ce n'est donc pas un problème de puissance ni de bruit de fond : c'est la **réverbération**. À 1 m, le son direct domine ; à 3 m, le micro reçoit surtout le champ réverbéré de la salle, qui étale l'énergie dans le temps, déplace les maxima et en crée d'autres. C'est le même mécanisme que la réverbération simulée (T60 = 1 s : TBD 51 %), en plus fort : la vraie salle ajoute la coloration de l'enceinte et du micro, et le bruit ambiant.
+- **Une requête plus longue compense en grande partie** : à 3 m, on passe de 20 % sur 5 s à 80 % sur la prise entière (environ 13 s). Le score croît comme le nombre de clés, donc comme Tq, alors que les scores des mauvais morceaux restent petits. Même conclusion que pour le bruit blanc (`theorie_mesure`).
+- **Le bon morceau est presque toujours en tête, même quand il est rejeté** : sur 5 s, le meilleur candidat est le bon morceau dans 20/20 prises à 1 m et 18/20 à 3 m. À 3 m, 9 des 16 non-détections ont un score entre 24 et 33, juste sous le seuil. C'est le prix d'un seuil unique et prudent (1,5 × le maximum des négatives) : avec s_thr = 25, le TBD sur 5 s serait de 85 % à 1 m et 60 % à 3 m, et aucune des 20 négatives réelles ne le dépasserait (max 17), mais ce seuil n'est plus calibré, et 20 négatives ne suffisent pas à garantir un TFD faible.
+- Limites : 20 positives par distance (un écart de 5 points = 1 prise), une seule salle, une seule enceinte, un seul volume.
 
 ## Brouhaha réel (bruit de la cantine)
 
