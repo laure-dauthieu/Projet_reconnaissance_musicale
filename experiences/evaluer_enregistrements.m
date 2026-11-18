@@ -5,8 +5,10 @@
 %   Chaque prise micro_<id>_<distance>.wav est une requête : prétraitement,
 %   identification avec l'index des 100 morceaux et le seuil retenu P.s_thr.
 %   Requête positive si le morceau est dans la base, négative sinon.
-%   On évalue la prise entière, puis ses 5 premières secondes (Tq = 5 s,
-%   comme dans la campagne).
+%   On évalue les 5 et 10 premières secondes de la prise (Tq = 5 s comme dans
+%   la campagne, 10 s comme sur la figure du bruit blanc), puis la prise
+%   entière (environ 13 s). On note aussi si le meilleur candidat est le bon
+%   morceau, même quand son score reste sous le seuil.
 %
 %   Produit : resultats/enregistrements.csv (une ligne par prise)
 %             resultats/enregistrements_synthese.csv (TBD, TFD par distance et Tq)
@@ -32,7 +34,9 @@ for i = 1:numel(fichiers)
     if isempty(idVrai), idVrai = 0; end
     [y, fe] = audioread(fullfile(fichiers(i).folder, fichiers(i).name));
     x = pretraitement(y, P, fe);
-    for Tq = [5 numel(x) / P.Fe]
+    durees = ["5 s", "10 s", "prise entière"];
+    for d = 1:3
+        Tq = ternaire(d < 3, 5 * d, numel(x) / P.Fe);
         q = x(1:min(end, round(Tq * P.Fe)));
         R = identifier(q, INDEX, P);
         reponse = R.id;                                   % 0 = « inconnu »
@@ -43,24 +47,27 @@ for i = 1:numel(fichiers)
         else
             if reponse == 0, issue = "rejet correct"; else, issue = "fausse détection"; end
         end
-        L(end+1, :) = {id, distance, idVrai > 0, round(Tq, 1), R.score, reponse, issue}; %#ok<SAGROW>
+        L(end+1, :) = {id, distance, idVrai > 0, durees(d), round(Tq, 1), R.score, reponse, ...
+            idVrai > 0 && R.id_max == idVrai, issue}; %#ok<SAGROW>
     end
 end
-T = cell2table(L, 'VariableNames', {'id', 'distance', 'positive', 'Tq', 'score', 'reponse', 'issue'});
+T = cell2table(L, 'VariableNames', {'id', 'distance', 'positive', 'requete', 'Tq', 'score', ...
+    'reponse', 'meilleur_correct', 'issue'});
 writetable(T, fullfile(racine, 'resultats', 'enregistrements.csv'));
 
-% Synthèse par distance et par durée (5 s, ou prise entière)
-T.prise_entiere = T.Tq > 5;
-G = findgroups(T.distance, T.prise_entiere);
+% Synthèse par distance et par durée (5 s, 10 s, prise entière)
+T.ordre = 1 * (T.requete == "5 s") + 2 * (T.requete == "10 s") + 3 * (T.requete == "prise entière");
+G = findgroups(T.distance, T.ordre);
 S = table();
 for g = unique(G)'
     t = T(G == g, :);
     pos = t.positive;  neg = ~pos;
-    S = [S; table(t.distance(1), ternaire(t.prise_entiere(1), "prise entière", "5 s"), P.s_thr, ...
-        sum(pos), mean(t.issue(pos) == "bonne détection"), mean(t.issue(pos) == "confusion"), ...
-        sum(neg), mean(t.issue(neg) == "fausse détection"), median(t.score(pos)), max([t.score(neg); 0]), ...
-        'VariableNames', {'distance', 'Tq', 's_thr', 'N_pos', 'TBD', 'confusion', 'N_neg', 'TFD', ...
-        'score_median_pos', 'score_max_neg'})]; %#ok<AGROW>
+    S = [S; table(t.distance(1), t.requete(1), P.s_thr, ...
+        sum(pos), mean(t.issue(pos) == "bonne détection"), mean(t.meilleur_correct(pos)), ...
+        mean(t.issue(pos) == "confusion"), sum(neg), mean(t.issue(neg) == "fausse détection"), ...
+        median(t.score(pos)), max([t.score(neg); 0]), ...
+        'VariableNames', {'distance', 'Tq', 's_thr', 'N_pos', 'TBD', 'meilleur_correct', 'confusion', ...
+        'N_neg', 'TFD', 'score_median_pos', 'score_max_neg'})]; %#ok<AGROW>
 end
 writetable(S, fullfile(racine, 'resultats', 'enregistrements_synthese.csv'));
 disp(S);

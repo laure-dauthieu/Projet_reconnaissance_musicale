@@ -297,17 +297,21 @@ Dégradation « enregistrement au micro, en salle, 2 distances » du sujet (§7)
 - Le Mac joue l'extrait sur une enceinte Bluetooth et l'enregistre en même temps avec son micro intégré (`experiences/enregistrer_salle.m`, 44,1 kHz mono).
 - 30 morceaux (`resultats/morceaux_a_enregistrer.csv`) : 20 de la base et 10 hors base, de tous les genres. Un extrait de 12 s par morceau, début tiré au hasard (graine fixée : **les mêmes extraits aux deux distances**).
 - Même salle, même enceinte, **même volume** aux deux distances. 1 m : mardi 17 novembre au soir ; 3 m : mercredi 18 novembre au soir.
-- Chaque prise est une requête : on la prétraite comme une requête ordinaire, puis on l'identifie avec ses **5 premières secondes** et avec la **prise entière** (environ 13 s). Seuil inchangé, s_thr = 35. Script `experiences/evaluer_enregistrements.m`, résultats dans `resultats/enregistrements.csv` (par prise) et `enregistrements_synthese.csv`.
+- Chaque prise est une requête : on la prétraite comme une requête ordinaire, puis on l'identifie avec ses **5 premières secondes**, ses **10 premières secondes** et la **prise entière** (environ 13 s). Seuil inchangé, s_thr = 35. Script `experiences/evaluer_enregistrements.m`, résultats dans `resultats/enregistrements.csv` (par prise) et `enregistrements_synthese.csv`.
 - **Pourquoi 3 m et pas 4 m** : le sujet demande « 2 distances » sans les fixer. On a pris 1 m (son direct dominant) et 3 m, la plus grande distance possible dans la salle disponible, où le son réverbéré domine déjà.
 
 **Résultats** (N⁺ = 20, N⁻ = 10 par distance)
 
-| Distance | Requête | TBD | Confusions | TFD | Score médian (positives) | Score max (négatives) |
-|---|---|---|---|---|---|---|
-| 1 m | 5 s | 80 % (16/20) | 0 | 0/10 | 53 | 14 |
-| 1 m | prise entière | 100 % (20/20) | 0 | 0/10 | 228 | 17 |
-| 3 m | 5 s | **20 %** (4/20) | 0 | 0/10 | 28 | 10 |
-| 3 m | prise entière | 80 % (16/20) | 0 | 0/10 | 63 | 17 |
+| Distance | Requête | TBD | Bon morceau en tête | Confusions | TFD | Score médian (positives) | Score max (négatives) |
+|---|---|---|---|---|---|---|---|
+| 1 m | 5 s | 80 % (16/20) | 20/20 | 0 | 0/10 | 53 | 14 |
+| 1 m | 10 s | 100 % (20/20) | 20/20 | 0 | 0/10 | 146 | 18 |
+| 1 m | prise entière | 100 % (20/20) | 20/20 | 0 | 0/10 | 228 | 17 |
+| 3 m | 5 s | **20 %** (4/20) | 18/20 | 0 | 0/10 | 28 | 10 |
+| 3 m | 10 s | 70 % (14/20) | 20/20 | 0 | 0/10 | 54 | 13 |
+| 3 m | prise entière | 80 % (16/20) | 20/20 | 0 | 0/10 | 63 | 17 |
+
+« Bon morceau en tête » : le morceau au plus haut score est le bon, que ce score dépasse le seuil ou non.
 
 Niveau des prises : de −39 à −26 dBFS à 1 m (médiane −31), de −37 à −24 dBFS à 3 m (médiane −29). Aucune saturation.
 
@@ -315,8 +319,8 @@ Niveau des prises : de −39 à −26 dBFS à 1 m (médiane −31), de −37 à 
 
 - **Aucune fausse détection, aucune confusion**, aux deux distances : toutes les erreurs sont des non-détections. Le seuil calibré sur les négatives simulées tient sur des enregistrements réels (score max des négatives réelles : 17, contre 23 en simulation).
 - **Le passage de 1 m à 3 m fait chuter le TBD sur 5 s de 80 à 20 %**, et le score médian de 53 à 28, **alors que le niveau enregistré n'a pas baissé** (médiane −29 dBFS contre −31). Ce n'est donc pas un problème de puissance ni de bruit de fond : c'est la **réverbération**. À 1 m, le son direct domine ; à 3 m, le micro reçoit surtout le champ réverbéré de la salle, qui étale l'énergie dans le temps, déplace les maxima et en crée d'autres. C'est le même mécanisme que la réverbération simulée (T60 = 1 s : TBD 51 %), en plus fort : la vraie salle ajoute la coloration de l'enceinte et du micro, et le bruit ambiant.
-- **Une requête plus longue compense en grande partie** : à 3 m, on passe de 20 % sur 5 s à 80 % sur la prise entière (environ 13 s). Le score croît comme le nombre de clés, donc comme Tq, alors que les scores des mauvais morceaux restent petits. Même conclusion que pour le bruit blanc (`theorie_mesure`).
-- **Le bon morceau est presque toujours en tête, même quand il est rejeté** : sur 5 s, le meilleur candidat est le bon morceau dans 20/20 prises à 1 m et 18/20 à 3 m. À 3 m, 9 des 16 non-détections ont un score entre 24 et 33, juste sous le seuil. C'est le prix d'un seuil unique et prudent (1,5 × le maximum des négatives) : avec s_thr = 25, le TBD sur 5 s serait de 85 % à 1 m et 60 % à 3 m, et aucune des 20 négatives réelles ne le dépasserait (max 17), mais ce seuil n'est plus calibré, et 20 négatives ne suffisent pas à garantir un TFD faible.
+- **Une requête plus longue compense en grande partie** : à 3 m, le TBD passe de 20 % (5 s) à 70 % (10 s) puis 80 % (prise entière, environ 13 s) ; à 1 m, il atteint 100 % dès 10 s. Le score du bon morceau croît comme le nombre de clés, donc à peu près comme Tq (médiane à 3 m : 28, 54, 63), alors que les scores des mauvais morceaux restent sous 20. Même conclusion que pour le bruit blanc (`theorie_mesure`, `tbd_en_fonction_du_rsb` : 5 s → 10 s fait gagner 20 points à 0 dB).
+- **Le bon morceau est presque toujours en tête, même quand il est rejeté** : sur 5 s, le meilleur candidat est le bon morceau dans 20/20 prises à 1 m et 18/20 à 3 m, et dans 20/20 dès 10 s aux deux distances. À 3 m, 9 des 16 non-détections ont un score entre 24 et 33, juste sous le seuil. C'est le prix d'un seuil unique et prudent (1,5 × le maximum des négatives) : avec s_thr = 25, le TBD sur 5 s serait de 85 % à 1 m et 60 % à 3 m, et aucune des 20 négatives réelles ne le dépasserait (max 17), mais ce seuil n'est plus calibré, et 20 négatives ne suffisent pas à garantir un TFD faible.
 - Limites : 20 positives par distance (un écart de 5 points = 1 prise), une seule salle, une seule enceinte, un seul volume.
 
 ## Brouhaha réel (bruit de la cantine)
