@@ -1,7 +1,7 @@
 # Plan d'action
 
 Projet OBL-4101 : reconnaissance musicale par empreintes audio.
-**Rendu : vendredi 20 novembre 2026.** On vise un dépôt vendredi à **12 h** (tout retard coûte 5 points).
+**Rendu : vendredi 27 novembre 2026** (repoussé, initialement le 20). On vise un dépôt vendredi à **12 h** (tout retard coûte 5 points).
 
 - **A = Alessandro** : chaîne MATLAB, base, évaluation, mesures, démo et interface.
 - **B = Laure** : théorie, figure Q2, enregistrements au micro, rapport, vidéo.
@@ -156,7 +156,7 @@ Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'envi
   - un bouton « Enregistrer », qui utilise `audiorecorder` pendant Tq secondes, et un bouton « Identifier » ;
   - l'affichage du spectrogramme, de la constellation, de l'histogramme des δ et du résultat.
 - [x] Enregistrements en salle (B3, repris par A) : faits à 1 m et 3 m, évalués sur 5 s, 10 s et la prise entière.
-- [ ] **Jeudi 18 h : gel du code.**
+- [ ] **Mercredi 25, 18 h : gel du code.**
 - [ ] Vendredi : README final, commentaires, zip.
 
 ---
@@ -251,8 +251,12 @@ On utilise les **notations du sujet** partout : code, figures, rapport, slides.
 | Mer. 18 midi | — | Brouhaha à la cafétéria (B3) | — |
 | Mer. 18 après-midi | Évaluation et mesures des questions (A3, A4) | Enregistrements au micro (B3) | — |
 | Mer. 18 soir | Figures finales et fiches | Rédaction théorie et conception | **21 h : toutes les mesures faites** |
-| Jeu. 19 | Interface et démo, enregistrements réels, gel du code à 18 h | Résultats, discussion, slides, script vidéo | Soir : tournage de la vidéo |
-| Ven. 20 matin | README, commentaires, zip | Relecture, montage (export à 10 h) | **12 h : dépôt** |
+| Jeu. 19 | Enregistrements réels faits (1 m, 3 m, brouhaha) ; interface et démo (A5) | Résultats, discussion | — |
+| Ven. 20 – dim. 22 | Interface finie, tests des fonctions d'évaluation | Rapport complet, ramené à 12–15 pages | Dim. soir : relecture croisée du rapport |
+| Lun. 23 – mar. 24 | Corrections demandées par la relecture | Slides, script vidéo | Mar. soir : répétition de la démo |
+| Mer. 25 | **18 h : gel du code** | Rapport final | Soir : tournage de la vidéo |
+| Jeu. 26 | README, commentaires, zip | Montage, export | Relecture finale ensemble |
+| Ven. 27 matin | Dépôt | — | **12 h : dépôt** |
 
 ---
 

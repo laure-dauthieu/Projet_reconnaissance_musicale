@@ -1,7 +1,7 @@
 # Reconnaissance musicale par empreintes audio
 
 Projet OBL-4101 Traitement du signal (ESIEE, 2026–2027).
-**Rendu : vendredi 20 novembre 2026.** Tout retard coûte 5 points.
+**Rendu : vendredi 27 novembre 2026** (repoussé, initialement le 20). Tout retard coûte 5 points.
 
 Le but est d'identifier un morceau à partir d'un extrait court et bruité, pris à un instant inconnu, en MATLAB. On suit la méthode de Wang (2003) :
 
@@ -24,7 +24,7 @@ Les deux phases utilisent **exactement** les mêmes fonctions d'extraction.
 | Dossiers | `src/`, `eval/`, `experiences/`, `utils/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
 | Fournit à l'autre | Figures PDF, fiches de résultats (`resultats/notes_resultats.md`) | Enregistrements en salle, brouhaha |
 
-Points fixes : mar. 23 h (chaîne jouet), mer. 21 h (toutes les mesures), **jeu. 18 h (gel du code)**, **ven. 12 h (dépôt)**.
+Points fixes : mesures faites (mer. 18), **mer. 25 à 18 h (gel du code)**, **ven. 27 à 12 h (dépôt)**. Détail dans [PLAN.md](PLAN.md), section 5.
 
 ---
 
