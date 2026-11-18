@@ -62,26 +62,48 @@ fprintf('Réponse : %s (score %d, seuil %d), position estimée %.2f s, en %.0f m
 fprintf('Scores : %s\n', mat2str(R.scores'));
 
 %% Figure 1 : spectrogramme + constellation de la requête
+% Dynamique de couleur : de la médiane du spectrogramme à son maximum. Avec
+% 80 dB, presque tout le plan paraissait blanc et les raies se perdaient.
 [~, f, t] = calcul_spectrogramme(yPre, P);
-fig1 = figure('Name', 'Constellation', 'Position', [100 100 900 350], 'Theme', 'light');
-imagesc(t, f / 1000, R.SdB); axis xy; colormap(flipud(gray)); hold on;
-clim(max(R.SdB(:)) + [-80 0]);
-plot(t(R.pics(:, 1)), f(R.pics(:, 2)) / 1000, 'r.', 'MarkerSize', 10);
-xlabel('temps (s)'); ylabel('fréquence (kHz)');
-title(sprintf('Requête : %d pics (%.1f pics/s)', size(R.pics, 1), size(R.pics, 1) / P.Tq));
+fig1 = nouvelle_figure(17, 7);
+imagesc(t, f / 1000, R.SdB);  axis xy;  hold on;
+colormap(fig1, flipud(gray));
+v = sort(R.SdB(:));  clim([v(round(0.25 * end)), v(round(0.995 * end))]);   % sans Stats Toolbox
+cb = colorbar;  cb.Label.String = 'S_{dB} (dB)';
+plot(t(R.pics(:, 1)), f(R.pics(:, 2)) / 1000, 'o', 'MarkerSize', 3.5, ...
+    'MarkerFaceColor', [0.85 0.10 0.10], 'MarkerEdgeColor', 'w', 'LineWidth', 0.4);
+yline(P.f_min / 1000, '--', 'Color', [0 0.45 0.74], 'LineWidth', 1.3);
+xlabel('temps (s)');  ylabel('fréquence (kHz)');
+title(sprintf('Requête de %g s : %d pics, soit %.1f pics/s (tirets : f_{min} = %g Hz)', ...
+    P.Tq, size(R.pics, 1), size(R.pics, 1) / P.Tq, P.f_min), 'FontSize', 9);
 
-%% Figure 2 : histogrammes des δ
+%% Figure 2 : histogrammes des δ (autre morceau, bon morceau)
 autre = mod(vrai, nRef) + 1;
-fig2 = figure('Name', 'Histogrammes des delta', 'Position', [100 500 900 300], 'Theme', 'light');
+fig2 = nouvelle_figure(17, 6.5);
+tl = tiledlayout(fig2, 1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+lettres = {'(a) autre morceau', '(b) bon morceau'};
 for j = 1:2
     c = [autre, vrai];  c = c(j);
-    subplot(1, 2, j);
+    ax = nexttile(tl);  hold(ax, 'on');
     d = R.app(R.app(:, 1) == c, 2);
     if isempty(d), d = 0; end
-    histogram(d, 'BinMethod', 'integers', 'EdgeColor', 'none', 'FaceColor', 'k');
-    xlabel('décalage \delta (trames)'); ylabel('appariements par case');
-    title(sprintf('%s : score %d', noms{c}, R.scores(c)), 'Interpreter', 'none');
+    [n, ~, ic] = unique(d);  n = [n, accumarray(ic, 1)]; %#ok<ASGLU>
+    stem(ax, n(:, 1), n(:, 2), 'Marker', 'none', 'Color', ternaire(j == 2, [0.85 0.33 0.10], [0 0.45 0.74]), ...
+        'LineWidth', 1);
+    grid(ax, 'on');  box(ax, 'on');
+    xlabel(ax, 'décalage \delta = m_{réf} − m_{req} (trames)');  ylabel(ax, 'nombre d''appariements');
+    title(ax, sprintf('%s : score %d', lettres{j}, R.scores(c)), 'FontSize', 9);
+    if j == 1
+        yticks(ax, 0:max(n(:, 2)));  ylim(ax, [0 max(n(:, 2)) + 0.5]);
+    else
+        [smax, im] = max(n(:, 2));
+        text(ax, n(im, 1), smax, sprintf('  pic à \\delta = %d trames\n  (t_0 estimé = %.2f s)', ...
+            n(im, 1), n(im, 1) * P.H / P.Fe), 'VerticalAlignment', 'top', 'FontSize', 8);
+        ylim(ax, [0 smax * 1.08]);
+    end
 end
+title(tl, sprintf('Histogramme des \\delta pour une requête de %g s (vrai t_0 = %.2f s)', P.Tq, t0), ...
+    'FontSize', 10);
 
 %% Sauvegarde (noms attendus par le rapport)
 sauver_figure(fig1, 'constellation');

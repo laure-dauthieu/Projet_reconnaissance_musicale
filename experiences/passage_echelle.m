@@ -80,16 +80,5 @@ T = table(tailles', nEntrees, tailleMo, tConstruction, tRequeteMs, 'VariableName
     {'n_morceaux', 'n_entrees', 'taille_Mo', 'construction_s', 'requete_mediane_ms'});
 writetable(T, fullfile(racine, 'resultats', 'passage_echelle.csv'));
 
-%% Figure
-fig = nouvelle_figure(16, 7);
-subplot(1, 2, 1);
-plot(tailles, tRequeteMs, 'o-');  set(gca, 'XScale', 'log');  grid on;
-xticks(tailles);  ylim([0 max(tRequeteMs) * 1.3]);
-xlabel('nombre de morceaux indexés');  ylabel('temps médian de requête (ms)');
-title(sprintf('Requêtes de %d s', Tq));
-subplot(1, 2, 2);
-plot(tailles, tailleMo, 's-');  set(gca, 'XScale', 'log', 'YScale', 'log');  grid on;
-xticks(tailles);
-xlabel('nombre de morceaux indexés');  ylabel('taille de l''index (Mo)');
-title('Taille de l''index');
-sauver_figure(fig, 'temps_et_taille_index');
+%% Figure (script séparé, pour la retoucher sans refaire les mesures)
+run(fullfile(racine, 'experiences', 'figure_passage_echelle.m'));

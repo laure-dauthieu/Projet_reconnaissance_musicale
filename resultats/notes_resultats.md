@@ -30,8 +30,10 @@ Toutes les figures sont dans `figures/`, en PDF (à insérer dans le rapport) et
 
 ## Figure `histogrammes_scores` (Q5)
 
-- Tq = 5 s, toutes les dégradations réunies : 2 400 requêtes positives et 1 200 négatives.
-- **Négatives** : scores de quelques unités à 26, pic vers 7–10.
+- Tq = 5 s, toutes les dégradations réunies (brouhaha compris) : 3 000 requêtes positives et 1 500 négatives.
+- Deux panneaux : (a) vue d'ensemble en abscisse log ; (b) zoom linéaire de 0 à 60, classes de 1, avec le seuil s_thr = 35 et le plus fort score négatif (23).
+- Les scores sont entiers : en (a), les bords des classes sont posés sur des demi-entiers et chaque effectif est ramené à une classe de même largeur en log. Sans cette correction, certaines classes contenaient 2 entiers et d'autres 1, d'où une fausse pointe à 7–8.
+- **Négatives** : scores de quelques unités à 23, pic vers 5–10. Entre 23 et 35, aucune négative : c'est la marge de sécurité du seuil.
 - **Positives** : scores de 30 à 900 pour la plupart, avec une queue vers le bas : bruit à 0 dB et réverbération à 1 s surtout.
 - **Les deux populations sont séparées d'un ordre de grandeur, mais les queues se recouvrent** entre 10 et 25 environ : quelques positives très dégradées ont un score de mauvais morceau. Elles deviennent des non-détections, pas des confusions.
 - Ordre de grandeur théorique pour un bon morceau : s ≈ F·ρ·Tq·p² = 10 × 25 × 5 × p² = 1 250 p². Sans dégradation, la médiane mesurée vaut 232, ce qui correspondrait à p ≈ 0,43 (à confirmer avec la mesure de p en Q4). Même sans dégradation p < 1, car l'extrait ne tombe pas sur la grille des trames : certains pics changent de trame (propriété (1) du sujet).

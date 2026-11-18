@@ -37,16 +37,23 @@ title(sprintf('Bruit additif (s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos)
 sauver_figure(fig, 'tbd_en_fonction_du_rsb');
 
 %% Figure 2 : TBD en fonction du débit MP3
+% Axe resserré sur 90-100 % : sur 50-100 % la courbe et la référence se
+% confondaient. Les valeurs sont écrites au-dessus des points.
 fig = nouvelle_figure(12, 8);  hold on;
 sel = synthese.degradation == "MP3";
-plot(synthese.parametre(sel), 100 * synthese.TBD(sel), 'o-', 'Color', pal(1, :), ...
-    'LineWidth', 1.5, 'MarkerSize', 6, 'DisplayName', 'MP3');
+deb = synthese.parametre(sel);  tbd = 100 * synthese.TBD(sel);
 ref = synthese.degradation == "aucune" & synthese.Tq == 5;
-yline(100 * synthese.TBD(ref), 'k--', 'LineWidth', 1, 'DisplayName', 'sans dégradation');
-set(gca, 'XScale', 'log');  xticks([32 64 128]);  xlim([25 160]);  ylim([50 101.5]);  grid on;
+yline(100 * synthese.TBD(ref), 'k--', 'LineWidth', 1, ...
+    'DisplayName', sprintf('sans dégradation (%.1f %%)', 100 * synthese.TBD(ref)));
+plot(deb, tbd, 'o-', 'Color', pal(1, :), 'LineWidth', 1.8, 'MarkerSize', 7, ...
+    'MarkerFaceColor', pal(1, :), 'DisplayName', 'MP3');
+text(deb, tbd - 0.6, compose('%.1f %%', tbd), 'HorizontalAlignment', 'center', ...
+    'VerticalAlignment', 'top', 'FontSize', 8, 'Color', pal(1, :));
+set(gca, 'XScale', 'log', 'XMinorGrid', 'off', 'XMinorTick', 'off');
+xticks([32 64 128]);  xlim([26 158]);  ylim([90 100.5]);  yticks(90:2:100);  grid on;
 legend('Location', 'southeast');
 xlabel('débit MP3 (kbit/s)');  ylabel('TBD (%)');
-title(sprintf('Codage MP3 (T_q = 5 s, s_{thr} = %d, N^+ = %d)', s_thr, nPos));
+title(sprintf('Codage MP3 (T_q = 5 s, s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
 sauver_figure(fig, 'tbd_en_fonction_du_debit_mp3');
 
 %% Figure 3 : TBD en fonction du TFD en balayant le seuil (Tq = 5 s)
@@ -100,15 +107,55 @@ for c = cs
     sPos = [sPos; r.score(r.id_vrai > 0)]; %#ok<AGROW>
     sNeg = [sNeg; r.score(r.id_vrai == 0)]; %#ok<AGROW>
 end
-fig = nouvelle_figure(14, 8);  hold on;
-bords = logspace(0, log10(max(sPos) + 1), 40);
-histogram(max(sNeg, 1), bords, 'FaceColor', pal(1, :), 'FaceAlpha', 0.6, 'DisplayName', ...
-    sprintf('requêtes négatives (%d)', numel(sNeg)));
-histogram(max(sPos, 1), bords, 'FaceColor', pal(2, :), 'FaceAlpha', 0.6, 'DisplayName', ...
-    sprintf('requêtes positives (%d)', numel(sPos)));
-xline(s_thr, 'k--', sprintf('s_{thr} = %d', s_thr), 'LineWidth', 1.2, 'HandleVisibility', 'off');
-set(gca, 'XScale', 'log');  grid on;
-xlabel('score s (hauteur du pic de l''histogramme des \delta)');  ylabel('nombre de requêtes');
-legend('Location', 'northwest');
-title('Scores, T_q = 5 s, toutes dégradations');
+% Les scores sont entiers : des classes log quelconques contiennent tantôt
+% 1, tantôt 2 entiers, d'où de fausses pointes. Les bords sont donc placés
+% sur des demi-entiers, et chaque effectif est ramené à une classe de largeur
+% log nominale (ce que donnerait un score continu).
+% (a) vue d'ensemble en log ; (b) zoom linéaire, classes de 1, autour du seuil.
+fig = nouvelle_figure(17, 7.5);
+tl = tiledlayout(fig, 1, 2, 'TileSpacing', 'compact', 'Padding', 'compact');
+leg = {sprintf('négatives (%d requêtes)', numel(sNeg)), sprintf('positives (%d requêtes)', numel(sPos))};
+coul = pal(1:2, :);
+
+ax = nexttile(tl);  hold(ax, 'on');
+e = unique(round(logspace(0, log10(max(sPos) + 1), 30)));
+bords = [e - 0.5, e(end) + 0.5];
+largeurNominale = log10(bords(end) / bords(1)) / (numel(bords) - 1);
+facteur = largeurNominale ./ diff(log10(bords));
+nmax = 0;
+for j = 1:2
+    s = ternaire(j == 1, sNeg, sPos);
+    n = histcounts(max(s, 1), bords) .* facteur;
+    nmax = max(nmax, max(n));
+    histogram(ax, 'BinEdges', bords, 'BinCounts', n, 'FaceColor', coul(j, :), ...
+        'FaceAlpha', 0.65, 'EdgeColor', 'w', 'DisplayName', leg{j});
+end
+xline(ax, s_thr, 'k--', 'LineWidth', 1.3, 'DisplayName', sprintf('s_{thr} = %d', s_thr));
+set(ax, 'XScale', 'log', 'XMinorGrid', 'off');  grid(ax, 'on');
+xticks(ax, [1 3 10 35 100 300 1000]);  xlim(ax, [0.9 bords(end)]);  ylim(ax, [0 1.45 * nmax]);   % place pour la légende
+xlabel(ax, 'score s (classes de même largeur en log)');  ylabel(ax, 'nombre de requêtes');
+title(ax, '(a) vue d''ensemble (abscisse log)');
+legend(ax, 'Location', 'northeast', 'FontSize', 8);
+
+ax = nexttile(tl);  hold(ax, 'on');
+zmax = 60;
+for j = 1:2
+    s = ternaire(j == 1, sNeg, sPos);
+    histogram(ax, s(s <= zmax), -0.5:1:zmax + 0.5, 'FaceColor', coul(j, :), ...
+        'FaceAlpha', 0.65, 'EdgeColor', 'w');
+end
+xline(ax, s_thr, 'k--', sprintf('s_{thr} = %d', s_thr), 'LineWidth', 1.3, ...
+    'LabelVerticalAlignment', 'top', 'LabelOrientation', 'horizontal', 'FontSize', 8);
+xline(ax, max(sNeg), ':', sprintf('max négatif = %d', max(sNeg)), 'Color', coul(1, :), ...
+    'LineWidth', 1.3, 'LabelVerticalAlignment', 'top', 'LabelOrientation', 'horizontal', ...
+    'LabelHorizontalAlignment', 'left', 'FontSize', 8);
+grid(ax, 'on');  xlim(ax, [0 zmax]);
+xlabel(ax, 'score s');  ylabel(ax, 'nombre de requêtes');  ylim(ax, [0 220]);
+title(ax, sprintf('(b) zoom sur 0 \\leq s \\leq %d (abscisse linéaire)', zmax));
+
+title(tl, 'Scores du meilleur candidat, T_q = 5 s, toutes dégradations confondues', 'FontSize', 10);
 sauver_figure(fig, 'histogrammes_scores');
+
+function v = ternaire(c, a, b)
+if c, v = a; else, v = b; end
+end

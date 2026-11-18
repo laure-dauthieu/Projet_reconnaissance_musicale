@@ -96,10 +96,13 @@ plot(ax, f / 1000, sdRv, '-', 'Color', pal(2, :), 'LineWidth', 1, ...
     'DisplayName', sprintf('réverbération T_{60} = 1 s (médiane %.1f dB)', T.ecart_type_entre_trames_dB(2)));
 plot(ax, f / 1000, sdPb, '-', 'Color', pal(1, :), 'LineWidth', 1.4, ...
     'DisplayName', sprintf('passe-bande (médiane %.2f dB)', T.ecart_type_entre_trames_dB(1)));
-xline(ax, [0.4 3], 'k:', 'HandleVisibility', 'off');
+% zone 400-3000 Hz sur laquelle on prend les médianes (loin des flancs du filtre)
+patch(ax, [0.4 3 3 0.4], [0 0 15 15], [0.5 0.5 0.5], 'FaceAlpha', 0.08, 'EdgeColor', 'none', ...
+    'DisplayName', 'zone des médianes (0,4–3 kHz)');
+uistack(findobj(ax, 'Type', 'patch'), 'bottom');
 grid(ax, 'on');  xlim(ax, [0 4]);  ylim(ax, [0 15]);
-xlabel(ax, 'fréquence (kHz)');  ylabel(ax, 'écart-type sur les trames (dB)');
-title(ax, sprintf('(b) dispersion de S_{y,dB} − S_{x,dB} sur les %d trames', size(Sx, 2)), 'FontSize', 9);
+xlabel(ax, 'fréquence (kHz)');  ylabel(ax, 'écart-type entre trames (dB)');
+title(ax, sprintf('(b) écart-type de S_{y,dB} − S_{x,dB} sur %d trames', size(Sx, 2)), 'FontSize', 9);
 legend(ax, 'Location', 'north', 'FontSize', 7);
 
 title(tl, 'Propriété (2) : un filtrage court ajoute un biais g(k) indépendant de la trame', 'FontSize', 10);
