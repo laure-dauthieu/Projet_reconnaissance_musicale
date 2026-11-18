@@ -396,7 +396,8 @@ visé. \aremplir{Si A calcule $\bar{s}$ et $\sigma_s$ sur les 50 scores de calib
 $\mu_G$, $\beta$ et le seuil obtenu pour $\alpha = \qty{1}{\percent}$, à comparer à 35.}
 
 La \cref{fig-histo-scores} montre que les deux populations sont séparées d'un ordre de
-grandeur : les négatives ne dépassent pas 26, les positives s'étendent pour la plupart de
+grandeur : à $\Tq = \qty{5}{\second}$, les négatives ne dépassent pas 23 (26 toutes durées
+confondues), les positives s'étendent pour la plupart de
 30 à 900. Leurs queues se recouvrent pourtant entre 10 et 25 environ : quelques positives
 très dégradées, surtout sous bruit à \qty{0}{\decibel} et avec la réverbération à
 \qty{1}{\second}, obtiennent un score de mauvais morceau. Elles deviennent des
@@ -412,10 +413,13 @@ condition} : un seuil unique doit tenir pour toutes les conditions à la fois, c
 
 \begin{figure}[t]
   \centering
-  \inclurefig[0.8\linewidth]{histogrammes_scores}{histogrammes des scores positifs et négatifs, abscisse log, seuil}
-  \caption{Histogrammes des scores des requêtes positives et négatives, en abscisse
-  logarithmique, avec le seuil $\sthr = 35$. $\Tq = \qty{5}{\second}$, toutes dégradations
-  réunies : \num{2400} requêtes positives et \num{1200} négatives.}
+  \inclurefig{histogrammes_scores}{histogrammes des scores positifs et négatifs, abscisse log, seuil}
+  \caption{Histogrammes des scores des requêtes positives et négatives, avec le seuil
+  $\sthr = 35$. $\Tq = \qty{5}{\second}$, toutes dégradations réunies (brouhaha compris) :
+  \num{3000} requêtes positives et \num{1500} négatives. (a)~Vue d'ensemble en abscisse
+  logarithmique ; les scores étant entiers, les classes sont bornées sur des demi-entiers et
+  ramenées à une même largeur en log. (b)~Zoom linéaire de 0 à 60 : aucune négative entre
+  23 et 35, c'est la marge du seuil.}
   \label{fig-histo-scores}
 \end{figure}
 

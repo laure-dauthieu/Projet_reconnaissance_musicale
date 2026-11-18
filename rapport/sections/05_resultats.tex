@@ -206,8 +206,9 @@ prétraité (spectrogramme, pics, clés, recherche, vote), pas le décodage du f
 
 \begin{figure}[t]
   \centering
-  \inclurefig[0.8\linewidth]{temps_et_taille_index}{temps de requête et taille de l'index en fonction du nombre de morceaux}
-  \caption{Taille de l'index et temps médian d'une requête de \qty{5}{\second} non dégradée
-  en fonction du nombre de morceaux indexés (10 à 500).}
+  \inclurefig{temps_et_taille_index}{temps de requête et taille de l'index en fonction du nombre de morceaux}
+  \caption{Passage à l'échelle, de 10 à 500 morceaux indexés. (a)~Temps médian d'une
+  requête de \qty{5}{\second} non dégradée : quasi constant. (b)~Taille de l'index en
+  mémoire : proportionnelle au nombre de morceaux (tirets : \qty{0.11}{Mo} par morceau).}
   \label{fig-passage-echelle}
 \end{figure}
