@@ -16,6 +16,11 @@ survit = ismember(picsRef, picsDeg, 'rows');
 p = mean(survit);
 
 if nargout > 1
+    if nargin < 3 || isempty(P)
+        racine = fileparts(fileparts(mfilename('fullpath')));
+        addpath(racine);
+        P = parametres();
+    end
     fk = (picsRef(:, 2) - 1) * P.Fe / P.Nfft;
     bande = discretize(fk, P.bandes);
     pParBande = nan(P.Nb, 1);

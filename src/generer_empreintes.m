@@ -11,6 +11,15 @@ function E = generer_empreintes(pics, P)
 %       u = (q1*Nf + q2)*Nt + (Δm - dm_min),   Qf(k) = floor((k-1)/gamma_f).
 %   Elle ne dépend que de Δm = m2-m1 : l'instant absolu m1 est rangé à part,
 %   ce qui la rend indépendante de l'endroit où l'extrait a été capté.
+%
+%   E = generer_empreintes(pics)   P par défaut : parametres().
+%   generer_empreintes()           démonstration autonome (pics d'un signal synthétique).
+
+if nargin == 0
+    E = demo();
+    return;
+end
+if nargin < 2 || isempty(P), P = parametres_par_defaut(); end
 
 m = pics(:, 1);
 k = pics(:, 2);
@@ -39,4 +48,27 @@ for i = 1:n
 end
 
 E = [cles(1:nE), m1s(1:nE)];
+end
+
+function E = demo()
+% Démonstration : clés formées à partir des pics de 8 s de « musique » synthétique.
+P = parametres_par_defaut();
+x = morceau_synthetique(8, P.Fe, 1);
+pics = detection_pics(calcul_spectrogramme(x, P), P);
+E = generer_empreintes(pics, P);
+fprintf(['generer_empreintes : %d pics -> %d paires (F = %d cibles par ancre), ' ...
+    '%d clés distinctes sur M = %.2g possibles.\n'], size(pics, 1), size(E, 1), P.F, ...
+    numel(unique(E(:, 1))), P.M);
+% Décodage de la première clé : u = (q1*Nf + q2)*Nt + (Δm - dm_min)
+u = E(1, 1);
+dm = mod(u, P.Nt) + P.dm_min;  q = floor(u / P.Nt);
+fprintf('  1re clé : u = %d -> classes (%d, %d), Δm = %d trames, ancre à la trame %d.\n', ...
+    u, floor(q / P.Nf), mod(q, P.Nf), dm, E(1, 2));
+end
+
+function P = parametres_par_defaut()
+% Ajoute le projet au chemin MATLAB et renvoie les paramètres de départ.
+racine = fileparts(fileparts(mfilename('fullpath')));
+addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'utils'));
+P = parametres();
 end

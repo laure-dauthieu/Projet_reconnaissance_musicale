@@ -14,6 +14,15 @@ function INDEX = construire_index(morceaux, P, noms)
 %       entrée et nombre d'entrées. Ils permettent de récupérer TOUTES les
 %       entrées d'une clé (ismember n'en renvoie qu'une).
 %   INDEX.noms, .nTrames, .P
+%
+%   INDEX = construire_index(morceaux)   P par défaut : parametres().
+%   construire_index()                   démonstration autonome (3 morceaux synthétiques).
+
+if nargin == 0
+    INDEX = demo();
+    return;
+end
+if nargin < 2 || isempty(P), P = parametres_par_defaut(); end
 
 nM = numel(morceaux);
 if nargin < 3
@@ -53,4 +62,23 @@ INDEX.nb = diff([INDEX.debut; numel(INDEX.cle) + 1]);
 INDEX.noms = noms(:);
 INDEX.nTrames = nTrames;
 INDEX.P = P;
+end
+
+function INDEX = demo()
+% Démonstration : index inversé de 3 « morceaux » synthétiques de 30 s.
+P = parametres_par_defaut();
+morceaux = arrayfun(@(g) morceau_synthetique(30, P.Fe, g), 1:3, 'UniformOutput', false);
+tic;
+INDEX = construire_index(morceaux, P, {'morceau A', 'morceau B', 'morceau C'});
+fprintf(['construire_index : %d morceaux, %d entrées, %d clés distinctes, ' ...
+    'construit en %.2f s.\n'], numel(morceaux), numel(INDEX.cle), numel(INDEX.ucle), toc);
+fprintf('  entrées par morceau : %s ; entrées par clé : au plus %d.\n', ...
+    mat2str(accumarray(double(INDEX.id), 1)'), max(INDEX.nb));
+end
+
+function P = parametres_par_defaut()
+% Ajoute le projet au chemin MATLAB et renvoie les paramètres de départ.
+racine = fileparts(fileparts(mfilename('fullpath')));
+addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'utils'));
+P = parametres();
 end

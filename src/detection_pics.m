@@ -13,6 +13,15 @@ function pics = detection_pics(SdB, P)
 %        seconde (nombre fixe de pics par bande et par seconde).
 %   Seule la position est gardée, jamais l'amplitude : elle est invariante
 %   à un gain, et à un filtrage tant que Δg(V) < μ (condition (5)).
+%
+%   pics = detection_pics(SdB)   P par défaut : parametres().
+%   detection_pics()             démonstration autonome (signal synthétique).
+
+if nargin == 0
+    pics = demo();
+    return;
+end
+if nargin < 2 || isempty(P), P = parametres_par_defaut(); end
 
 [K, M] = size(SdB);
 
@@ -51,4 +60,26 @@ for b = 1:P.Nb
 end
 
 pics = sortrows(pics, [1 2]);
+end
+
+function pics = demo()
+% Démonstration : constellation de 8 s de « musique » synthétique.
+P = parametres_par_defaut();
+x = morceau_synthetique(8, P.Fe, 1);
+[SdB, f, t] = calcul_spectrogramme(x, P);
+pics = detection_pics(SdB, P);
+fprintf('detection_pics : %d pics en %.0f s, soit %.1f pics/s (voisinage ±%d trames x ±%d canaux).\n', ...
+    size(pics, 1), numel(x) / P.Fe, size(pics, 1) / (numel(x) / P.Fe), P.dm, P.dk);
+figure('Name', 'detection_pics');
+imagesc(t, f / 1000, SdB);  axis xy;  colormap(flipud(gray));  hold on;
+plot(t(pics(:, 1)), f(pics(:, 2)) / 1000, 'r.', 'MarkerSize', 12);
+xlabel('temps (s)');  ylabel('fréquence (kHz)');
+title('Carte de constellation superposée au spectrogramme');
+end
+
+function P = parametres_par_defaut()
+% Ajoute le projet au chemin MATLAB et renvoie les paramètres de départ.
+racine = fileparts(fileparts(mfilename('fullpath')));
+addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'utils'));
+P = parametres();
 end

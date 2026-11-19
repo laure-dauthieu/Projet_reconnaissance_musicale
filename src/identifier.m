@@ -17,6 +17,21 @@ function R = identifier(x, INDEX, P)
 %   R.app       : tous les appariements [id, δ, m_q, m_r]
 %   R.nCles     : nombre de clés de la requête
 %   R.pics, R.SdB : constellation et spectrogramme de la requête
+%
+%   R = identifier(x, INDEX)   P par défaut : les paramètres de l'index (INDEX.P).
+%   identifier()               démonstration autonome (3 morceaux synthétiques).
+
+if nargin == 0
+    R = demo();
+    return;
+end
+if nargin < 3 || isempty(P)
+    if isfield(INDEX, 'P')
+        P = INDEX.P;                % mêmes réglages que l'index : mêmes clés
+    else
+        P = parametres_par_defaut();
+    end
+end
 
 [E, R.pics, R.SdB] = empreintes_signal(x, P);
 R.nCles = size(E, 1);
@@ -61,4 +76,44 @@ if R.score >= P.s_thr
 else
     R.id = 0;
 end
+end
+
+function R = demo()
+% Démonstration : 3 « morceaux » synthétiques indexés ; une requête de Tq secondes
+% tirée du 2e à un instant quelconque, puis une requête absente de l'index.
+P = parametres_par_defaut();
+morceaux = arrayfun(@(g) morceau_synthetique(30, P.Fe, g), 1:3, 'UniformOutput', false);
+INDEX = construire_index(morceaux, P, {'morceau A', 'morceau B', 'morceau C'});
+
+debut = 81234;                                  % en échantillons : pas un multiple de H
+y = morceaux{2}(debut:debut + P.Tq * P.Fe - 1);
+R = identifier(y, INDEX, P);
+fprintf(['identifier : requête de %g s tirée de « morceau B » à %.2f s -> réponse « %s », ' ...
+    'score %d (seuil %d), position estimée %.2f s.\n'], P.Tq, (debut - 1) / P.Fe, ...
+    INDEX.noms{max(R.id, 1)}, R.score, P.s_thr, R.delta * P.H / P.Fe);
+fprintf('  scores des 3 morceaux : %s\n', mat2str(R.scores'));
+
+absent = morceau_synthetique(P.Tq, P.Fe, 99);
+R2 = identifier(absent, INDEX, P);
+fprintf('  requête absente de l''index -> %s (score %d < %d).\n', ...
+    ternaire(R2.id == 0, '« inconnu »', INDEX.noms{max(R2.id, 1)}), R2.score, P.s_thr);
+
+% Histogramme des δ du bon morceau : un pic net en δ = m0
+d = R.app(R.app(:, 1) == R.id_max, 2);
+[u, ~, ic] = unique(d);
+figure('Name', 'identifier');
+stem(u, accumarray(ic, 1), 'Marker', 'none');
+xlabel('\delta = m_{réf} - m_{req} (trames)');  ylabel('appariements');
+title(['Histogramme des \delta du meilleur candidat : score ' num2str(R.score)]);
+end
+
+function s = ternaire(c, a, b)
+if c, s = a; else, s = b; end
+end
+
+function P = parametres_par_defaut()
+% Ajoute le projet au chemin MATLAB et renvoie les paramètres de départ.
+racine = fileparts(fileparts(mfilename('fullpath')));
+addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'utils'));
+P = parametres();
 end

@@ -151,7 +151,7 @@ Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'envi
 
 ### A5. Livraison (jeudi et vendredi)
 
-- [ ] Tests des fonctions d'évaluation (`extraire_requete`, `taux_detection`, `calibrer_seuil`, `mesurer_p`, `evaluer`).
+- [x] Tests des fonctions d'évaluation (`extraire_requete`, `taux_detection`, `calibrer_seuil`, `mesurer_p`, `evaluer`) : faits par B le 19, avec un fichier de test par fonction et une démonstration autonome de chaque fonction d'étape (README, « Chaque fonction est testable isolément »).
 - [x] Enregistrements en salle (B3, repris par A) : faits à 1 m et 3 m, évalués sur 5 s, 10 s et la prise entière.
 - [ ] **Mercredi 25, 18 h : gel du code.**
 - [ ] Vendredi : README final, commentaires, zip.

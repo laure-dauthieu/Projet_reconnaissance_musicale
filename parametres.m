@@ -43,8 +43,15 @@ P.s_thr = 35;           % seuil sur le score : 1,5 x le plus fort score des 50 n
 P.Tq = 8;               % durée d'une requête (s)
 
 % --- Outils externes -----------------------------------------------------
-% MATLAB lancé depuis le Dock ne voit pas le PATH du terminal.
-P.ffmpeg = '/opt/homebrew/bin/ffmpeg';
+% MATLAB lancé depuis le Dock (Mac) ne voit pas le PATH du terminal : on
+% essaie d'abord l'emplacement Homebrew, sinon ffmpeg doit être dans le PATH.
+if isfile('/opt/homebrew/bin/ffmpeg')
+    P.ffmpeg = '/opt/homebrew/bin/ffmpeg';
+elseif isfile('/usr/local/bin/ffmpeg')
+    P.ffmpeg = '/usr/local/bin/ffmpeg';
+else
+    P.ffmpeg = 'ffmpeg';
+end
 
 % --- Valeurs modifiées ---------------------------------------------------
 if mod(numel(varargin), 2) ~= 0

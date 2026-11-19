@@ -66,6 +66,29 @@ Conventions :
 - les notations sont celles de l'énoncé (`P.Fe`, `P.N`, `P.H`, `P.F`, `P.gamma_f`, `P.s_thr`…) ;
 - chaque fonction a un en-tête (rôle, entrées, sorties, justification des paramètres) et un test dans `tests/`.
 
+### Chaque fonction est testable isolément (§8 du sujet)
+
+- **Démonstration autonome.** Chaque fonction d'étape, appelée **sans argument**, se lance seule sur un signal synthétique (aucun fichier audio nécessaire) : elle ajoute elle-même ce qu'il lui faut au chemin MATLAB, prend `parametres()` et affiche son résultat.
+
+  ```matlab
+  pretraitement()          % mono + rééchantillonnage à 8 kHz
+  calcul_spectrogramme()   % spectrogramme en dB
+  detection_pics()         % constellation sur le spectrogramme
+  generer_empreintes()     % paires de pics -> clés
+  empreintes_signal()      % étapes 2 à 4 d'un coup
+  construire_index()       % index inversé de 3 morceaux
+  identifier()             % reconnaissance d'un extrait + rejet d'un morceau absent
+  evaluer()                % TBD et TFD avec calibration du seuil
+  ```
+
+- **`P` facultatif.** `P` peut être omis : `parametres()` par défaut, et pour `identifier` et `evaluer` les paramètres avec lesquels l'index a été construit (`INDEX.P`).
+- **Un fichier de test par fonction** dans `tests/` (`test_<fonction>.m`), qui se lance seul, sans données FMA ni cache :
+
+  ```matlab
+  runtests('tests/test_identifier.m')   % une seule fonction
+  runtests('tests')                     % tout (54 tests ; les 2 du MP3 sont ignorés sans ffmpeg)
+  ```
+
 ---
 
 ## Lancement
@@ -74,7 +97,7 @@ Depuis le dossier du projet, dans MATLAB :
 
 ```matlab
 main                                    % chaîne « jouet » : 3 morceaux, constellation, histogramme des δ
-runtests('tests')                       % tests de la chaîne et des dégradations
+runtests('tests')                       % un fichier de test par fonction (voir plus haut)
 
 run('experiences/preparer_donnees.m')   % une fois : choix des 200 morceaux, index de la base (≈ 15 s)
 run('experiences/campagne_evaluation.m')% TBD/TFD pour toutes les dégradations, figures (≈ 2 min)
