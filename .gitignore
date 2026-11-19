@@ -1,6 +1,6 @@
 # Audio et données (dépôt public, fichiers lourds)
 data/
-cache/
+cache/*
 *.mp3
 *.wav
 *.flac
@@ -9,6 +9,8 @@ cache/
 
 # MATLAB
 *.mat
+# Exception : l'index de la base (empreintes seulement, aucun son, 3,5 Mo)
+!cache/index_base.mat
 *.asv
 *.autosave
 slprj/
