@@ -88,9 +88,7 @@ title(ax, '(c) critère \rho p^2');
 lg = legend(ax, 'NumColumns', 2, 'FontSize', 7);
 lg.Layout.Tile = 'south';
 
-title(tl, sprintf('Voisinage : %d extraits de %d s, bruit blanc à %d dB (sans quota, sauf l''étoile)', ...
-    n, Tq, RSB), 'FontSize', 10);
-sauver_figure(fig, 'p_en_fonction_de_rho');
+sauver_figure(fig, 'p_en_fonction_de_rho', 14);
 
 function ligne = mesurer(P, propre, bruite, Tq)
 % ρ et p cumulés sur tous les extraits.

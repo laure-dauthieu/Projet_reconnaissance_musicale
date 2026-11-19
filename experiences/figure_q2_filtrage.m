@@ -102,8 +102,7 @@ patch(ax, [0.4 3 3 0.4], [0 0 15 15], [0.5 0.5 0.5], 'FaceAlpha', 0.08, 'EdgeCol
 uistack(findobj(ax, 'Type', 'patch'), 'bottom');
 grid(ax, 'on');  xlim(ax, [0 4]);  ylim(ax, [0 15]);
 xlabel(ax, 'fréquence (kHz)');  ylabel(ax, 'écart-type entre trames (dB)');
-title(ax, sprintf('(b) écart-type de S_{y,dB} − S_{x,dB} sur %d trames', size(Sx, 2)), 'FontSize', 9);
+title(ax, sprintf('(b) écart-type sur %d trames', size(Sx, 2)), 'FontSize', 9);
 legend(ax, 'Location', 'north', 'FontSize', 7);
 
-title(tl, 'Propriété (2) : un filtrage court ajoute un biais g(k) indépendant de la trame', 'FontSize', 10);
-sauver_figure(fig, 'difference_spectres_passe_bande');
+sauver_figure(fig, 'difference_spectres_passe_bande', 13.5);

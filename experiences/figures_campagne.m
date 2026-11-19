@@ -33,8 +33,7 @@ end
 set(gca, 'XDir', 'reverse');  xticks(0:5:20);  xlim([-1 21]);  ylim([0 101.5]);  yticks(0:10:100);
 grid on;  xlabel('RSB (dB)');  ylabel('TBD (%)');
 legend('Location', 'southwest');
-title(sprintf('Bruit additif (s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
-sauver_figure(fig, 'tbd_en_fonction_du_rsb');
+sauver_figure(fig, 'tbd_en_fonction_du_rsb', 8.8);
 
 %% Figure 2 : TBD en fonction du débit MP3
 % Axe resserré sur 90-100 % : sur 50-100 % la courbe et la référence se
@@ -53,8 +52,7 @@ set(gca, 'XScale', 'log', 'XMinorGrid', 'off', 'XMinorTick', 'off');
 xticks([32 64 128]);  xlim([26 158]);  ylim([90 100.5]);  yticks(90:2:100);  grid on;
 legend('Location', 'southeast');
 xlabel('débit MP3 (kbit/s)');  ylabel('TBD (%)');
-title(sprintf('Codage MP3 (T_q = 5 s, s_{thr} = %d, N^+ = %d, TFD = 0 %%)', s_thr, nPos));
-sauver_figure(fig, 'tbd_en_fonction_du_debit_mp3');
+sauver_figure(fig, 'tbd_en_fonction_du_debit_mp3', 7.8);
 
 %% Figure 3 : TBD en fonction du TFD en balayant le seuil (Tq = 5 s)
 % La courbe balaie tous les seuils : elle ne dépend pas du seuil retenu, on
@@ -95,9 +93,7 @@ for p = 1:2
 end
 lg = legend(ax, 'NumColumns', 3, 'FontSize', 8);
 lg.Layout.Tile = 'south';
-title(tl, sprintf('TBD en fonction du TFD en balayant le seuil (T_q = 5 s, N^+ = %d, N^- = %d)', ...
-    nPos, sum(resultats{1}.id_vrai == 0)), 'FontSize', 10);
-sauver_figure(fig, 'courbe_tbd_tfd');
+sauver_figure(fig, 'courbe_tbd_tfd', 13.5);
 
 %% Figure 4 : histogrammes des scores positifs et négatifs (Tq = 5 s, abscisse log)
 cs = find([C.Tq] == 5);
@@ -132,10 +128,10 @@ for j = 1:2
 end
 xline(ax, s_thr, 'k--', 'LineWidth', 1.3, 'DisplayName', sprintf('s_{thr} = %d', s_thr));
 set(ax, 'XScale', 'log', 'XMinorGrid', 'off');  grid(ax, 'on');
-xticks(ax, [1 3 10 35 100 300 1000]);  xlim(ax, [0.9 bords(end)]);  ylim(ax, [0 1.45 * nmax]);   % place pour la légende
+xticks(ax, [1 3 10 35 100 300 1000]);  xlim(ax, [0.9 bords(end)]);  ylim(ax, [0 1.75 * nmax]);   % place pour la légende
 xlabel(ax, 'score s (classes de même largeur en log)');  ylabel(ax, 'nombre de requêtes');
 title(ax, '(a) vue d''ensemble (abscisse log)');
-legend(ax, 'Location', 'northeast', 'FontSize', 8);
+legend(ax, 'Location', 'northeast', 'FontSize', 7);
 
 ax = nexttile(tl);  hold(ax, 'on');
 zmax = 60;
@@ -145,16 +141,15 @@ for j = 1:2
         'FaceAlpha', 0.65, 'EdgeColor', 'w');
 end
 xline(ax, s_thr, 'k--', sprintf('s_{thr} = %d', s_thr), 'LineWidth', 1.3, ...
-    'LabelVerticalAlignment', 'top', 'LabelOrientation', 'horizontal', 'FontSize', 8);
+    'LabelVerticalAlignment', 'middle', 'LabelOrientation', 'horizontal', 'FontSize', 8);
 xline(ax, max(sNeg), ':', sprintf('max négatif = %d', max(sNeg)), 'Color', coul(1, :), ...
     'LineWidth', 1.3, 'LabelVerticalAlignment', 'top', 'LabelOrientation', 'horizontal', ...
-    'LabelHorizontalAlignment', 'left', 'FontSize', 8);
+    'LabelHorizontalAlignment', 'right', 'FontSize', 8);
 grid(ax, 'on');  xlim(ax, [0 zmax]);
 xlabel(ax, 'score s');  ylabel(ax, 'nombre de requêtes');  ylim(ax, [0 220]);
-title(ax, sprintf('(b) zoom sur 0 \\leq s \\leq %d (abscisse linéaire)', zmax));
+title(ax, sprintf('(b) zoom de 0 à %d, abscisse linéaire', zmax));
 
-title(tl, 'Scores du meilleur candidat, T_q = 5 s, toutes dégradations confondues', 'FontSize', 10);
-sauver_figure(fig, 'histogrammes_scores');
+sauver_figure(fig, 'histogrammes_scores', 13.5);
 
 function v = ternaire(c, a, b)
 if c, v = a; else, v = b; end

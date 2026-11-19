@@ -151,12 +151,10 @@ end
 yline(ax, 50, 'k:', 'HandleVisibility', 'off');
 set(ax, 'XDir', 'reverse');  xticks(ax, -10:10:20);  xtickangle(ax, 0);  ylim(ax, [0 101.5]);  grid(ax, 'on');
 xlabel(ax, 'RSB (dB)');  ylabel(ax, 'TBD (%)');
-title(ax, '(c) TBD mesuré et rupture prévue (- -)');
+title(ax, '(c) TBD, rupture prévue (- -)');
 legend(ax, 'Location', 'southwest', 'FontSize', 7);
 
-title(tl, sprintf('Théorie confrontée à la mesure : bruit blanc, %d requêtes par point, s_{thr} = %d', ...
-    nB * nParMorceau, P.s_thr), 'FontSize', 10);
-sauver_figure(fig, 'theorie_mesure');
+sauver_figure(fig, 'theorie_mesure', 15.5);
 
 function xc = croisement(x, y, niveau)
 % Premier x (en parcourant les RSB décroissants) où y passe sous niveau,

@@ -11,6 +11,9 @@
 \usepackage{amsmath,amssymb,mathtools}
 \usepackage[locale=FR]{siunitx}   % virgule décimale, espaces fines
 \sisetup{exponent-product=\times, per-mode=symbol}
+% locale=FR ne traduit pas les mots des intervalles et des listes (« to », « and »)
+\sisetup{range-phrase={~à~}, list-pair-separator={ et }, list-final-separator={ et },
+  list-separator={, }}
 
 \usepackage{graphicx}
 \usepackage{subcaption}

@@ -74,8 +74,6 @@ plot(t(R.pics(:, 1)), f(R.pics(:, 2)) / 1000, 'o', 'MarkerSize', 3.5, ...
     'MarkerFaceColor', [0.85 0.10 0.10], 'MarkerEdgeColor', 'w', 'LineWidth', 0.4);
 yline(P.f_min / 1000, '--', 'Color', [0 0.45 0.74], 'LineWidth', 1.3);
 xlabel('temps (s)');  ylabel('fréquence (kHz)');
-title(sprintf('Requête de %g s : %d pics, soit %.1f pics/s (tirets : f_{min} = %g Hz)', ...
-    P.Tq, size(R.pics, 1), size(R.pics, 1) / P.Tq, P.f_min), 'FontSize', 9);
 
 %% Figure 2 : histogrammes des δ (autre morceau, bon morceau)
 autre = mod(vrai, nRef) + 1;
@@ -89,7 +87,7 @@ for j = 1:2
     if isempty(d), d = 0; end
     [n, ~, ic] = unique(d);  n = [n, accumarray(ic, 1)]; %#ok<ASGLU>
     stem(ax, n(:, 1), n(:, 2), 'Marker', 'none', 'Color', ternaire(j == 2, [0.85 0.33 0.10], [0 0.45 0.74]), ...
-        'LineWidth', 1);
+        'LineWidth', 1, 'ShowBaseLine', 'off');   % la ligne de base débordait du cadre à l'export
     grid(ax, 'on');  box(ax, 'on');
     xlabel(ax, 'décalage \delta = m_{réf} − m_{req} (trames)');  ylabel(ax, 'nombre d''appariements');
     title(ax, sprintf('%s : score %d', lettres{j}, R.scores(c)), 'FontSize', 9);
@@ -102,12 +100,10 @@ for j = 1:2
         ylim(ax, [0 smax * 1.08]);
     end
 end
-title(tl, sprintf('Histogramme des \\delta pour une requête de %g s (vrai t_0 = %.2f s)', P.Tq, t0), ...
-    'FontSize', 10);
 
 %% Sauvegarde (noms attendus par le rapport)
-sauver_figure(fig1, 'constellation');
-sauver_figure(fig2, 'histogramme_delta');
+sauver_figure(fig1, 'constellation', 13);
+sauver_figure(fig2, 'histogramme_delta', 13);
 
 function s = ternaire(c, a, b)
 if c, s = a; else, s = b; end

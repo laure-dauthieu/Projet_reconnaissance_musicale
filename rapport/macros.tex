@@ -32,13 +32,21 @@
 \DeclareRobustCommand{\aremplir}[1]{\textcolor{red}{\textbf{[À remplir : #1]}}}
 
 % ---------- Figures de A : cadre « figure à venir » tant que le PDF n'existe pas ----------
-% Usage : \inclurefig[largeur]{tbd_rsb}{ce que la figure montrera}
+% Usage : \inclurefig{tbd_rsb}{ce que la figure montrera}
 % Cherche <nom>.pdf puis <nom>.png, dans figures/ (Overleaf) puis ../figures/ (dépôt git).
-\newcommand{\inclurefig}[3][\linewidth]{%
-  \IfFileExists{figures/#2.pdf}{\includegraphics[width=#1]{figures/#2.pdf}}{%
-  \IfFileExists{figures/#2.png}{\includegraphics[width=#1]{figures/#2.png}}{%
-  \IfFileExists{../figures/#2.pdf}{\includegraphics[width=#1]{../figures/#2.pdf}}{%
-  \IfFileExists{../figures/#2.png}{\includegraphics[width=#1]{../figures/#2.png}}{%
+% La figure est insérée à sa taille naturelle : MATLAB l'exporte déjà à sa largeur
+% d'impression (utils/sauver_figure.m), donc son texte reste à 8-9 pt. Elle n'est
+% réduite que si elle dépasse la largeur disponible. L'argument optionnel est ignoré
+% (gardé pour compatibilité).
+\newsavebox{\boitefig}
+\newcommand{\figurenaturelle}[1]{%
+  \sbox{\boitefig}{\includegraphics{#1}}%
+  \ifdim\wd\boitefig>\linewidth\resizebox{\linewidth}{!}{\usebox{\boitefig}}\else\usebox{\boitefig}\fi}
+\newcommand{\inclurefig}[3][]{%
+  \IfFileExists{figures/#2.pdf}{\figurenaturelle{figures/#2.pdf}}{%
+  \IfFileExists{figures/#2.png}{\figurenaturelle{figures/#2.png}}{%
+  \IfFileExists{../figures/#2.pdf}{\figurenaturelle{../figures/#2.pdf}}{%
+  \IfFileExists{../figures/#2.png}{\figurenaturelle{../figures/#2.png}}{%
   \fbox{\parbox[c][3.2cm][c]{0.92\linewidth}{\centering\small\color{gray}
     Figure à venir : #3\\[2pt] \texttt{\detokenize{#2.pdf}}}}}}}}}
 

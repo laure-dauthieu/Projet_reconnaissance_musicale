@@ -73,13 +73,11 @@ fprintf('Corrélation (8 genres) entre part d''énergie > 900 Hz et TBD à 0 dB 
 %% Figure : genres triés par TBD à 0 dB
 [~, o] = sort(TBD(:, 3), 'descend');
 pal = [0.00 0.45 0.74; 0.85 0.33 0.10; 0.13 0.55 0.13; 0.49 0.18 0.56];
-fig = nouvelle_figure(17, 8);
+fig = nouvelle_figure(9.4, 6.6);       % taille d'impression (demi-largeur du rapport)
 b = bar(100 * TBD(o, :), 'grouped');
 for c = 1:numel(b), b(c).FaceColor = pal(c, :); end
-xticks(1:nG);  xticklabels(genres(o));  ylim([0 105]);  grid on;
+xticks(1:nG);  xticklabels(genres(o));  xtickangle(35);  ylim([0 105]);  grid on;
 ylabel('TBD (%)');
 legend(cellfun(@(n, t) sprintf('%s, T_q = %d s', n, t), choix(:, 1), choix(:, 2), 'UniformOutput', false), ...
-    'Location', 'southoutside', 'NumColumns', 2, 'FontSize', 8);
-title(sprintf('TBD par genre (s_{thr} = %d, environ %d requêtes positives par genre)', ...
-    s_thr, round(mean(nPos))));
+    'Location', 'southoutside', 'NumColumns', 2, 'FontSize', 7);
 sauver_figure(fig, 'tbd_par_genre');

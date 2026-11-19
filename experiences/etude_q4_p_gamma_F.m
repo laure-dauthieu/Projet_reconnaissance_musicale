@@ -112,13 +112,13 @@ writetable(TF, fullfile(dossierRes, 'q4_F.csv'));
 disp(TF);
 
 %% Figure : p par bande, bruit blanc 10 dB contre MP3 64 kbit/s (Q6)
-fig = nouvelle_figure(14, 8);
+fig = nouvelle_figure(7.8, 6.6);       % taille d'impression (demi-largeur du rapport)
 b = bar(1:P.Nb, pBande, 'grouped');
 b(1).FaceColor = [0.00 0.45 0.74];  b(2).FaceColor = [0.85 0.33 0.10];
 etiq = arrayfun(@(j) sprintf('%.0f–%.0f', P.bandes(j), P.bandes(j+1)), 1:P.Nb, 'UniformOutput', false);
-xticks(1:P.Nb);  xticklabels(etiq);  ylim([0 1]);  grid on;
+xticks(1:P.Nb);  xticklabels(etiq);  xtickangle(30);  ylim([0 1]);  grid on;
 xlabel('bande de fréquence (Hz)');  ylabel('p (proportion de pics conservés)');
 legend(sprintf('bruit blanc 10 dB (p = %.2f)', p(1)), sprintf('MP3 64 kbit/s (p = %.2f)', p(2)), ...
-    'Location', 'southoutside', 'NumColumns', 2);
-title(sprintf('Survie des pics par bande (%d extraits de %d s)', n, Tq));
+    'Location', 'southoutside', 'NumColumns', 1);
+ylabel('p (pics conservés)');
 sauver_figure(fig, 'p_par_bande');
