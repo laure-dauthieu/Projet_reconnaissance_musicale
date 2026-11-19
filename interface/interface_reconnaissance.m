@@ -53,7 +53,9 @@ Fe_micro = 44100;
 P0 = parametres('Tq', 5);                   % valeurs du rapport : Tq = 5 s, s_thr = 35
 
 %% Fenêtre
-fig = uifigure('Name', 'Reconnaissance musicale par empreintes', ...
+% Thème clair imposé : en thème sombre, la ligne du seuil s_thr (gris foncé)
+% disparaissait sur le fond noir des graphiques.
+fig = uifigure('Name', 'Reconnaissance musicale par empreintes', 'Theme', 'light', ...
     'Position', [60 60 1380 820], 'CloseRequestFcn', @fermer);
 grille = uigridlayout(fig, [1 2], 'ColumnWidth', {330, '1x'}, 'Padding', [8 8 8 8]);
 
