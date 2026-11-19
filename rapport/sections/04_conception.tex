@@ -33,11 +33,8 @@ est ainsi maîtrisée, quels que soient le volume et le genre. Les 6 bandes sont
 progression géométrique, $f_b = f_{\min}(f_{\max}/f_{\min})^{b/N_b}$ entre 200 et
 \qty{4000}{\hertz}, de rapport constant $20^{1/6} \approx \num{1.65}$ (environ $\num{0.72}$
 octave, soit 8,6 demi-tons par bande) : chaque bande couvre le même intervalle musical. Un
-découpage linéaire en 6 bandes de \qty{633}{\hertz} placerait la moitié des bandes, donc la
-moitié des pics imposés par le quota, au-dessus de \qty{2.1}{\kilo\hertz}, là où l'énergie
-musicale est faible et les pics fragiles. Au sein d'une bande géométrique étroite, le biais
-$g(k)$ d'un filtrage lent varie peu, si bien que le classement des pics, donc le quota, est
-lui aussi quasi invariant.
+découpage linéaire placerait la moitié des pics imposés par le quota au-dessus de
+\qty{2.1}{\kilo\hertz}, là où l'énergie musicale est faible et les pics fragiles.
 
 \paragraph{Question 3 : pourquoi $\rho p^2$ et pas $p$ seul.} Notons $\rho$ la densité de
 pics (pics/s) et $p$ la probabilité qu'un pic survive à la dégradation. Une requête de
@@ -51,38 +48,40 @@ retrouvées vaut
 \end{equation}
 À $F$ et $\Tq$ fixés, c'est donc $\rho p^2$ qui mesure ce qu'un réglage du voisinage apporte
 au score du bon morceau. Le critère $p$ seul est trompeur, car $p$ et $\rho$ varient en sens
-inverse avec la taille du voisinage :
-\begin{itemize}
-  \item un voisinage \emph{large} ne garde que les pics très dominants ; ils ont une avance
-        $\mu$ élevée et survivent bien ($p$ grand), mais ils sont rares ($\rho$ petit), et
-        le score du bon morceau s'effondre faute de paires ;
-  \item un voisinage \emph{étroit} donne beaucoup de pics ($\rho$ grand), mais une bonne
-        partie sont des maxima faiblement dominants que le bruit déplace ($p$ petit).
-\end{itemize}
-Maximiser $p$ conduirait au voisinage le plus large possible, c'est-à-dire à une empreinte
-presque vide. Le carré compte aussi : $p$ intervient deux fois parce qu'une clé exige la
-survie de \emph{deux} pics, donc une baisse de $p$ pèse plus lourd qu'une hausse
-équivalente de $\rho$. Deux réserves. D'abord, l'hypothèse d'indépendance est plutôt pessimiste : deux pics
-proches dans le plan temps-fréquence subissent le même bruit local, leurs survies sont
-positivement corrélées, et une clé survit alors avec une probabilité supérieure à $p^2$. Ensuite, le nombre
-d'appariements fortuits croît comme $\rho^2$ (\cref{sec-decision}) : $\rho p^2$ est le bon
-critère tant que ce nombre reste loin du seuil, ce que vérifie le \cref{tab-gammaf}.
+inverse : un voisinage \emph{large} ne garde que des pics très dominants, qui survivent bien
+($p$ grand) mais sont rares ($\rho$ petit) ; un voisinage \emph{étroit} donne beaucoup de pics,
+dont une bonne partie, faiblement dominants, sont déplacés par le bruit ($p$ petit).
+Maximiser $p$ conduirait à une empreinte presque vide. Le carré compte aussi : une clé exige
+la survie de \emph{deux} pics, donc une baisse de $p$ pèse plus qu'une hausse équivalente de
+$\rho$. L'hypothèse d'indépendance est d'ailleurs plutôt pessimiste : deux pics proches
+subissent le même bruit local, et une clé survit alors avec une probabilité supérieure à
+$p^2$.
 
-Avec le voisinage de départ ($\mv = 3$, $\kv = 5$), le quota visé de 30~pics/s et la marge
-de \qty{6}{\decibel}, on obtient en pratique $\rho \approx 25$~pics/s (\num{25.6} sur l'extrait
-de la \cref{fig-constellation}, environ 225 entrées d'index par seconde de musique avec
-$F = 10$) : le quota n'est pas atteint dans les passages où peu de maxima dépassent le seuil
-local. \aremplir{Balayage du voisinage (mesure A4 de A, pas encore faite) : $\rho$ et $p$ à
-\qty{10}{\decibel} pour chaque réglage, réglage retenu et sa valeur de $\rho p^2$ ; citer la
-\cref{fig-p-rho}.}
+\paragraph{Mesure.} Avec le voisinage de départ ($\mv = 3$, $\kv = 5$), le quota de
+30~pics/s et une marge de \qty{6}{\decibel}, on obtient $\rho \approx 25$~pics/s : le quota
+n'est pas atteint dans les passages où peu de maxima dépassent le seuil local. Nous avons balayé le voisinage sans quota, de $\pm 1$ à $\pm 5$ trames
+et de $\pm 1$ à $\pm 12$ canaux, sur 100 extraits de \qty{8}{\second} (un par morceau)
+bruités à \qty{10}{\decibel} (\cref{fig-p-rho}). Comme prévu, $\rho$ et $p$ varient en sens
+inverse : quand le voisinage grandit, $\rho$ chute de 308 à 23~pics/s, et $p$ ne monte que
+de \num{0.30} à \num{0.42}. $\rho p^2$ décroît donc de \num{27.7} à \num{4.1}. Le réglage
+retenu ($\pm 3$ trames $\times$ $\pm 5$ canaux, avec quota) donne $\rho = 26$~pics/s,
+$p = \num{0.55}$ et $\rho p^2 = \num{7.8}$, soit près de deux fois plus que le voisinage
+sans quota de même densité ($p = \num{0.42}$, $\rho p^2 = \num{4.1}$) : le quota garde les
+pics les plus forts de chaque bande, qui sont ceux qui dépassent le plus le bruit.
+Maximiser $\rho p^2$ pousserait vers des voisinages minuscules, mais la taille de l'index
+croît comme $\rho F$ et les appariements fortuits comme $\rho^2$ : on fixe donc $\rho$ dans
+la plage du sujet (25 à 35~pics/s) par le quota, et c'est à densité fixée que le critère
+$\rho p^2$ départage les réglages.
 
 \begin{figure}[t]
   \centering
   \inclurefig[0.8\linewidth]{p_en_fonction_de_rho}{p sous bruit à 10 dB en fonction de rho, un point par voisinage}
   \caption{Proportion $p$ de pics conservés après ajout d'un bruit blanc à
-  \qty{10}{\decibel}, en fonction de la densité $\rho$, pour \aremplir{les voisinages
-  testés}. Les courbes d'égal $\rho p^2$ indiquent le meilleur compromis.
-  \aremplir{Ce qu'il faut y voir.}}
+  \qty{10}{\decibel}. Voisinages de $\pm 1$, $\pm 3$ et $\pm 5$ trames sur 3 à 25 canaux,
+  sans quota ; étoile : réglage retenu, avec quota. 100 extraits de \qty{8}{\second}.
+  (a)~$\rho$ en fonction de la largeur du voisinage ; (b)~$p$ en fonction de $\rho$ ;
+  (c)~critère $\rho p^2$. $p$ augmente quand le voisinage grandit, mais beaucoup moins vite
+  que $\rho$ ne diminue ; à densité égale, le quota double $\rho p^2$.}
   \label{fig-p-rho}
 \end{figure}
 
@@ -104,34 +103,27 @@ $u = (Q_f(k_1)\,\Nf + Q_f(k_2))\,\Nt + (\dm - \dm_{\min})$, inférieur à
 $M = \Nf^2\Nt \le 2^{32}$.
 
 \paragraph{Zone cible.} À \num{15.6} trames/s, $\Delta t \in [\num{0.1} ; 2]$\,s donne
-$\dm \in [2, 31]$, soit $\Nt = 30$ valeurs. On exclut $\dm = 0$ (deux pics d'un même
-accord, très fréquents, donc peu spécifiques) et $\dm = 1$ (la migration d'un pic d'une
-trame, \cref{sec-proprietes}, y change la clé dans une proportion maximale). La borne
-$\dk_{\max} = 60$ canaux (\qty{470}{\hertz}) garde la cible dans la même région musicale.
-Le nombre de cibles disponibles limite $F$ : avec $\rho = 30$~pics/s répartis sur environ
-490 canaux utiles (\qtyrange{200}{4000}{\hertz}), la zone contient en moyenne
-$30 \times \num{1.9} \times 121/490 \approx 14$ pics. $F$ doit rester en dessous, sans quoi
-les ancres proches des bords de bande n'auraient pas assez de cibles ; d'où $F$ entre 8
-et 12.
+$\dm \in [2, 31]$, soit $\Nt = 30$ valeurs. On exclut $\dm = 0$ (pics d'un même accord, très
+fréquents, peu spécifiques) et $\dm = 1$ (où la migration d'un pic d'une trame change le plus
+souvent la clé). La borne $\dk_{\max} = 60$ canaux (\qty{470}{\hertz}) garde la cible dans la
+même région musicale. La zone contient en moyenne
+$30 \times \num{1.9} \times 121/490 \approx 14$ pics ; $F$ doit rester en dessous pour que les
+ancres des bords de bande aient assez de cibles.
 
-\paragraph{Pourquoi des paires.} Une clé « 1 pic » est retrouvée si son pic survit
-(probabilité $p$), une clé « 1 paire » si ses deux pics survivent ($p^2$) ; mais il y a $F$
-fois plus de paires que de pics. Le nombre de clés correctes est multiplié par
-$F p^2 / p = F p$ : les paires gagnent dès que
-\begin{equation}
-  F\,p > 1 .
-\end{equation}
-Dans le même temps, le nombre de clés possibles passe de $K = 513$ à
-$M = \Nf^2 \Nt \approx \num{7.9e6}$ (pour $\gf = 1$) : les paires sont plus nombreuses à
-survivre \emph{et} \num{15000} fois plus discriminantes. Le prix est un index $F$ fois plus
-gros. Le \cref{tab-pic-paire} reprend le tableau de l'énoncé avec nos valeurs de $p$.
+\paragraph{Pourquoi des paires.} Une clé « 1 pic » survit avec la probabilité $p$, une clé
+« 1 paire » avec $p^2$, mais il y a $F$ fois plus de paires que de pics : le nombre de clés
+correctes est multiplié par $Fp$, et les paires gagnent dès que $F\,p > 1$. Dans le même
+temps, le nombre de clés possibles passe de $K = 513$ à $M = \Nf^2 \Nt \approx \num{7.9e6}$ :
+les paires sont plus nombreuses à survivre \emph{et} \num{15000} fois plus discriminantes, au
+prix d'un index $F$ fois plus gros (\cref{tab-pic-paire}).
 
 \begin{table}[h]
   \centering\small
-  \caption{Clés « 1 pic » contre clés « 1 paire » pour une requête de $\Tq = \qty{5}{\second}$,
-  $\rho = 25$~pics/s (densité mesurée), $F = 10$. Les valeurs de $p$ sont mesurées sur notre
-  base. Colonne de gauche : exemple de l'énoncé ($\Tq = \qty{8}{\second}$, $\rho = 30$,
-  $F = 10$, $p = \num{0.35}$).}
+  \caption{Clés « 1 pic » contre clés « 1 paire », mesurées sur 100 requêtes de
+  $\Tq = \qty{8}{\second}$ alignées, $\rho = \num{26.1}$~pics/s, $F = 10$. Colonne de gauche :
+  exemple de l'énoncé ($\Tq = \qty{8}{\second}$, $\rho = 30$, $F = 10$, $p = \num{0.35}$).
+  Nombre de paires mesuré : \num{1707}, et non $F\rho\Tq = \num{2090}$, car les ancres de fin
+  d'extrait n'ont pas toutes leurs $F$ cibles.}
   \label{tab-pic-paire}
   \begin{tabular}{@{}lccccc@{}}
     \toprule
@@ -139,23 +131,27 @@ gros. Le \cref{tab-pic-paire} reprend le tableau de l'énoncé avec nos valeurs 
     \cmidrule(lr){3-4}\cmidrule(l){5-6}
     & Énoncé (pic / paire) & 1 pic & 1 paire & 1 pic & 1 paire \\
     \midrule
-    Clés dans la requête : $\rho\Tq$ / $F\rho\Tq$
-      & 240 / 2400 & 125 & 1250 & 125 & 1250 \\
+    Clés dans la requête
+      & 240 / 2400 & 209 & \num{1707} & 209 & \num{1707} \\
     Probabilité de survie : $p$ / $p^2$
-      & \num{0.35} / \num{0.12} & \aq & \aq & \aq & \aq \\
+      & \num{0.35} / \num{0.12} & \num{0.56} & \num{0.31} & \num{0.86} & \num{0.73} \\
     Survie des clés mesurée
-      & -- & -- & \aq & -- & \aq \\
-    Clés correctes retrouvées
-      & 84 / 294 & \aq & \aq & \aq & \aq \\
+      & -- & -- & \num{0.36} & -- & \num{0.75} \\
+    Clés correctes retrouvées (mesurées)
+      & 84 / 294 & 116 & 612 & 179 & \num{1276} \\
     Clés possibles : $K$ / $M$
       & 513 / \num{7.9e6} & 513 & \num{7.9e6} & 513 & \num{7.9e6} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\aremplir{Commentaire du \cref{tab-pic-paire} : la condition $Fp > 1$ est-elle remplie pour
-les deux dégradations ? La survie des clés mesurée est-elle proche de $p^2$ ? Si elle est
-plus grande, les survies des deux pics sont corrélées.}
+La condition $Fp > 1$ est largement remplie : $Fp = \num{5.6}$ sous bruit à
+\qty{10}{\decibel} et \num{8.6} en MP3. Les paires donnent 4 à 7 fois plus de clés correctes
+que les pics isolés (612 contre 116, \num{1276} contre 179), tout en étant \num{15000} fois plus
+discriminantes. La survie des clés mesurée dépasse un peu $p^2$ (\num{0.36} contre
+\num{0.31} sous bruit) : les deux pics d'une paire ne disparaissent pas indépendamment, les
+pics forts survivent ensemble et les pics faibles disparaissent ensemble. L'hypothèse
+d'indépendance est donc légèrement pessimiste, comme annoncé à la \cref{sec-pics}.
 
 \paragraph{Regroupement en fréquence : $\gf$.} Regrouper $\gf$ canaux voisins en une classe
 donne $\Nf = \lceil K/\gf \rceil$ classes et $M = \Nf^2\Nt$ clés possibles. Si les clés étaient
@@ -165,255 +161,170 @@ produirait en moyenne $\nq\Nu/M$ appariements fortuits (\cref{sec-decision}). Le
 
 \begin{table}[h]
   \centering\small
-  \caption{Effet du regroupement $\gf$. Parasites attendus : modèle uniforme $\nq\Nu/M$, calculé
-  pour $\nq = 1250$ ($\Tq = \qty{5}{\second}$, $\rho = 25$, $F = 10$) et
-  $\Nu = \num{677171}$ (notre index de 100 extraits de \qty{30}{\second}).
-  Identification mesurée : \TBD{} sans dégradation, $\sthr = 35$, 200 requêtes.
-  Plancher de seuil : plus petit score $s$ tel que la probabilité qu'un mauvais morceau
-  l'atteigne reste sous \qty{1}{\percent} (\cref{eq-plancher}).}
+  \caption{Effet du regroupement $\gf$. Parasites attendus : modèle uniforme $\nq\Nu/M$, avec
+  $\nq \approx \num{1015}$ clés mesurées par requête de \qty{5}{\second} et
+  $\Nu = \num{677171}$ (notre index de 100 extraits de \qty{30}{\second}). Plancher : seuil
+  prévu par le modèle uniforme (\cref{eq-plancher}). $\sthr$ mesuré : seuil recalibré pour
+  chaque $\gf$ sur 50 négatives (plage selon le RSB). \TBD{} : $\Tq = \qty{5}{\second}$,
+  200 requêtes positives ; $\TFD = 0/50$ partout.}
   \label{tab-gammaf}
-  \begin{tabular}{@{}rrrrrc@{}}
+  \begin{tabular}{@{}rrrrrrrr@{}}
     \toprule
-    $\gf$ & $\Nf$ & $M$ & Parasites $\nq\Nu/M$ & Plancher de seuil & Identification mesurée \\
+    $\gf$ & $\Nf$ & $M$ & Parasites & Plancher & $\sthr$ mesuré & \TBD{} \qty{10}{\decibel} & \TBD{} \qty{0}{\decibel} \\
     \midrule
-    1 & 513 & \num{7.9e6} & 107   & 3 & \qty{98.5}{\percent} \\
-    2 & 257 & \num{2.0e6} & 427   & 3 & \aq \\
-    4 & 129 & \num{5.0e5} & \num{1700}  & 4 & \aq \\
-    8 & 65  & \num{1.3e5} & \num{6700} & 6 & \aq \\
+    1 & 513 & \num{7.9e6} & 87         & 3 & 21 à 26 & \qty{95.5}{\percent} & \qty{81.5}{\percent} \\
+    2 & 257 & \num{2.0e6} & 347        & 3 & 26 à 33 & \qty{96.0}{\percent} & \qty{81.5}{\percent} \\
+    4 & 129 & \num{5.0e5} & \num{1380} & 4 & 35 à 41 & \qty{96.0}{\percent} & \qty{80.5}{\percent} \\
+    8 & 65  & \num{1.3e5} & \num{5430} & 6 & 59      & \qty{94.0}{\percent} & \qty{71.0}{\percent} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \paragraph{Question 4 : le meilleur $\gf$ n'est pas celui qui donne le moins de parasites.}
 Les parasites croissent comme $\gf^2$, donc $\gf = 1$ les minimise. Mais deux effets jouent
-en sens inverse.
-\begin{enumerate}
-  \item \emph{Les parasites gênent peu tant qu'ils restent dispersés.} La décision ne porte
-        pas sur le nombre total d'appariements, mais sur la hauteur du plus grand pic de
-        l'histogramme des $\delta$. Les parasites se répartissent sur des centaines de cases
-        par morceau, et le maximum d'un grand nombre de variables de Poisson de petite
-        moyenne croît très lentement : quand $\gf$ passe de 1 à 8, les parasites sont
-        multipliés par 64, mais le plancher de seuil ne passe que de 3 à 6
-        (\cref{tab-gammaf}). Le score du bon morceau, lui, se compte en centaines.
-  \item \emph{Un regroupement absorbe les petits déplacements de pics.} Sous bruit ou
-        après codage, un pic qui survit peut se déplacer d'un canal. Supposons qu'il le
-        fasse avec une probabilité $j$, vers le haut ou vers le bas. Si la position du pic
-        dans sa classe est uniforme, il ne change de classe que s'il est sur le bord atteint,
-        ce qui arrive avec la probabilité $1/\gf$. Sa classe est donc conservée avec la
-        probabilité $1 - j/\gf$, et une clé survit avec la probabilité
-        \begin{equation}
-          p_{\text{clé}} = \bigl[\,p\,(1 - j/\gf)\,\bigr]^2 .
-        \end{equation}
-        Avec $\gf = 1$, tout déplacement casse la clé ; avec $\gf = 2$, la moitié seulement.
-        Pour $j = \num{0.3}$, par exemple, passer de $\gf = 1$ à $\gf = 2$ multiplie le
-        nombre de clés correctes par $(\num{0.85}/\num{0.7})^2 \approx \num{1.5}$, alors que le
-        plancher de seuil ne bouge pas (\cref{tab-gammaf}).
-\end{enumerate}
-Le bon critère est donc la \emph{séparation} entre le score du bon morceau et le score
-maximal des mauvais, pas le nombre de parasites. Le gain de robustesse l'emporte tant que
-les parasites restent dispersés ; au-delà, quand $\gf$ devient grand, une même clé se
-répète de nombreuses fois dans chaque morceau, les votes fortuits commencent à s'empiler
-dans les mêmes cases et la spécificité s'effondre. L'optimum est donc intermédiaire.
-Nous avons gardé la valeur de départ $\gf = 1$, qui donne déjà \qty{98.5}{\percent} de
-bonnes détections sans dégradation. \aremplir{Balayage $\gf = 2, 4, 8$ (mesure A4 de A, pas
-encore faite) : si $\gf = 2$ améliore le \TBD{} sous bruit, le retenir et le dire ici.}
+en sens inverse. D'abord, les parasites gênent peu tant qu'ils restent dispersés : la
+décision porte sur la hauteur du plus grand pic de l'histogramme des $\delta$, pas sur le
+nombre total d'appariements, et le maximum de nombreuses variables de Poisson de petite
+moyenne croît très lentement (le plancher de seuil ne passe que de 3 à 6 quand les
+parasites sont multipliés par 64). Ensuite, un regroupement absorbe les petits déplacements
+de pics : si un pic survivant se décale d'un canal avec la probabilité $j$, il ne change de
+classe qu'avec la probabilité $j/\gf$, et une clé survit avec la probabilité
+$\bigl[p\,(1 - j/\gf)\bigr]^2$. Pour $j = \num{0.3}$, passer de $\gf = 1$ à 2 multiplie les clés
+correctes par environ \num{1.5}. Le bon critère est donc la \emph{séparation} entre le score
+du bon morceau et celui des mauvais. Quand $\gf$ devient grand, une même clé se répète dans
+chaque morceau, les votes fortuits s'empilent dans les mêmes cases et la spécificité
+s'effondre : l'optimum est intermédiaire.
+
+\paragraph{Mesure.} Le \cref{tab-gammaf} confirme les deux effets, mais le second est bien
+plus fort que prévu : le score médian du bon morceau à \qty{0}{\decibel} augmente avec $\gf$
+(49, 65, 76, 88), mais le seuil nécessaire pour garder $\TFD = 0$ monte de 21 à 59, et non de
+3 à 6, car les clés réelles sont loin d'être uniformes (\cref{sec-decision}). D'où un
+plateau : $\gf = 1$ et 2 donnent le même \TBD{}, puis le \TBD{} à \qty{0}{\decibel} chute à
+\qty{71}{\percent} pour $\gf = 8$ (à \qty{10}{\decibel}, les écarts ne valent que 1 à 4
+requêtes sur 200). Nous gardons $\gf = 1$ : même \TBD{} que $\gf = 2$, quatre fois moins
+d'appariements fortuits et le seuil le plus bas.
+
+\paragraph{Choix de $F$.} Avec les mêmes requêtes, $F = 5$, 10 et 15 donnent
+\qtylist{78.0;81.5;81.5}{\percent} de \TBD{} à \qty{0}{\decibel}, pour un index de
+\numlist{368190;677171;905862} entrées. Le score augmente avec $F$, mais le seuil aussi :
+le \TBD{} plafonne à partir de $F = 10$, alors que l'index continue de croître. $F = 10$ est
+le plus petit $F$ qui atteint ce plafond.
 
 \subsection{Index inversé}
 \label{sec-index}
 
-Comparer la requête à chaque référence coûterait un temps proportionnel au nombre de
-morceaux $N_b$. L'index inversé range, pour chaque clé, la liste des couples (morceau,
-$m_1$) : une requête ne lit que ses $\nq$ clés. Nous le stockons sous la forme d'un tableau
-$[u,\ \text{morceau},\ m_1]$ trié par $u$ ; chaque clé de la requête est cherchée par
-dichotomie en $O(\log \Nu)$, puis \emph{toutes} ses entrées sont lues (la fonction
-\texttt{ismember} n'en renverrait qu'une). Le coût d'une requête est
-$O(\nq \log \Nu + A)$, où $A$ est le nombre d'appariements lus. Seul $A$ dépend de la taille
-de la base, à travers les parasites $\nq\Nu/M$ ; tant qu'ils restent peu nombreux, le temps
-de requête est presque indépendant de $N_b$. La taille de l'index vaut
-$\Nu = N_b\, L\, \rho\, F$ entrées pour des morceaux de durée $L$, soit
-environ \num{7.5e5} entrées attendues pour 100 extraits de \qty{30}{\second} à
-$\rho = 25$~pics/s. Nous en mesurons \num{677171}, soit environ 225 par seconde de musique :
-les ancres proches de la fin d'un extrait ont moins de $F$ cibles. L'index occupe
-\qty{14.6}{\mega\byte}, soit environ 22 octets par entrée dans notre implémentation ; un codage
-compact ($u$ sur 32 bits, morceau et $m_1$ sur 16 bits) le ramènerait à 8 octets par entrée,
-environ \qty{5.4}{\mega\byte}. La \cref{fig-passage-echelle} confirme les deux prédictions :
-la taille croît linéairement avec le nombre de morceaux (de \qty{1.8}{\mega\byte} pour 10
-morceaux à \qty{56}{\mega\byte} pour 500), et le temps de requête médian reste presque constant,
-de \qtyrange{1.9}{2.4}{\milli\second} quand la base est multipliée par 50. La légère hausse
-correspond au terme $A$ : le nombre d'entrées lues par clé croît avec la base.
+L'index inversé range, pour chaque clé, la liste des couples (morceau, $m_1$) : une requête
+ne lit que ses $\nq$ clés au lieu de se comparer à chaque morceau. Nous le stockons comme un
+tableau $[u,\ \text{morceau},\ m_1]$ trié par $u$ ; chaque clé est cherchée par dichotomie,
+puis \emph{toutes} ses entrées sont lues. Le coût d'une requête est
+$O(\nq \log \Nu + A)$, où seul le nombre $A$ d'appariements lus dépend de la taille de la
+base. La taille attendue, $\Nu = N_b\,L\,\rho\,F \approx \num{7.5e5}$ entrées pour 100
+extraits de \qty{30}{\second}, est proche des \num{677171} mesurées (environ 225 par seconde
+de musique, les ancres de fin d'extrait ayant moins de $F$ cibles), soit
+\qty{14.6}{\mega\byte}. La \cref{fig-passage-echelle} confirme les deux prédictions : la taille
+croît linéairement (de \qty{1.8}{\mega\byte} pour 10 morceaux à \qty{56}{\mega\byte} pour 500)
+et le temps de requête médian reste presque constant (\qtyrange{1.9}{2.4}{\milli\second}). Ces temps comptent l'identification à partir du signal prétraité, pas le décodage du
+fichier.
+
+\begin{figure}[t]
+  \centering
+  \inclurefig[0.7\linewidth]{temps_et_taille_index}{temps de requête et taille de l'index en fonction du nombre de morceaux}
+  \caption{Passage à l'échelle, de 10 à 500 morceaux indexés. (a)~Temps médian d'une
+  requête de \qty{5}{\second} non dégradée : quasi constant. (b)~Taille de l'index en
+  mémoire : proportionnelle au nombre de morceaux (tirets : \qty{0.11}{Mo} par morceau).}
+  \label{fig-passage-echelle}
+\end{figure}
 
 \subsection{Alignement temporel et décision (Q5)}
 \label{sec-decision}
 
-\paragraph{Alignement.} Si la requête est un extrait de la référence qui commence à la
-trame $m_0$, la propriété (1) assure qu'une paire trouvée dans la requête à l'ancre $m_q$
-l'est dans la référence en $m_r = m_q + m_0$. Tous les appariements corrects vérifient donc
+\paragraph{Alignement.} Si la requête commence à la trame $m_0$ de la référence, la
+propriété (1) assure qu'une paire trouvée dans la requête à l'ancre $m_q$ l'est dans la
+référence en $m_r = m_q + m_0$. Tous les appariements corrects vérifient donc
 \begin{equation}
   \delta = m_r - m_q = m_0 ,
   \tag{7}
 \end{equation}
-alors que les appariements fortuits donnent des $\delta$ dispersés. Pour chaque morceau
-candidat, on construit l'histogramme des $\delta$, et son maximum est le score $s$ du
-morceau. On répond « le morceau de score maximal » si ce score dépasse $\sthr$, et
-« inconnu » sinon. La \cref{fig-histo-delta} illustre la différence sur la chaîne
-« jouet » : pour le bon morceau, 699 appariements tombent dans une seule case, alors qu'un
-mauvais morceau n'en réunit jamais plus de 2. Le pic tombe en $\delta = 104$ trames, soit
-\qty{6.66}{\second}, pour une position réelle de \qty{6.65}{\second} : la position de l'extrait
-est retrouvée au centième de seconde. Le bon morceau présente aussi des pics secondaires
-(environ 115 et 55 votes), vraisemblablement dus à une boucle musicale répétée ailleurs dans
-le morceau : la décision ne change pas, puisqu'on retient le maximum.
+alors que les appariements fortuits donnent des $\delta$ dispersés. Le score $s$ d'un
+morceau est le maximum de son histogramme des $\delta$ ; on répond « le morceau de score
+maximal » si $s \ge \sthr$, « inconnu » sinon. Sur la chaîne « jouet »
+(\cref{fig-histo-delta}), 699 appariements du bon morceau tombent dans une seule case, en
+$\delta$ = \qty{6.66}{\second} pour une position réelle de \qty{6.65}{\second}, alors qu'un
+mauvais morceau n'en réunit jamais plus de 2. Les pics secondaires du bon morceau viennent
+vraisemblablement d'une boucle musicale répétée.
 
 \begin{figure}[t]
   \centering
-  \inclurefig[0.95\linewidth]{histogramme_delta}{histogramme des delta : mauvais morceau contre bon morceau}
+  \inclurefig[0.75\linewidth]{histogramme_delta}{histogramme des delta : mauvais morceau contre bon morceau}
   \caption{Histogramme des décalages $\delta = m_r - m_q$ pour une requête de
   \qty{8}{\second} non dégradée (chaîne « jouet »). À gauche, un mauvais morceau : votes
   dispersés, score 2. À droite, le bon morceau : pic net de 699 votes en $\delta = m_0$.}
   \label{fig-histo-delta}
 \end{figure}
 
-\paragraph{Score du bon morceau.} D'après~\eqref{eq-cles-correctes}, toutes les paires
-correctes votent dans la même case, donc
+\paragraph{Score du bon morceau.} Toutes les paires correctes votent dans la même case,
+donc d'après~\eqref{eq-cles-correctes}
 \begin{equation}
   s_{\text{bon}} \approx F\,\rho\,\Tq\,p^2 ,
   \label{eq-score-bon}
 \end{equation}
-soit environ 300 pour $F = 10$, $\rho = 30$, $\Tq = \qty{8}{\second}$ et $p = \num{0.35}$
-(exemple de l'énoncé). Avec nos valeurs ($\rho = 25$, $\Tq = \qty{5}{\second}$), on attend
-$s_{\text{bon}} \approx 1250\,p^2$. Sans dégradation, le score médian mesuré vaut 232, ce qui
-correspond à $p \approx \num{0.43}$ ; sur l'extrait de \qty{8}{\second} de la
-\cref{fig-histo-delta}, 699 votes correspondent à $p \approx \num{0.58}$. Même sans
-dégradation, $p < 1$ : l'extrait ne tombe pas sur la grille des trames, et une partie des pics
-change de trame (propriété (1), \cref{sec-proprietes}). Cette
-valeur est une borne haute, pour deux raisons. D'abord, les ancres de la fin de la requête
-ont une partie de leurs cibles hors de l'extrait : on perd en moyenne la durée qui sépare
-une ancre de ses cibles, de l'ordre de \qty{0.8}{\second}, et il vaut mieux remplacer $\Tq$
-par $\Tq - \num{0.8}$\,s. Ensuite, quand un pic disparaît ou qu'un pic parasite apparaît,
-la liste des $F$ premières cibles d'une ancre change, et des paires dont les deux pics ont
-survécu peuvent ne plus être formées.
+soit environ 300 pour l'exemple de l'énoncé et $1250\,p^2$ avec nos valeurs
+($\rho = 25$, $\Tq = \qty{5}{\second}$). C'est une borne haute : les ancres de fin de requête
+n'ont pas toutes leurs cibles ($\nq \approx \num{1015}$ paires et non \num{1250}), et même sans
+dégradation $p < 1$, car l'extrait ne tombe pas sur la grille des trames. La
+\cref{sec-theorie-mesure} mesure ces deux effets.
 
-\paragraph{Score d'un mauvais morceau : modèle uniforme.} Si les clés étaient réparties
-uniformément sur les $M$ clés possibles, chacune des $\nq$ clés de la requête trouverait en
-moyenne $N_c/M$ entrées d'un morceau $c$ qui en compte $N_c$. Le nombre d'appariements
-fortuits avec ce morceau suit alors une loi de Poisson de moyenne $\lambda_c = \nq N_c/M$,
-répartis sur les $D$ cases de son histogramme des $\delta$ ($D \approx (L + \Tq)\Fe/H$,
-environ 550 cases pour des extraits de \qty{30}{\second}). Chaque case reçoit une loi de
-Poisson de moyenne $\lambda = \lambda_c/D$, et la probabilité qu'au moins une case parmi les
-$D$ cases des $N_b - 1$ mauvais morceaux atteigne $s$ est majorée par
-\begin{equation}
-  \Prob(\text{fausse détection}) \;\le\; (N_b - 1)\, D\; \Prob\bigl(\mathrm{Poisson}(\lambda) \ge s\bigr) .
-  \label{eq-plancher}
-\end{equation}
-Pour nos valeurs ($\nq = 1250$, $N_c \approx \num{6800}$ entrées par extrait, $\gf = 1$),
-on obtient $\lambda_c \approx \num{1.1}$ :
-un mauvais morceau ne recueille qu'un ou deux votes au total, et un seuil de 3 suffit à
-maintenir la probabilité de fausse détection sous \qty{1}{\percent}. Ce modèle donne un
-\emph{plancher} de seuil : en dessous, les seuls effets du hasard produiraient des fausses
-détections.
-
-\paragraph{Pourquoi les scores négatifs mesurés sont plus élevés.} En pratique, les mauvais
-morceaux obtiennent des scores bien supérieurs (jusqu'à 26 sur nos requêtes négatives, avec un mode vers 7 à 10 ; de 10 à 25 d'après
-l'énoncé). Le modèle uniforme suppose deux choses fausses.
-\begin{enumerate}
-  \item \emph{Les clés ne sont pas uniformes.} La gamme tempérée concentre les pics sur les
-        fréquences des notes, et les intervalles consonants reviennent dans tous les
-        morceaux. Si $\pi_u$ est la proportion des entrées de l'index qui portent la clé $u$,
-        et si les clés de la requête suivent la même loi, la probabilité qu'une clé de la
-        requête tombe sur une entrée donnée vaut $\sum_u \pi_u^2$ au lieu de $1/M$. Le
-        modèle reste valable en remplaçant $M$ par l'\emph{alphabet effectif}
-        \begin{equation}
-          \Meff = \frac{1}{\sum_u \pi_u^2} \;\le\; M ,
-        \end{equation}
-        avec égalité seulement si les clés sont uniformes. La contrainte $|\dk| \le 60$ et
-        les bandes \qtyrange{200}{4000}{\hertz} réduisent déjà l'alphabet accessible à
-        environ \num{1.8e6} clés pour $\gf = 1$, quatre fois moins que $M$.
-  \item \emph{Les appariements fortuits ne sont pas indépendants.} Une note tenue produit
-        la même clé à plusieurs ancres consécutives. Si la requête contient la clé $u$ à $L$
-        ancres consécutives $m, \dots, m+L-1$, et un mauvais morceau la contient à $L'$ ancres
-        consécutives $r, \dots, r+L'-1$, les $LL'$ appariements donnent
-        $\delta = (r - m) + (i - j)$, et la case $\delta = r - m$ en reçoit $\min(L, L')$ : une
-        seule note tenue commune produit plusieurs votes \emph{cohérents dans le temps},
-        exactement comme un bon morceau. Deux ou trois coïncidences de ce type, avec des notes
-        tenues de 5 à 10 trames, suffisent à expliquer des scores de 10 à 25.
-\end{enumerate}
-Le seuil ne peut donc pas être déduit du seul modèle uniforme : il doit être calibré sur
-des requêtes négatives.
+\paragraph{Score d'un mauvais morceau.} Si les clés étaient uniformes, les appariements
+fortuits avec un mauvais morceau suivraient une loi de Poisson de moyenne
+$\nq N_c/M \approx \num{1.1}$ (pour $N_c \approx \num{6800}$ entrées par extrait), répartie
+sur environ 550 cases de $\delta$ : un seuil de 3 suffirait à garder la probabilité de fausse
+détection sous \qty{1}{\percent} (\cref{eq-plancher}, \cref{sec-annexe-scores}). C'est un
+\emph{plancher}. Nous mesurons pourtant des scores négatifs jusqu'à 26 (de 10 à 25 d'après
+l'énoncé), car le modèle uniforme suppose deux choses fausses. D'abord, \emph{les clés ne
+sont pas uniformes} : la gamme tempérée concentre les pics sur les notes, et les intervalles
+consonants reviennent dans tous les morceaux ; il faut remplacer $M$ par un alphabet effectif
+$\Meff = 1/\sum_u \pi_u^2$ bien plus petit. Ensuite, \emph{les appariements fortuits ne sont
+pas indépendants} : une note tenue produit la même clé à plusieurs ancres consécutives, et une
+note tenue commune à la requête et à un mauvais morceau donne plusieurs votes dans la
+\emph{même} case, exactement comme un bon morceau. Deux ou trois coïncidences de ce type
+suffisent à expliquer des scores de 10 à 25. Le seuil doit donc être calibré sur des
+requêtes négatives.
 
 \paragraph{Question 5 : fixer $\sthr$ automatiquement.} On cherche le plus petit seuil qui
-garantit un taux de fausse détection visé $\alpha$ (par exemple \qty{1}{\percent}) : c'est un
-critère de Neyman-Pearson, qui maximise le \TBD{} à \TFD{} imposé. La méthode est la
-suivante.
-\begin{enumerate}
-  \item \emph{Séparer les négatives} en un jeu de calibration et un jeu de test, extraits de
-        morceaux différents. Le seuil n'est jamais évalué sur les requêtes qui ont servi à le
-        fixer.
-  \item \emph{Modéliser la queue des scores négatifs.} Le score d'une requête négative est
-        le maximum d'un grand nombre de cases faiblement dépendantes. Nous modélisons sa loi
-        par une loi de Gumbel, la loi des valeurs extrêmes des distributions à queue
-        légère~\cite{gumbel1958}, de fonction de répartition
-        $\Prob(S \le s) = \exp\bigl(-e^{-(s-\mu_G)/\beta}\bigr)$. Ses paramètres se déduisent de
-        la moyenne $\bar{s}$ et de l'écart-type $\sigma_s$ des scores de calibration (méthode
-        des moments) :
-        \begin{equation}
-          \beta = \frac{\sqrt{6}}{\pi}\,\sigma_s , \qquad \mu_G = \bar{s} - \gamma_E\,\beta ,
-          \qquad \gamma_E \approx \num{0.5772} .
-        \end{equation}
-        Pour des scores entiers, cette loi est une approximation de la queue et non un
-        résultat exact ; on vérifie son ajustement sur l'histogramme de calibration.
-  \item \emph{Inverser la loi} pour un \TFD{} visé $\alpha$ :
-        $\Prob(S > \sthr) = \alpha$ donne
-        \begin{equation}
-          \sthr = \mu_G - \beta \ln\bigl(-\ln(1 - \alpha)\bigr) ,
-          \qquad \text{soit } \sthr \approx \mu_G + \num{4.6}\,\beta \text{ pour } \alpha = \qty{1}{\percent} .
-        \end{equation}
-        Le modèle extrapole au-delà du plus grand score observé : avec 50 négatives, on ne
-        pourrait pas estimer directement un quantile à \qty{1}{\percent}.
-  \item \emph{Valider sur les négatives de test} : on mesure le \TFD{} et on vérifie
-        $\sthr$ par rapport au plancher~\eqref{eq-plancher}. La précision de cette
-        validation est limitée par le nombre $n$ de négatives : si aucune n'est acceptée à
-        tort, la borne supérieure de l'intervalle de confiance à \qty{95}{\percent} du \TFD{}
-        vaut $1 - \num{0.05}^{1/n} \approx 3/n$, soit \qty{6}{\percent} pour $n = 50$ et
-        \qty{3}{\percent} pour $n = 100$. Il faut environ 300 négatives sans erreur pour
-        garantir un \TFD{} inférieur à \qty{1}{\percent}.
-\end{enumerate}
-La méthode empirique la plus simple, « plus grand score négatif observé plus une marge »,
-en est un cas particulier sans modèle : elle ne dit pas quel \TFD{} on obtient. Le modèle de
-Gumbel indique en outre comment le seuil doit évoluer avec la taille de la base : le score
-d'une négative est le maximum sur $N_b$ morceaux, et passer de $N_b$ à $N_b'$ décale la loi de
-$\beta\ln(N_b'/N_b)$. Le seuil ne croît donc qu'avec le logarithme du nombre de morceaux.
+garantit un \TFD{} visé $\alpha$ (critère de Neyman-Pearson). La méthode :
+(1)~séparer les négatives en un jeu de calibration et un jeu de test, extraits de morceaux
+différents ; (2)~ajuster sur les scores de calibration une loi des valeurs extrêmes, la loi
+de Gumbel~\cite{gumbel1958}, par la méthode des moments ; (3)~l'inverser pour obtenir le
+seuil qui donne $\Prob(S > \sthr) = \alpha$, ce qui extrapole au-delà du plus grand score
+observé (\cref{sec-annexe-scores}) ; (4)~valider sur les négatives de test. Cette validation
+est limitée par le nombre $n$ de négatives : si aucune n'est acceptée, la borne à
+\qty{95}{\percent} du \TFD{} vaut environ $3/n$, soit \qty{6}{\percent} pour $n = 50$ ; il
+faudrait 300 négatives sans erreur pour garantir moins de \qty{1}{\percent}. Le modèle indique
+aussi que le seuil ne croît qu'avec le logarithme du nombre de morceaux.
 
-\paragraph{Mise en œuvre et résultat.} Nous avons coupé les 100 requêtes négatives en
-50 de calibration et 50 de test. Le plus fort score de calibration, toutes conditions
-confondues, vaut 23, et nous avons appliqué la règle empirique avec une marge
-multiplicative : $\sthr = \lceil \num{1.5} \times 23 \rceil = 35$, très au-dessus du plancher
-théorique de 3. Cette marge s'est révélée nécessaire : sur les négatives de \emph{test}, le
-score monte jusqu'à 26. Un seuil collé au maximum de calibration (24) aurait laissé passer des
-fausses détections, et seule la séparation entre calibration et test permet de le voir. Avec
-$\sthr = 35$, aucune des 50 négatives de test n'est acceptée, dans aucune condition :
-$\TFD = 0/50$, soit un \TFD{} réel probablement inférieur à \qty{6}{\percent}. La loi de
-Gumbel remplacerait le facteur \num{1.5}, choisi à la main, par une marge déduite d'un \TFD{}
-visé. \aremplir{Si A calcule $\bar{s}$ et $\sigma_s$ sur les 50 scores de calibration :
-$\mu_G$, $\beta$ et le seuil obtenu pour $\alpha = \qty{1}{\percent}$, à comparer à 35.}
+\paragraph{Mise en œuvre et résultat.} Le plus fort score des 50 négatives de calibration,
+toutes conditions confondues, vaut 23 ; nous avons retenu
+$\sthr = \lceil \num{1.5} \times 23 \rceil = 35$. La marge est nécessaire : sur les négatives de
+\emph{test}, le score monte jusqu'à 26, ce que seul le découpage calibration/test révèle. Avec
+$\sthr = 35$, $\TFD = 0/50$ dans toutes les conditions. La loi de Gumbel, testée, donne
+$\sthr \approx 16$ à 18 pour $\alpha = \qty{1}{\percent}$, mais un \TFD{} réel de 4 à
+\qty{5}{\percent} (\cref{tab-gumbel}) : sa queue est trop légère, pour les deux raisons
+ci-dessus. Elle donne l'ordre de grandeur ; le seuil prudent de 35 garantit l'absence de
+fausse détection.
 
-La \cref{fig-histo-scores} montre que les deux populations sont séparées d'un ordre de
-grandeur : à $\Tq = \qty{5}{\second}$, les négatives ne dépassent pas 23 (26 toutes durées
-confondues), les positives s'étendent pour la plupart de
-30 à 900. Leurs queues se recouvrent pourtant entre 10 et 25 environ : quelques positives
-très dégradées, surtout sous bruit à \qty{0}{\decibel} et avec la réverbération à
-\qty{1}{\second}, obtiennent un score de mauvais morceau. Elles deviennent des
-non-détections, pas des confusions. La \cref{fig-tbd-tfd} le confirme : sans dégradation,
-en MP3 et avec le passe-bande, la courbe colle au bord supérieur, avec \qtyrange{98.5}{99.5}{\percent}
-de bonnes détections sans aucune fausse détection. Le bruit à \qty{0}{\decibel} et la
-réverbération à \qty{1}{\second} sont les deux conditions où il faut vraiment arbitrer : à
-$\TFD = 0$, on y obtient au mieux 83 et \qty{82}{\percent} de \TBD{}, et accepter
-\qty{5}{\percent} de \TFD{} ne les porterait qu'à \num{86.5} et \qty{90.5}{\percent}. Ces
-valeurs sont meilleures que celles du seuil retenu (\num{66.5} et \qty{51}{\percent}), parce
-qu'elles correspondent à un seuil plus bas (18 à 20) choisi \emph{pour cette seule
-condition} : un seuil unique doit tenir pour toutes les conditions à la fois, c'est son prix.
+\paragraph{Séparation des scores.} La \cref{fig-histo-scores} montre que les deux
+populations sont séparées d'un ordre de grandeur : à $\Tq = \qty{5}{\second}$, les négatives
+ne dépassent pas 23, les positives vont pour la plupart de 30 à 900. Les queues se
+recouvrent entre 10 et 25 : quelques positives très dégradées (bruit à \qty{0}{\decibel},
+réverbération à \qty{1}{\second}) deviennent des non-détections, jamais des confusions. Sur
+la \cref{fig-tbd-tfd}, ces deux conditions sont les seules où il faut arbitrer : un seuil
+choisi pour elles seules (18 à 20) donnerait 83 et \qty{82}{\percent} de \TBD{} à $\TFD = 0$,
+contre \num{66.5} et \qty{51}{\percent} avec le seuil unique, qui doit tenir pour toutes les
+conditions à la fois.
 
 \begin{figure}[t]
   \centering
-  \inclurefig{histogrammes_scores}{histogrammes des scores positifs et négatifs, abscisse log, seuil}
+  \inclurefig[0.78\linewidth]{histogrammes_scores}{histogrammes des scores positifs et négatifs, abscisse log, seuil}
   \caption{Histogrammes des scores des requêtes positives et négatives, avec le seuil
   $\sthr = 35$. $\Tq = \qty{5}{\second}$, toutes dégradations réunies (brouhaha compris) :
   \num{3000} requêtes positives et \num{1500} négatives. (a)~Vue d'ensemble en abscisse
@@ -425,7 +336,7 @@ condition} : un seuil unique doit tenir pour toutes les conditions à la fois, c
 
 \begin{figure}[t]
   \centering
-  \inclurefig{courbe_tbd_tfd}{TBD en fonction du TFD en balayant le seuil, une courbe par dégradation}
+  \inclurefig[0.72\linewidth]{courbe_tbd_tfd}{TBD en fonction du TFD en balayant le seuil, une courbe par dégradation}
   \caption{\TBD{} en fonction du \TFD{}, obtenu en balayant le seuil, pour six conditions,
   $\Tq = \qty{5}{\second}$, $N^+ = 200$. La courbe ne dépend pas du seuil retenu : elle
   utilise les 100 négatives (calibration et test), d'où un \TFD{} qui avance par pas de
@@ -439,9 +350,10 @@ condition} : un seuil unique doit tenir pour toutes les conditions à la fois, c
 \label{sec-parametres}
 
 \begin{table}[h]
-  \centering\small
-  \caption{Paramètres utilisés pour toutes les mesures, et leur justification. Les valeurs
-  marquées * sont les valeurs de départ du sujet, que nous n'avons pas encore balayées.}
+  \centering\footnotesize
+  \caption{Paramètres utilisés pour toutes les mesures, et leur justification. Toutes les
+  valeurs sont celles de départ du sujet ; les balayages confirment qu'aucune autre valeur
+  testée ne fait mieux.}
   \label{tab-parametres}
   \begin{tabularx}{\linewidth}{@{}llX@{}}
     \toprule
@@ -451,12 +363,12 @@ condition} : un seuil unique doit tenir pour toutes les conditions à la fois, c
     Fenêtre & Hann périodique & lobes secondaires faibles ; continue, donc (3) vaut avec une erreur d'ordre $L_h/N$ (\cref{sec-proprietes}) \\
     $N$ & 1024 & sépare les demi-tons dès \qty{190}{\hertz}, $\Tw = \qty{128}{\milli\second}$ (\cref{sec-tfct}) \\
     $H$, $\Nfft$ & $N/2$, $N$ & somme des fenêtres constante ; pas d'interpolation inutile (\cref{sec-tfct}) \\
-    $\mv$, $\kv$ & 3, 5* & condition (5) et critère $\rho p^2$ (\cref{sec-maxima,sec-pics}) \\
+    $\mv$, $\kv$ & 3, 5 & condition (5) ; avec le quota, $\rho p^2 = \num{7.8}$, le double d'un voisinage sans quota de même $\rho$ (\cref{fig-p-rho}) \\
     Seuil, quota & médiane + \qty{6}{\decibel}, 5 pics/bande/s & invariance au gain, maîtrise de $\rho$ ; $\rho$ mesuré $\approx 25$~pics/s (\cref{sec-pics}) \\
     Bandes & 6, géométriques, \qtyrange{200}{4000}{\hertz} & même intervalle musical par bande (\cref{sec-pics}) \\
     Zone cible & $\dm \in [2, 31]$, $|\dk| \le 60$ & exclut les paires instables ; $\Nt = 30$ (\cref{sec-empreintes}) \\
-    $F$ & 10* & $Fp > 1$ ; moins de cibles que la zone n'en contient (\cref{sec-empreintes}) \\
-    $\gf$ & 1* & séparation maximale, pas parasites minimaux ; \qty{98.5}{\percent} sans dégradation (\cref{sec-empreintes}) \\
+    $F$ & 10 & $Fp > 1$ ; plus petit $F$ qui atteint le plateau de \TBD{} (5, 10, 15 testés, \cref{sec-empreintes}) \\
+    $\gf$ & 1 & même \TBD{} que $\gf = 2$, moins de parasites ; $\gf = 8$ fait chuter le \TBD{} (\cref{tab-gammaf}) \\
     $\Tq$ & \qty{5}{\second} & score $\propto \Tq$ (\cref{eq-score-bon}) ; 3 et \qty{10}{\second} aussi mesurés \\
     $\sthr$ & 35 & $\lceil \num{1.5} \times{}$ plus fort score négatif de calibration$\rceil$ ; $\TFD = 0/50$ en test (\cref{sec-decision}) \\
     \bottomrule

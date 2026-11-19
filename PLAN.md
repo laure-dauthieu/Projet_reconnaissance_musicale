@@ -219,7 +219,7 @@ Plan imposé par le sujet :
 
 ### B6. Interface de paramétrage = démo (bonus de 10 %)
 
-- [ ] Fenêtre `uifigure` écrite dans un fichier `.m` (`interface/`), plutôt qu'avec App Designer : un `.mlapp` est un fichier binaire, illisible dans git. Elle contient :
+- [x] Fenêtre `uifigure` écrite dans un fichier `.m` (`interface/interface_reconnaissance.m`, faite le 19 ; extrait, bruit et reconstruction de l'index testés ; **micro à tester**), plutôt qu'avec App Designer : un `.mlapp` est un fichier binaire, illisible dans git. Elle contient :
   - quelques curseurs pour N, la taille du voisinage, F, γf et s_thr ;
   - un bouton « Enregistrer », qui utilise `audiorecorder` pendant Tq secondes, et un bouton « Identifier » ;
   - l'affichage du spectrogramme, de la constellation, de l'histogramme des δ et du résultat.

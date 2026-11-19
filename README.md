@@ -93,7 +93,13 @@ enregistrer_brouhaha()                  % 3 min de bruit de cafétéria, sans mu
 enregistrer_salle('1m')                 % 30 morceaux joués et enregistrés, enceinte à 1 m (≈ 7 min)
 enregistrer_salle('3m')                 % idem à 3 m
 run('experiences/evaluer_enregistrements.m')  % TBD et TFD par distance
+
+% Interface de paramétrage et démo
+addpath('interface')
+interface_reconnaissance                % micro, extrait de la base ou fichier ; réglages ; résultats
 ```
+
+L'interface n'a besoin que de `cache/index_base.mat` (sur git) pour identifier et régler s_thr et Tq. Pour prendre un extrait de la base ou changer N, le voisinage, F ou γf (l'index est alors reconstruit), il faut aussi `cache/signaux_base.mat`, qui n'est pas sur git (184 Mo, licences « No Derivatives ») ; `cache/base.mat` sert à afficher titres et genres.
 
 Les paramètres retenus et leur justification sont dans [resultats/parametres_finaux.md](resultats/parametres_finaux.md) ; les chiffres et interprétations de chaque figure dans [resultats/notes_resultats.md](resultats/notes_resultats.md).
 

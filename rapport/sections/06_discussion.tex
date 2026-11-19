@@ -9,128 +9,91 @@
 Avec $\Tq = \qty{5}{\second}$, $\sthr = 35$ et 200 requêtes positives, le MP3 à
 \qty{64}{\kilo\bit\per\second} conserve \qty{98.5}{\percent} de bonnes détections, autant que
 sans dégradation, contre \qty{92}{\percent} sous un bruit blanc à \qty{10}{\decibel}
-(\cref{tab-synthese}) : 3 non-détections contre 16. Les scores le montrent encore mieux : le
-score médian vaut 225 en MP3 \qty{64}{\kilo\bit\per\second}, presque autant que les 232 sans
-dégradation, contre 139 sous bruit à \qty{10}{\decibel}. Avec $s \approx 1250\,p^2$, cela
-correspond à $p \approx \num{0.42}$ en MP3 contre $p \approx \num{0.33}$ sous bruit : le
-codeur ne détruit presque aucun pic, le bruit en détruit environ un quart. Même à
-\qty{32}{\kilo\bit\per\second}, le MP3 ne coûte qu'une requête de plus, alors que le bruit
-blanc fait perdre des détections dès \qty{20}{\decibel} et 32 points à \qty{0}{\decibel}.
-\aremplir{Si A mesure $p$ directement (A4) : remplacer ces estimations par les valeurs du
-\cref{tab-pic-paire}.} Deux dégradations de « niveau » comparable ont donc des effets très
-différents. L'explication tient à la manière dont chacune répartit son bruit dans le plan
-temps-fréquence, comparée à la définition (4) des pics.
+(\cref{tab-synthese}). Le score médian vaut 225 en MP3, presque autant que les 232 sans
+dégradation, contre 139 sous bruit. La mesure directe (\cref{tab-pic-paire}) le confirme : le
+MP3 conserve \qty{86}{\percent} des pics, le bruit \qty{56}{\percent}, et les clés survivent
+dans \qty{75}{\percent} des cas contre \qty{36}{\percent}. L'explication tient à la façon dont
+chaque dégradation répartit son bruit dans le plan temps-fréquence, comparée à la définition
+(4) des pics.
 
-\paragraph{Le codage perceptuel épargne les pics.} Un codeur MP3 découpe le signal en
-sous-bandes, estime pour chaque trame un \emph{seuil de masquage}, c'est-à-dire le niveau
-en dessous duquel l'oreille ne perçoit rien en présence des composantes fortes voisines, et
-alloue ses bits de façon à maintenir le bruit de quantification sous ce
-seuil~\cite{painter2000}. Les composantes situées sous le seuil sont grossièrement
-quantifiées ou supprimées. Or ce seuil est construit à partir des \emph{masqueurs},
-c'est-à-dire des composantes les plus fortes de leur voisinage temps-fréquence ; il se
-situe typiquement de \qtyrange{10}{20}{\decibel} sous un masqueur tonal. Un pic au sens de
-(4) est, par définition, le maximum de son voisinage $V$ : c'est précisément un masqueur.
-Le codeur le conserve, et le bruit qu'il ajoute autour reste nettement plus bas que lui.
-Dans les termes de la \cref{sec-maxima}, l'avance $\mu$ du pic sur ses voisins n'est que
-peu entamée, et il reste en place. Le codage supprime surtout les composantes faibles,
-qui ne sont pas des pics : il simplifie le spectrogramme sans toucher à sa constellation.
-Enfin, le bruit de quantification suit l'enveloppe spectrale du signal : le rapport signal
-à bruit \emph{local} est à peu près le même dans toutes les bandes.
+\paragraph{Le codage perceptuel épargne les pics.} Un codeur MP3 estime pour chaque trame
+un \emph{seuil de masquage}, sous lequel l'oreille ne perçoit rien en présence des
+composantes fortes voisines, et maintient son bruit de quantification sous ce
+seuil~\cite{painter2000}, typiquement 10 à \qty{20}{\decibel} sous un masqueur tonal. Or un pic
+au sens de (4) est le maximum de son voisinage : c'est précisément un masqueur. Le codeur le
+conserve, et le bruit qu'il ajoute autour reste nettement plus bas que lui : l'avance $\mu$ du
+pic (\cref{sec-maxima}) est à peine entamée. Le codage supprime surtout les composantes
+faibles, qui ne sont pas des pics : il simplifie le spectrogramme sans toucher à sa
+constellation.
 
-\paragraph{Le bruit blanc noie les pics des bandes hautes.} Un bruit blanc de variance
-$\sigma_b^2$ ajoute en chaque point du spectrogramme une contribution de puissance moyenne
-\[
-  \E\bigl|B[m,k]\bigr|^2 = \sigma_b^2 \sum_{n=0}^{N-1} w[n]^2 ,
-\]
-\emph{la même dans tous les canaux}. Le spectre musical, lui, décroît avec la fréquence :
-l'essentiel de l'énergie est sous \qty{1}{\kilo\hertz}. Le \RSB{} de \qty{10}{\decibel} est
-un rapport \emph{global}, dominé par les basses fréquences ; le rapport local dans le canal
-$k$ vaut
-\[
-  \RSB_{\text{local}}(k) = \RSB + 10\log_{10} \frac{S_x(k)}{\overline{S_x}} ,
-\]
-où $\overline{S_x}$ est la moyenne du spectre sur tous les canaux. Dans une bande où le
-spectre musical est \qty{20}{\decibel} sous sa moyenne, ce qui est courant entre 2 et
-\qty{4}{\kilo\hertz}, le rapport local tombe à \qty{-10}{\decibel} : le bruit y domine, et
-ses propres fluctuations créent des maxima locaux qui remplacent ceux de la musique. Le
-quota par bande aggrave l'effet : il impose de prendre le même nombre de pics dans les
-bandes hautes que dans les basses, et ce sont alors des pics de bruit, différents à chaque
-requête. Une bonne partie des pics des deux ou trois bandes supérieures est perdue, donc
-$p$ chute, et le score, qui varie en $p^2$, chute encore plus.
+\paragraph{Le bruit blanc noie les pics des bandes hautes.} Un bruit blanc ajoute la même
+puissance moyenne $\sigma_b^2 \sum_n w[n]^2$ \emph{dans tous les canaux}, alors que le spectre
+musical décroît avec la fréquence. Le \RSB{} de \qty{10}{\decibel} est un rapport global,
+dominé par les graves ; le rapport local vaut
+$\RSB_{\text{local}}(k) = \RSB + 10\log_{10}\bigl(S_x(k)/\overline{S_x}\bigr)$. Entre 2 et
+\qty{4}{\kilo\hertz}, où la musique est souvent \qty{20}{\decibel} sous sa moyenne, il tombe à
+\qty{-10}{\decibel} : les fluctuations du bruit y créent des maxima qui remplacent ceux de la
+musique, et le quota par bande impose d'en prendre autant que dans les graves. La mesure de
+$p$ par bande le confirme (\cref{fig-p-bande}) : sous bruit blanc, $p$ tombe régulièrement de
+\num{0.77} dans la bande la plus grave à \num{0.37} dans la plus aiguë ; en MP3, il reste
+au-dessus de \num{0.75} partout. Le MP3 est conçu pour préserver ce qui domine localement,
+c'est-à-dire exactement ce que retiennent les pics ; le bruit blanc frappe là où la musique
+est faible.
 
-\paragraph{En résumé.} Le MP3 est conçu pour préserver ce qui domine localement, et c'est
-exactement ce que retiennent les pics. Le bruit blanc ne tient aucun compte du signal, et
-son effet est maximal là où la musique est faible. \aremplir{Si la mesure de $p$ par bande
-est disponible, l'ajouter ici : $p$ à peu près constant selon la bande en MP3, décroissant
-vers les hautes fréquences sous bruit blanc.} À \qty{32}{\kilo\bit\per\second}, le codeur
-manque de bits : le bruit de quantification peut dépasser le seuil de masquage, et des
-composantes moyennes disparaissent par blocs. Les pics les plus dominants résistent
-pourtant : on ne perd qu'une requête de plus sur 200 (\cref{fig-tbd-mp3}).
+\begin{figure}[t]
+  \centering
+  \begin{minipage}[t]{0.40\linewidth}
+    \centering
+    \inclurefig[\linewidth]{p_par_bande}{p par bande de fréquence, bruit blanc 10 dB et MP3 64 kbit/s}
+    \caption{Proportion $p$ de pics conservés par bande, bruit blanc à \qty{10}{\decibel}
+    ($p = \num{0.56}$) et MP3 à \qty{64}{\kilo\bit\per\second} ($p = \num{0.86}$), 100 extraits
+    de \qty{8}{\second} alignés.}
+    \label{fig-p-bande}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.57\linewidth}
+    \centering
+    \inclurefig[\linewidth]{tbd_par_genre}{TBD par genre}
+    \caption{\TBD{} par genre, $\sthr = 35$, 24 à 26 requêtes par genre : sans dégradation
+    ($\Tq = \qty{3}{\second}$), bruit blanc à 5 et \qty{0}{\decibel}, réverbération
+    $T_{60} = \qty{1}{\second}$ ($\Tq = \qty{5}{\second}$).}
+    \label{fig-genres}
+  \end{minipage}
+\end{figure}
 
 \subsection{Genres difficiles}
 \label{sec-genres}
 
-\aremplir{Constat mesuré (A4 de A, pas encore fait) : \TBD{} par genre
-(\cref{fig-genres}), genres les plus et les moins bien reconnus, avec $\Tq$, $\sthr$ et la
-dégradation. Avec environ 25 requêtes positives par genre, un écart de deux ou trois
-requêtes n'est pas significatif : regrouper plusieurs dégradations pour conclure.}
-
-La théorie permet d'anticiper quels genres posent problème, et pourquoi.
-
-\begin{itemize}
-  \item \emph{Musiques tonales et tenues (Folk, Instrumental, une partie d'International).}
-        Les notes sont stables, leurs harmoniques dépassent nettement le fond : les pics ont
-        une forte avance $\mu$ et survivent bien au bruit et au filtrage. On attend un bon
-        \TBD{}. En contrepartie, les notes tenues produisent des clés répétées sur plusieurs
-        trames, donc des votes fortuits cohérents (\cref{sec-decision}) : les scores
-        négatifs peuvent y être plus élevés.
-  \item \emph{Musiques à spectre dense ou bruité (Rock saturé, Experimental).} Une guitare
-        saturée ou une texture bruitée remplit le spectre de façon presque uniforme : la
-        platitude spectrale est élevée, les maxima locaux dépassent à peine leurs voisins
-        ($\mu$ faible), et le moindre bruit les déplace. La condition (5) et son équivalent
-        pour le bruit sont rarement remplies : $p$ est faible.
-  \item \emph{Musiques dominées par les percussions et la voix parlée (Hip-Hop).} L'énergie
-        est concentrée dans des transitoires brefs et dans les basses ; une voix parlée a
-        une hauteur qui glisse en permanence. Les pics sont peu nombreux dans les bandes
-        moyennes et hautes, ou instables en fréquence, et un décalage non aligné sur la
-        grille (\cref{sec-proprietes}) déplace facilement un transitoire d'une trame.
-  \item \emph{Musiques en boucles (Electronic, Hip-Hop).} Une boucle répétée produit les
-        mêmes clés à chaque répétition : l'histogramme des $\delta$ du bon morceau présente
-        plusieurs pics, ce qui ne gêne pas l'identification mais rend la position estimée
-        ambiguë. Des sons de synthèse ou des échantillons de batterie partagés entre
-        morceaux peuvent en revanche créer des coïncidences cohérentes avec de mauvais
-        morceaux.
-\end{itemize}
-\aremplir{Confronter ces hypothèses à la mesure : les genres prévus comme difficiles le
-sont-ils ? Exemple d'échec analysé : spectrogramme et constellation d'une requête ratée.}
-
-\begin{figure}[t]
-  \centering
-  \inclurefig[0.8\linewidth]{tbd_par_genre}{TBD par genre}
-  \caption{\TBD{} par genre pour \aremplir{dégradation, $\Tq$, $\sthr$, nombre de requêtes
-  par genre}.}
-  \label{fig-genres}
-\end{figure}
+Sans dégradation, tous les genres sont bien reconnus : de 88 à \qty{100}{\percent} même avec
+des requêtes de \qty{3}{\second} (\cref{fig-genres}). Sous bruit blanc à \qty{0}{\decibel},
+Pop et International restent au-dessus de \qty{80}{\percent}, Electronic, Experimental et
+Hip-Hop tombent vers \qty{50}{\percent} ; avec environ 25 requêtes par genre, seuls les écarts
+de plus de 10 points sont significatifs. Contrairement à notre hypothèse de départ (notes
+tenues, donc pics dominants et robustes), Folk et Instrumental tombent à 69 et
+\qty{62.5}{\percent}. La \cref{fig-p-bande} suggère une explication plus directe : un genre
+qui a peu d'énergie au-dessus de \qty{900}{\hertz} perd davantage de pics sous bruit blanc.
+Instrumental (\qty{14}{\percent} de son énergie au-dessus de \qty{900}{\hertz}) est bien parmi
+les plus fragiles et Pop (\qty{31}{\percent}) parmi les plus robustes, mais la corrélation n'est
+que de \num{0.46} sur 8 genres, et Hip-Hop (\qty{26}{\percent}), dont l'énergie est surtout sous
+\qty{200}{\hertz}, est dernier : c'est une tendance, pas une preuve. Ni la densité de pics ni
+le score sans dégradation ne prédisent la robustesse : Pop a le plus faible score sans bruit
+(164) et résiste le mieux. Sous réverbération à \qty{1}{\second}, International, Experimental
+et Electronic sont les plus touchés (38 à \qty{42}{\percent}).
 
 \subsection{Réverbération et enregistrements réels}
 \label{sec-echecs-reverb}
 
-La réverbération sort du cadre de la propriété (2) dès que sa réponse dépasse la durée de
-la fenêtre (\cref{sec-limites}). Elle agit comme un bruit additif fabriqué par le signal
-lui-même : on attend une dégradation modérée à $T_{60} = \qty{0.3}{\second}$ et nette à
-$T_{60} = \qty{1}{\second}$, plus marquée pour les morceaux rapides que pour les morceaux
-lents. La mesure le confirme : avec $\Tq = \qty{5}{\second}$ et $\sthr = 35$, le \TBD{}
-passe à \qty{89}{\percent} pour $T_{60} = \qty{0.3}{\second}$ et à \qty{51}{\percent} pour
-$T_{60} = \qty{1}{\second}$, sans aucune fausse détection. Avec le bruit à \qty{0}{\decibel},
-c'est l'une des deux conditions où les scores des positives descendent dans la zone des
-négatives (\cref{fig-histo-scores}) et où la courbe \TBD{}/\TFD{} oblige à un vrai
-compromis (\cref{fig-tbd-tfd}) : la réverbération longue ne déplace pas seulement quelques
-pics, elle en remplace une grande partie. \aremplir{Enregistrements en salle à 1 et 4~m : \TBD{} mesurés, et comparaison avec
-la réverbération simulée.}
-
-\subsection{Limites de la méthode}
-
-La méthode n'est invariante ni au changement de tempo (les écarts $\dm$ changent) ni au
-changement de hauteur (les canaux changent) : une version accélérée, transposée ou jouée
-en direct n'est pas reconnue. Elle identifie un \emph{enregistrement}, pas une
-\emph{œuvre}.
+La réverbération longue sort du cadre de la propriété (2) : à $T_{60} = \qty{1}{\second}$,
+$S_{y,\mathrm{dB}} - S_{x,\mathrm{dB}}$ varie de \qty{8}{\decibel} d'une trame à l'autre
+(\cref{fig-filtrage}b), le \TBD{} tombe à \qty{51}{\percent}, et c'est, avec le bruit à
+\qty{0}{\decibel}, la seule condition où les scores des positives descendent dans la zone
+des négatives (\cref{fig-histo-scores}). Les enregistrements en salle le confirment en
+conditions réelles (\cref{tab-salle}). À \qty{1}{\metre}, le son direct domine et le \TBD{} sur
+\qty{5}{\second} vaut \qty{80}{\percent} ; à \qty{3}{\metre}, le micro reçoit surtout le champ
+réverbéré, et le \TBD{} tombe à \qty{20}{\percent}, sous la réverbération simulée à
+\qty{1}{\second} : la salle y ajoute la coloration de l'enceinte et du micro et le bruit
+ambiant. Pourtant, le bon
+morceau reste presque toujours en tête (18 prises sur 20 à \qty{3}{\metre} sur
+\qty{5}{\second}), et 9 des 16 non-détections ont un score entre 24 et 33, juste sous le
+seuil : le système échoue par prudence, pas par confusion. Deux remèdes : allonger la
+requête (\qty{80}{\percent} sur la prise entière à \qty{3}{\metre}), ou abaisser le seuil, ce
+qui demanderait davantage de négatives réelles pour garantir un \TFD{} faible.

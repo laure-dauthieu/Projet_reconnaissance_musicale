@@ -1,4 +1,138 @@
 % ---------------------------------------------------------------------
+\section{Démonstrations}
+\label{sec-demos}
+% ---------------------------------------------------------------------
+
+\subsection{Propriété (1) : un décalage entier translate le spectrogramme}
+\label{sec-demo-translation}
+
+Soit $y[n] = x[n - m_0H]$ avec $m_0$ entier. D'après (2),
+\begin{equation}
+\begin{split}
+  X_y[m,k]
+  &= \sum_{n=0}^{N-1} x[n + mH - m_0H]\, w[n]\, e^{-j2\pi kn/\Nfft} \\
+  &= \sum_{n=0}^{N-1} x[n + (m-m_0)H]\, w[n]\, e^{-j2\pi kn/\Nfft}
+  = X_x[m-m_0, k],
+\end{split}
+  \label{eq-translation}
+\end{equation}
+donc $S_y[m,k] = S_x[m-m_0,k]$. Le résultat est exact et vaut même pour la phase, parce que
+chaque trame est analysée dans son propre repère temporel. Si $n_0 = m_0H + r$ avec
+$0 < r < H$, la trame $m$ de $y$ analyse un segment de $x$ qui commence $r$ échantillons
+avant la trame $m-m_0$ : en rapportant chaque trame de $y$ à la trame de $x$ la plus proche,
+l'écart est d'au plus $H/2 = N/4$ échantillons, et~\eqref{eq-translation} n'est plus
+qu'approchée.
+
+\subsection{Propriété (2) : un filtrage court ajoute un biais \texorpdfstring{$g(k)$}{g(k)}}
+\label{sec-demo-filtrage}
+
+Soit $y = \alpha\,(h * x)$ avec $\alpha > 0$ et $h$ causal de longueur $L_h$. On prolonge
+$w$ par zéro hors de $[0, N-1]$. En reportant $y[n+mH] = \alpha\sum_l h[l]\,x[n+mH-l]$
+dans (2), puis en posant $n' = n - l$ :
+\begin{equation}
+  X_y[m,k]
+  = \alpha \sum_{l=0}^{L_h-1} h[l]\, e^{-j2\pi kl/\Nfft}
+     \sum_{n'} x[n'+mH]\, w[n'+l]\, e^{-j2\pi kn'/\Nfft} .
+  \label{eq-filtrage-exact}
+\end{equation}
+Si la fenêtre ne variait pas sur la durée de $h$, on pourrait remplacer $w[n'+l]$ par $w[n']$
+et la somme intérieure deviendrait $X_x[m,k]$. En écrivant
+$w[n'+l] = w[n'] + (w[n'+l] - w[n'])$, on obtient
+$X_y[m,k] = \alpha\,\hhat(f_k)\, X_x[m,k] + \varepsilon[m,k]$ avec
+\[
+  \varepsilon[m,k] = \alpha \sum_{l} h[l]\, e^{-j2\pi kl/\Nfft}
+  \sum_{n'} x[n'+mH]\,\bigl(w[n'+l] - w[n']\bigr)\, e^{-j2\pi kn'/\Nfft} .
+\]
+Pour la fenêtre de Hann $w[n] = \tfrac12\bigl(1 - \cos(2\pi n/N)\bigr)$, la pente est au
+plus $\pi/N$, et la fenêtre est nulle à ses deux bords, donc continue une fois prolongée par
+zéro. Par conséquent $|w[n'+l] - w[n']| \le \pi l/N$ pour tout $n'$, bords compris, et
+\[
+  |\varepsilon[m,k]| \;\le\; \alpha\,\frac{\pi}{N}
+  \sum_{l} l\,|h[l]| \sum_{n'=-L_h}^{N-1} |x[n'+mH]| .
+\]
+Rapportée à $|X_x[m,k]|$, l'erreur est d'ordre $L_h/N$. Avec une fenêtre rectangulaire,
+discontinue à ses bords, elle serait d'ordre 1 : la continuité de la fenêtre de Hann est ici
+essentielle. Le module au carré puis le logarithme donnent la relation (3).
+
+\subsection{Invariance des maxima au gain et condition (5)}
+\label{sec-demo-maxima}
+
+\paragraph{Gain.} Si $y = \alpha x$, alors $S_y = \alpha^2 S_x$, et $s \mapsto \alpha^2 s$ est
+strictement croissante : pour tout voisinage $V$,
+$S_y[m,k] = \max_{V(m,k)} S_y \iff S_x[m,k] = \max_{V(m,k)} S_x$.
+
+\paragraph{Filtrage.} Soit $(m,k_0)$ un pic de $S_x$, d'avance $\mu$ sur son concurrent le
+plus fort dans $V^* = V(m,k_0) \setminus \{(m,k_0)\}$. D'après (3), pour tout
+$(m',k') \in V^*$,
+\[
+  S_{y,\mathrm{dB}}[m,k_0] - S_{y,\mathrm{dB}}[m',k']
+  = \underbrace{S_{x,\mathrm{dB}}[m,k_0] - S_{x,\mathrm{dB}}[m',k']}_{\ge\, \mu}
+  + \underbrace{g(k_0) - g(k')}_{\ge\, -\Delta g(V)}
+  \;\ge\; \mu - \Delta g(V) ,
+\]
+qui est strictement positif sous la condition (5) : le pic reste le maximum de son voisinage.
+La condition est suffisante, pas nécessaire : un pic peut survivre avec $\Delta g(V) \ge \mu$
+si son concurrent le plus proche en valeur n'est pas celui que le filtre favorise.
+
+\subsection{Score d'un mauvais morceau et seuil de Gumbel}
+\label{sec-annexe-scores}
+
+\paragraph{Modèle uniforme.} Si les clés étaient réparties uniformément sur les $M$ clés
+possibles, chacune des $\nq$ clés de la requête trouverait en moyenne $N_c/M$ entrées d'un
+morceau $c$ qui en compte $N_c$. Le nombre d'appariements fortuits avec ce morceau suit
+alors une loi de Poisson de moyenne $\lambda_c = \nq N_c/M$, répartie sur les
+$D \approx (L + \Tq)\Fe/H$ cases de son histogramme des $\delta$ (environ 550 pour des
+extraits de \qty{30}{\second}). Chaque case reçoit une loi de Poisson de moyenne
+$\lambda = \lambda_c/D$, et
+\begin{equation}
+  \Prob(\text{fausse détection}) \;\le\; (N_b - 1)\, D\; \Prob\bigl(\mathrm{Poisson}(\lambda) \ge s\bigr) .
+  \label{eq-plancher}
+\end{equation}
+Avec $\nq = 1250$, $N_c \approx \num{6800}$ et $\gf = 1$, $\lambda_c \approx \num{1.1}$, et
+$s = 3$ suffit à rester sous \qty{1}{\percent}.
+
+\paragraph{Alphabet effectif.} Si $\pi_u$ est la proportion des entrées de l'index qui
+portent la clé $u$, et si les clés de la requête suivent la même loi, la probabilité qu'une
+clé de la requête tombe sur une entrée donnée vaut $\sum_u \pi_u^2$ au lieu de $1/M$. Le
+modèle reste valable en remplaçant $M$ par $\Meff = 1/\sum_u \pi_u^2 \le M$, avec égalité
+seulement si les clés sont uniformes. La contrainte $|\dk| \le 60$ et les bandes
+\qtyrange{200}{4000}{\hertz} réduisent déjà l'alphabet accessible à environ \num{1.8e6} clés,
+quatre fois moins que $M$.
+
+\paragraph{Notes tenues.} Si la requête contient la clé $u$ à $L$ ancres consécutives
+$m, \dots, m+L-1$ et un mauvais morceau à $L'$ ancres consécutives $r, \dots, r+L'-1$, les
+$LL'$ appariements donnent $\delta = (r - m) + (i - j)$, et la case $\delta = r - m$ en reçoit
+$\min(L, L')$ : des votes cohérents dans le temps, comme pour un bon morceau.
+
+\paragraph{Seuil de Gumbel.} La loi de Gumbel a pour fonction de répartition
+$\Prob(S \le s) = \exp\bigl(-e^{-(s-\mu_G)/\beta}\bigr)$. Par la méthode des moments,
+\[
+  \beta = \frac{\sqrt{6}}{\pi}\,\sigma_s , \qquad \mu_G = \bar{s} - \gamma_E\,\beta ,
+  \qquad \gamma_E \approx \num{0.5772},
+\]
+où $\bar{s}$ et $\sigma_s$ sont la moyenne et l'écart-type des scores de calibration. Pour un
+\TFD{} visé $\alpha$, $\Prob(S > \sthr) = \alpha$ donne
+$\sthr = \mu_G - \beta \ln\bigl(-\ln(1 - \alpha)\bigr) \approx \mu_G + \num{4.6}\,\beta$ pour
+$\alpha = \qty{1}{\percent}$. Passer de $N_b$ à $N_b'$ morceaux décale la loi de
+$\beta\ln(N_b'/N_b)$. Mesures (\cref{tab-gumbel}) : le \TFD{} réel est 4 à 5 fois plus élevé
+que le \TFD{} visé.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Seuil de Gumbel et \TFD{} réel mesuré sur les négatives de test des 24 conditions
+  (\num{1200} scores).}
+  \label{tab-gumbel}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    Calibration & $\bar{s}$ & $\sigma_s$ & $\sthr$ ($\alpha = \qty{1}{\percent}$) & \TFD{} réel & $\sthr$ ($\alpha = \qty{0.1}{\percent}$) & \TFD{} réel \\
+    \midrule
+    50 scores, sans dégradation & \num{7.86} & \num{2.71} & \num{16.4} & \qty{5.0}{\percent} & \num{21.2} & \qty{1.6}{\percent} \\
+    \num{1200} scores, toutes conditions & \num{8.09} & \num{3.01} & \num{17.5} & \qty{4.3}{\percent} & \num{22.9} & \qty{1.1}{\percent} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------------
 \section{Notations}
 \label{sec-notations}
 % ---------------------------------------------------------------------

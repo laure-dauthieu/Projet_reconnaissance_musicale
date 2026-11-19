@@ -10,21 +10,12 @@ une salle, un microphone, un codec et du bruit ambiant. L'énoncé les résume p
   \tag{1}\label{eq-modele}
 \end{equation}
 auquel s'ajoute le codage perceptuel, qui n'est pas linéaire et ne s'écrit pas sous cette
-forme. Chaque terme a une cause physique et appelle une invariance précise de l'empreinte
-(\cref{tab-modele}).
-
-\begin{itemize}
-  \item $\alpha > 0$ est un \textbf{gain} inconnu : volume de lecture, distance à la source,
-        sensibilité du micro. Il est constant à l'échelle d'un extrait.
-  \item $h$ est la \textbf{réponse impulsionnelle} de la chaîne haut-parleur $\to$ salle
-        $\to$ micro. Sa partie courte (haut-parleur, micro, premières réflexions) colore le
-        spectre ; sa partie longue (réverbération tardive) étale le signal dans le temps.
-  \item $t_0$ est le \textbf{décalage} inconnu : on ignore où l'extrait a été capté.
-  \item $b(t)$ est un \textbf{bruit additif} indépendant de $x$ : souffle blanc, brouhaha
-        coloré et non stationnaire.
-  \item Le \textbf{codage MP3} supprime les composantes masquées et ajoute un bruit de
-        quantification mis en forme sous le seuil de masquage.
-\end{itemize}
+forme. Le gain $\alpha > 0$ (volume, distance, micro) est constant à l'échelle d'un extrait ;
+la réponse impulsionnelle $h$ de la chaîne haut-parleur $\to$ salle $\to$ micro colore le
+spectre par sa partie courte et étale le signal dans le temps par sa partie longue
+(réverbération) ; le décalage $t_0$ est inconnu ; le bruit $b(t)$, indépendant de $x$, va du
+souffle blanc au brouhaha coloré et non stationnaire. Chaque terme appelle une invariance
+précise de l'empreinte (\cref{tab-modele}).
 
 \begin{table}[h]
   \centering\small
