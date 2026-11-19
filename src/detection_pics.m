@@ -1,21 +1,14 @@
 function pics = detection_pics(SdB, P)
-%DETECTION_PICS  Étape 3 : carte de constellation (maxima locaux).
-%   pics = detection_pics(SdB, P)
+%DETECTION_PICS  Étape 3 : carte de constellation (maxima locaux du spectrogramme).
+%   pics = detection_pics(SdB, P)   pics = [m, k] (trame, canal), triés par trame
+%   pics = detection_pics(SdB)      P = parametres()
+%   detection_pics()                démo sur un signal synthétique
 %
-%   pics : matrice [m, k], une ligne par pic, triée par trame puis canal
-%          (m = indice de trame, k = indice de canal, à partir de 1).
-%
-%   Un point (m,k) est un pic si :
-%     1. c'est le maximum de SdB sur le voisinage ±P.dm trames x ±P.dk canaux ;
-%     2. il dépasse le seuil local tau = médiane de SdB dans sa bande
-%        (glissante sur P.T_mediane secondes) + P.marge_dB ;
-%     3. il fait partie des P.rho/P.Nb plus forts de sa bande sur chaque
-%        seconde (nombre fixe de pics par bande et par seconde).
-%   Seule la position est gardée, jamais l'amplitude : elle est invariante
-%   à un gain, et à un filtrage tant que Δg(V) < μ (condition (5)).
-%
-%   pics = detection_pics(SdB)   P par défaut : parametres().
-%   detection_pics()             démonstration autonome (signal synthétique).
+%   (m,k) est gardé s'il est :
+%     1. le maximum de son voisinage ±dm trames x ±dk canaux ;
+%     2. au-dessus de la médiane de sa bande + marge_dB ;
+%     3. parmi les rho/Nb plus forts de sa bande sur chaque seconde.
+%   On ne garde que la position : elle ne change pas avec le volume.
 
 if nargin == 0
     pics = demo();
@@ -25,29 +18,28 @@ if nargin < 2 || isempty(P), P = parametres_par_defaut(); end
 
 [K, M] = size(SdB);
 
-% 1. Maximum glissant 2D. movmax est séparable : max sur les canaux,
-%    puis sur les trames (remplace ordfilt2, absent sans Image Processing).
+% 1. Maximum glissant 2D, en deux passes (canaux puis trames) :
+%    ordfilt2 demanderait l'Image Processing Toolbox.
 Smax = movmax(movmax(SdB, 2*P.dk + 1, 1), 2*P.dm + 1, 2);
 estMax = (SdB == Smax);
 
-% Canaux de chaque bande géométrique
-fk = (0:K-1)' * P.Fe / P.Nfft;
-trParSec = P.Fe / P.H;                       % trames par seconde
+fk = (0:K-1)' * P.Fe / P.Nfft;               % fréquence de chaque canal
+trParSec = P.Fe / P.H;
 nWin = max(1, round(P.T_mediane * trParSec));
-nParBloc = max(1, round(P.rho / P.Nb));      % pics gardés par bande et par seconde
-bloc = max(1, round(trParSec));              % trames par seconde (arrondi)
+nParBloc = max(1, round(P.rho / P.Nb));      % pics par bande et par seconde
+bloc = max(1, round(trParSec));              % une seconde, en trames
 
 pics = zeros(0, 2);
 for b = 1:P.Nb
     kb = find(fk >= P.bandes(b) & fk < P.bandes(b+1));
     if isempty(kb), continue; end
 
-    % 2. Seuil local : médiane de la bande, glissante dans le temps
+    % 2. Seuil local
     medTrame = median(SdB(kb, :), 1);
     tau = movmedian(medTrame, nWin) + P.marge_dB;    % 1 x M
     cand = estMax(kb, :) & (SdB(kb, :) >= tau);
 
-    % 3. Quota : les nParBloc plus forts par seconde
+    % 3. Quota : les plus forts de chaque seconde
     for m0 = 1:bloc:M
         cols = m0:min(m0 + bloc - 1, M);
         [kk, mm] = find(cand(:, cols));
@@ -63,7 +55,7 @@ pics = sortrows(pics, [1 2]);
 end
 
 function pics = demo()
-% Démonstration : constellation de 8 s de « musique » synthétique.
+% Démo : constellation de 8 s de musique synthétique.
 P = parametres_par_defaut();
 x = morceau_synthetique(8, P.Fe, 1);
 [SdB, f, t] = calcul_spectrogramme(x, P);

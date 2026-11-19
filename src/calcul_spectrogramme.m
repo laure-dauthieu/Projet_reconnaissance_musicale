@@ -1,16 +1,12 @@
 function [SdB, f, t] = calcul_spectrogramme(x, P)
-%CALCUL_SPECTROGRAMME  Étape 2 : spectrogramme en dB (TFCT, fenêtre de Hann).
+%CALCUL_SPECTROGRAMME  Étape 2 : spectrogramme en dB (fenêtre de Hann, H = N/2).
 %   [SdB, f, t] = calcul_spectrogramme(x, P)
-%   [SdB, f, t] = calcul_spectrogramme(x)   P par défaut : parametres().
-%   calcul_spectrogramme()                  démonstration autonome (signal synthétique).
+%   [SdB, f, t] = calcul_spectrogramme(x)    P = parametres()
+%   calcul_spectrogramme()                   démo sur un signal synthétique
 %
-%   SdB : matrice K x M (canaux x trames), SdB = 10 log10(|X|^2 + eps).
-%   f   : fréquences des canaux (Hz), f_k = (k-1) Fe / Nfft.
-%   t   : instants des centres de trames (s).
-%
-%   La trame m (indice MATLAB, à partir de 1) commence à l'échantillon
-%   (m-1)H + 1. Un décalage de m0*H échantillons translate donc le
-%   spectrogramme de m0 trames (propriété (1) du sujet).
+%   SdB = 10 log10(|X|^2 + eps), K canaux x M trames ; f en Hz, t en s.
+%   La trame m commence à l'échantillon (m-1)H + 1 : décaler x de m0*H
+%   décale le spectrogramme de m0 trames (propriété (1)).
 
 if nargin == 0
     [SdB, f, t] = demo();
@@ -24,7 +20,7 @@ SdB = 10*log10(abs(X).^2 + eps);
 end
 
 function [SdB, f, t] = demo()
-% Démonstration : spectrogramme de 5 s de « musique » synthétique à 8 kHz.
+% Démo : spectrogramme de 5 s de musique synthétique.
 P = parametres_par_defaut();
 x = morceau_synthetique(5, P.Fe, 1);
 [SdB, f, t] = calcul_spectrogramme(x, P);

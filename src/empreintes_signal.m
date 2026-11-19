@@ -1,11 +1,11 @@
 function [E, pics, SdB] = empreintes_signal(x, P)
-%EMPREINTES_SIGNAL  Chaîne d'extraction commune aux deux phases.
-%   [E, pics, SdB] = empreintes_signal(x, P)  avec x déjà prétraité.
-%   [E, pics, SdB] = empreintes_signal(x)     P par défaut : parametres().
-%   empreintes_signal()                       démonstration autonome.
+%EMPREINTES_SIGNAL  Étapes 2 à 4 d'un coup : spectrogramme -> pics -> clés.
+%   [E, pics, SdB] = empreintes_signal(x, P)   x prétraité
+%   [E, pics, SdB] = empreintes_signal(x)      P = parametres()
+%   empreintes_signal()                        démo
 %
-%   Indexation et identification appellent cette même fonction : une même
-%   musique produit ainsi les mêmes clés, qu'elle vienne du fichier ou du micro.
+%   L'index et la requête passent par cette même fonction, donc par exactement
+%   les mêmes traitements.
 
 if nargin == 0
     [E, pics, SdB] = demo();
@@ -19,7 +19,7 @@ E    = generer_empreintes(pics, P);
 end
 
 function [E, pics, SdB] = demo()
-% Démonstration : spectrogramme -> pics -> clés pour 8 s de « musique » synthétique.
+% Démo sur 8 s de musique synthétique.
 P = parametres_par_defaut();
 x = morceau_synthetique(8, P.Fe, 1);
 [E, pics, SdB] = empreintes_signal(x, P);

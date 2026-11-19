@@ -1,15 +1,11 @@
 function ym = degrader_mp3(y, Fe0, debit_kbps, P)
-%DEGRADER_MP3  Codage puis décodage MP3 (composantes masquées supprimées).
+%DEGRADER_MP3  Code puis décode y en MP3 à debit_kbps (avec ffmpeg, P.ffmpeg).
 %   ym = degrader_mp3(y, Fe0, debit_kbps, P)
 %
-%   y est écrit en WAV, codé en MP3 à debit_kbps par ffmpeg (libmp3lame),
-%   puis relu. audiowrite ne sait pas écrire de MP3, d'où ffmpeg (chemin
-%   dans P.ffmpeg).
-%
-%   Le codeur ajoute un retard d'environ un millier d'échantillons. On
-%   l'estime par intercorrélation et on le retire, pour que ym reste aligné
-%   sur y (indispensable pour mesurer la proportion p de pics conservés).
-%   ym a la même longueur que y.
+%   audiowrite ne sait pas écrire de MP3, d'où le passage par ffmpeg.
+%   Le codeur retarde le signal d'environ 1000 échantillons : on mesure ce
+%   retard par intercorrélation et on le retire, pour pouvoir comparer les pics
+%   de y et ym (mesure de p). ym a la même longueur que y.
 
 y = y(:);
 echelle = max(1, max(abs(y)) / 0.99);      % évite l'écrêtage dans audiowrite

@@ -1,20 +1,15 @@
 function res = evaluer(INDEX, requetes, P)
-%EVALUER  Identifie un ensemble de requêtes et calcule TBD et TFD.
+%EVALUER  Étape d'évaluation : identifie toutes les requêtes d'un coup.
 %   res = evaluer(INDEX, requetes, P)
+%   res = evaluer(INDEX, requetes)    avec les réglages de l'index (INDEX.P)
+%   evaluer()                         démo sur des morceaux synthétiques
 %
-%   requetes : tableau de structures avec
-%       .y       signal déjà prétraité (colonne à P.Fe)
-%       .id_vrai morceau d'origine dans l'index, 0 pour une requête négative
+%   requetes(i).y        signal prétraité ; requetes(i).id_vrai : morceau
+%                        d'origine, 0 pour une requête négative
+%   res                  table id_vrai, id_max, score, temps (une ligne par requête)
 %
-%   res : table, une ligne par requête :
-%       id_vrai, id_max (morceau de score maximal), score (son score),
-%       temps (s) ; et, au seuil P.s_thr, la réponse et sa catégorie.
-%   Les taux s'obtiennent avec taux_detection(res, s_thr), pour n'importe
-%   quel seuil : on n'a pas besoin de relancer l'identification pour
-%   balayer le seuil.
-%
-%   res = evaluer(INDEX, requetes)   P par défaut : les paramètres de l'index (INDEX.P).
-%   evaluer()                        démonstration autonome (morceaux synthétiques).
+%   Le seuil n'est pas appliqué ici : taux_detection(res, s_thr) donne TBD et
+%   TFD pour n'importe quel seuil sans tout relancer.
 
 if nargin == 0
     res = demo();
@@ -45,10 +40,8 @@ res = table(id_vrai, id_max, score, temps);
 end
 
 function res = demo()
-% Démonstration de l'étape d'évaluation sur des morceaux synthétiques :
-% 5 morceaux indexés, 10 requêtes positives (2 par morceau, instants tirés au
-% hasard), 10 négatives (morceaux absents) dont 5 pour fixer le seuil et 5
-% pour mesurer le TFD.
+% Démo : 5 morceaux indexés, 10 requêtes positives, 10 négatives
+% (5 pour fixer le seuil, 5 pour mesurer le TFD).
 P = parametres_par_defaut();
 rs = RandStream('mt19937ar', 'Seed', 1);
 morceaux = arrayfun(@(g) morceau_synthetique(30, P.Fe, g), 1:5, 'UniformOutput', false);

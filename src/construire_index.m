@@ -1,22 +1,15 @@
 function INDEX = construire_index(morceaux, P, noms)
-%CONSTRUIRE_INDEX  Étape 5a : index inversé (clé -> (morceau, instant)).
-%   INDEX = construire_index(morceaux, P)
+%CONSTRUIRE_INDEX  Étape 5a : index inversé, clé -> (morceau, instant m1).
 %   INDEX = construire_index(morceaux, P, noms)
+%   INDEX = construire_index(morceaux)   P = parametres(), noms = chemins
+%   construire_index()                   démo sur 3 morceaux synthétiques
 %
-%   morceaux : cellule de chemins de fichiers audio, ou de signaux déjà
-%              prétraités (colonnes à P.Fe).
-%   noms     : cellule de noms à afficher (par défaut : les chemins).
+%   morceaux : chemins de fichiers audio, ou signaux déjà prétraités.
 %
-%   INDEX.cle, .id, .m1 : entrées triées par clé (un tableau trié plutôt
-%       qu'un containers.Map, beaucoup plus rapide au-delà de quelques
-%       dizaines de morceaux).
-%   INDEX.ucle, .debut, .nb : clés distinctes, position de leur première
-%       entrée et nombre d'entrées. Ils permettent de récupérer TOUTES les
-%       entrées d'une clé (ismember n'en renvoie qu'une).
+%   INDEX.cle, .id, .m1     entrées triées par clé (plus rapide qu'un containers.Map)
+%   INDEX.ucle, .debut, .nb chaque clé distincte, sa 1re entrée et son nombre
+%                           d'entrées : on lit ainsi TOUTES les entrées d'une clé
 %   INDEX.noms, .nTrames, .P
-%
-%   INDEX = construire_index(morceaux)   P par défaut : parametres().
-%   construire_index()                   démonstration autonome (3 morceaux synthétiques).
 
 if nargin == 0
     INDEX = demo();
@@ -65,7 +58,7 @@ INDEX.P = P;
 end
 
 function INDEX = demo()
-% Démonstration : index inversé de 3 « morceaux » synthétiques de 30 s.
+% Démo : index de 3 morceaux synthétiques de 30 s.
 P = parametres_par_defaut();
 morceaux = arrayfun(@(g) morceau_synthetique(30, P.Fe, g), 1:3, 'UniformOutput', false);
 tic;

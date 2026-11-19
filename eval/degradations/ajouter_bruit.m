@@ -1,17 +1,12 @@
 function yb = ajouter_bruit(y, RSB_dB, bruit, rs)
-%AJOUTER_BRUIT  Ajoute un bruit à un RSB imposé (terme b(t) du modèle (1)).
-%   yb = ajouter_bruit(y, RSB_dB)            bruit blanc gaussien
-%   yb = ajouter_bruit(y, RSB_dB, 'blanc')
-%   yb = ajouter_bruit(y, RSB_dB, b)         bruit réel b (ex. brouhaha) : on
-%                                            en prend un segment au hasard
-%   yb = ajouter_bruit(..., rs)              rs : RandStream (reproductible)
+%AJOUTER_BRUIT  Ajoute un bruit à un RSB donné (terme b(t) du modèle (1)).
+%   yb = ajouter_bruit(y, RSB_dB)          bruit blanc
+%   yb = ajouter_bruit(y, RSB_dB, b)       bruit réel b (brouhaha), segment pris au hasard
+%   yb = ajouter_bruit(..., rs)            rs : RandStream, pour rejouer le tirage
 %
-%   RSB_dB = 10 log10(Px / Pb), avec Px calculé sur l'extrait y lui-même et
-%   non sur le morceau entier (sujet, équation (8)).
-%
-%   À appliquer au signal déjà ramené à 8 kHz : ajouté à 44,1 kHz, le bruit
-%   blanc perdrait environ 80 % de sa puissance au rééchantillonnage, et le
-%   RSB réel serait meilleur d'environ 7 dB que le RSB demandé.
+%   Px est mesuré sur l'extrait y, pas sur le morceau entier (équation (8)).
+%   À appliquer au signal à 8 kHz : à 44,1 kHz, le rééchantillonnage retirerait
+%   ~80 % du bruit blanc et le vrai RSB serait ~7 dB meilleur que prévu.
 
 if nargin < 3 || isempty(bruit), bruit = 'blanc'; end
 if nargin < 4, rs = RandStream.getGlobalStream; end

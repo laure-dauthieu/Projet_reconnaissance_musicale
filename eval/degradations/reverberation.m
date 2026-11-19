@@ -1,17 +1,11 @@
 function [yr, h] = reverberation(y, Fe0, T60, rs)
-%REVERBERATION  Convolution par une réponse de salle synthétique.
+%REVERBERATION  Réverbération de salle synthétique, de durée T60.
 %   [yr, h] = reverberation(y, Fe0, T60)
-%   [yr, h] = reverberation(y, Fe0, T60, rs)   rs : RandStream (reproductible)
+%   [yr, h] = reverberation(y, Fe0, T60, rs)   rs : RandStream, pour rejouer le tirage
 %
-%   Modèle classique de réverbération diffuse : bruit blanc à décroissance
-%   exponentielle, h(t) = n(t) exp(-6,91 t / T60). Le facteur 6,91 = 3 ln 10
-%   donne une décroissance d'énergie de 60 dB en T60 secondes. On ajoute un
-%   trajet direct en h(0). La réponse dure T60 : au-delà, elle est 60 dB
-%   sous son début.
-%
-%   Pour T60 = 1 s à Fe = 8 kHz, h dure 8000 échantillons, bien plus que la
-%   fenêtre N = 1024 : c'est la limite de l'approximation (3) du sujet.
-%   La sortie a la même longueur et la même puissance que y.
+%   h = bruit blanc x exp(-6,91 t / T60) (énergie -60 dB en T60), plus un trajet
+%   direct en h(0). À T60 = 1 s, h fait 8000 échantillons, bien plus que N = 1024 :
+%   c'est la limite de la relation (3). yr a la longueur et la puissance de y.
 
 if nargin < 4, rs = RandStream.getGlobalStream; end
 L = round(T60 * Fe0);

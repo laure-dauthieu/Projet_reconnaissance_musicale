@@ -1,14 +1,11 @@
 function T = taux_detection(res, s_thr)
-%TAUX_DETECTION  TBD, TFD et types d'erreur pour un seuil donné.
-%   T = taux_detection(res, s_thr)     res : sortie de evaluer
+%TAUX_DETECTION  TBD, TFD, confusions et non-détections pour un ou plusieurs seuils.
+%   T = taux_detection(res, s_thr)   res : sortie de evaluer ; une ligne par seuil
 %
-%   Le système répond « morceau id_max » si score >= s_thr, « inconnu » sinon.
-%     Requête positive : bon morceau -> bonne détection ; autre morceau ->
-%                        confusion ; « inconnu » -> non-détection.
-%     Requête négative : « inconnu » -> rejet correct ; un morceau -> fausse
-%                        détection.
-%   TBD = #{positives bien identifiées} / N+ ;  TFD = #{négatives identifiées} / N-.
-%   Si s_thr est un vecteur, T a une ligne par seuil.
+%   Réponse = id_max si score >= s_thr, « inconnu » sinon.
+%   Positive : bon morceau = bonne détection, autre = confusion, inconnu = non-détection.
+%   Négative : un morceau = fausse détection.
+%   TBD = bonnes détections / N+ ; TFD = fausses détections / N-.
 
 pos = res.id_vrai > 0;
 neg = ~pos;

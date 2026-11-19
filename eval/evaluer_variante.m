@@ -1,20 +1,13 @@
 function V = evaluer_variante(P, signauxBase, signauxHors, degrader, Tq, graine)
-%EVALUER_VARIANTE  TBD et TFD pour un jeu de paramètres (études Q4 et F).
+%EVALUER_VARIANTE  TBD et TFD pour un jeu de paramètres (études de γf et F, Q4).
 %   V = evaluer_variante(P, signauxBase, signauxHors, degrader, Tq, graine)
 %
-%   signauxBase, signauxHors : signaux prétraités à P.Fe (cache).
-%   degrader : fonction y -> y dégradé, appliquée au signal à 8 kHz.
-%
-%   Reconstruit l'index avec P, puis :
-%     - 2 requêtes positives par morceau de la base ;
-%     - 1 requête négative par morceau hors base, une sur deux pour fixer le
-%       seuil (calibrer_seuil), l'autre pour mesurer le TFD.
-%   Le seuil est recalibré pour chaque variante : un γf ou un F différent
-%   change aussi les scores des requêtes négatives.
-%
-%   V : struct avec s_thr, TBD, TFD, nEntrees (taille de l'index),
-%       nClesRequete (nombre médian de clés par requête), scoreMedian
-%       (score médian des positives).
+%   Reconstruit l'index avec P, puis évalue 2 requêtes positives par morceau
+%   et 1 négative par morceau hors base (une sur deux fixe le seuil, l'autre
+%   mesure le TFD). degrader : fonction appliquée aux requêtes à 8 kHz.
+%   Le seuil est recalibré à chaque fois, car γf et F changent aussi les
+%   scores des négatives.
+%   V : s_thr, TBD, TFD, nEntrees, nClesRequete, scoreMedian.
 
 rs = RandStream('mt19937ar', 'Seed', graine);
 INDEX = construire_index(signauxBase, P);

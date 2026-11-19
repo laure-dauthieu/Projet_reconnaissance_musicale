@@ -1,16 +1,12 @@
 function x = pretraitement(entree, P, Fe0)
-%PRETRAITEMENT  Étape 1 : passage en mono et rééchantillonnage à P.Fe.
-%   x = pretraitement('morceau.mp3', P)  lit le fichier.
-%   x = pretraitement(signal, P, Fe0)    traite un signal échantillonné à Fe0.
+%PRETRAITEMENT  Étape 1 : mono, puis rééchantillonnage à P.Fe (8 kHz).
+%   x = pretraitement('morceau.mp3', P)   lit le fichier
+%   x = pretraitement(signal, P, Fe0)     signal échantillonné à Fe0
+%   x = pretraitement('morceau.mp3')      P = parametres()
+%   pretraitement()                       démo sur un signal synthétique
 %
-%   x = pretraitement('morceau.mp3')     P par défaut : parametres().
-%   pretraitement()                      démonstration autonome (signal synthétique).
-%
-%   Sortie : vecteur colonne (double) à P.Fe.
-%
-%   resample inclut le filtre anti-repliement. Une décimation x(1:k:end)
-%   replierait le contenu au-delà de Fe/2 dans la bande utile et créerait
-%   des faux pics différents entre la référence et la requête.
+%   x : colonne à P.Fe. On utilise resample et pas x(1:k:end) : sans filtre
+%   anti-repliement, les aigus se replieraient en faux pics sous 4 kHz.
 
 if nargin == 0
     x = demo();
@@ -37,7 +33,7 @@ end
 end
 
 function x = demo()
-% Démonstration : 3 s de « musique » stéréo à 44,1 kHz ramenées en mono à 8 kHz.
+% Démo : 3 s de stéréo à 44,1 kHz -> mono à 8 kHz.
 P = parametres_par_defaut();
 Fe0 = 44100;
 s = morceau_synthetique(3, Fe0, 1);

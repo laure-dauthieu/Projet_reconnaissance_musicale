@@ -1,20 +1,12 @@
 function [base, horsBase] = preparer_base(dossierData, nBase, nHors, graine)
-%PREPARER_BASE  Choisit les morceaux de la base et les morceaux hors base.
+%PREPARER_BASE  Choisit les morceaux de la base et ceux hors base (FMA).
 %   [base, horsBase] = preparer_base(dossierData, nBase, nHors, graine)
 %
-%   dossierData : dossier qui contient fma_small/ et fma_metadata/.
-%   nBase       : nombre de morceaux indexés (le sujet en demande au moins 100).
-%   nHors       : nombre de morceaux absents de la base, pour les requêtes
-%                 négatives (au moins 50 requêtes négatives demandées).
-%   graine      : graine du tirage, pour que le choix soit reproductible.
-%
-%   Les deux ensembles sont répartis équitablement sur les 8 genres de
-%   fma_small (Electronic, Experimental, Folk, Hip-Hop, Instrumental,
-%   International, Pop, Rock) et sont disjoints. Les fichiers illisibles ou
-%   de moins de 25 s (quelques-uns dans fma_small) sont écartés.
-%
-%   Sorties : tables avec id, artiste, titre, genre, licence, duree (s),
-%   chemin (absolu) et role ("base" ou "hors base").
+%   dossierData : dossier contenant fma_small/ et fma_metadata/.
+%   nBase, nHors : morceaux indexés, et morceaux absents pour les requêtes négatives.
+%   Les deux ensembles sont disjoints et répartis sur les 8 genres ; les
+%   fichiers illisibles ou de moins de 25 s sont écartés.
+%   Sorties : tables id, artiste, titre, genre, licence, duree, chemin, role.
 
 meta = lire_metadonnees(fullfile(dossierData, 'fma_metadata', 'tracks.csv'));
 meta = meta(meta.subset == "small", :);

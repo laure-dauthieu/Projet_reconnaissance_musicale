@@ -1,19 +1,13 @@
 function E = generer_empreintes(pics, P)
-%GENERER_EMPREINTES  Étape 4 : paires de pics -> clés de hachage.
-%   E = generer_empreintes(pics, P)
+%GENERER_EMPREINTES  Étape 4 : paires de pics -> clés.
+%   E = generer_empreintes(pics, P)   pics = [m, k] triés par trame ; E = [cle, m1]
+%   E = generer_empreintes(pics)      P = parametres()
+%   generer_empreintes()              démo sur un signal synthétique
 %
-%   pics : [m, k] triés par trame (sortie de detection_pics).
-%   E    : [cle, m1], une ligne par paire (ancre, cible).
-%
-%   Pour chaque ancre (m1,k1), on prend les P.F premières cibles (m2,k2)
-%   de la zone P.dm_min <= m2-m1 <= P.dm_max et |k2-k1| <= P.dk_max.
-%   La clé u = (Qf(k1), Qf(k2), Δm) est codée en un seul entier :
-%       u = (q1*Nf + q2)*Nt + (Δm - dm_min),   Qf(k) = floor((k-1)/gamma_f).
-%   Elle ne dépend que de Δm = m2-m1 : l'instant absolu m1 est rangé à part,
-%   ce qui la rend indépendante de l'endroit où l'extrait a été capté.
-%
-%   E = generer_empreintes(pics)   P par défaut : parametres().
-%   generer_empreintes()           démonstration autonome (pics d'un signal synthétique).
+%   Chaque ancre (m1,k1) est associée à ses F premières cibles (m2,k2) situées
+%   entre dm_min et dm_max trames plus loin, à moins de dk_max canaux.
+%   Clé : u = (q1*Nf + q2)*Nt + (Δm - dm_min), avec q = floor((k-1)/gamma_f).
+%   Elle ne contient que Δm = m2-m1 ; m1 est stocké à côté, pour l'alignement.
 
 if nargin == 0
     E = demo();
@@ -51,7 +45,7 @@ E = [cles(1:nE), m1s(1:nE)];
 end
 
 function E = demo()
-% Démonstration : clés formées à partir des pics de 8 s de « musique » synthétique.
+% Démo : clés de 8 s de musique synthétique, et décodage de la première.
 P = parametres_par_defaut();
 x = morceau_synthetique(8, P.Fe, 1);
 pics = detection_pics(calcul_spectrogramme(x, P), P);
@@ -59,7 +53,6 @@ E = generer_empreintes(pics, P);
 fprintf(['generer_empreintes : %d pics -> %d paires (F = %d cibles par ancre), ' ...
     '%d clés distinctes sur M = %.2g possibles.\n'], size(pics, 1), size(E, 1), P.F, ...
     numel(unique(E(:, 1))), P.M);
-% Décodage de la première clé : u = (q1*Nf + q2)*Nt + (Δm - dm_min)
 u = E(1, 1);
 dm = mod(u, P.Nt) + P.dm_min;  q = floor(u / P.Nt);
 fprintf('  1re clé : u = %d -> classes (%d, %d), Δm = %d trames, ancre à la trame %d.\n', ...
