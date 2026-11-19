@@ -1,25 +1,23 @@
 function fig = interface_reconnaissance()
-%INTERFACE_RECONNAISSANCE  Interface de paramétrage et démo de la reconnaissance musicale.
-%   interface_reconnaissance() ouvre une fenêtre qui permet :
-%     - de capter une requête au micro (Tq secondes), de prendre un extrait de la base
-%       ou de charger un fichier audio ;
-%     - d'y ajouter un bruit blanc à un RSB donné (démonstration de robustesse) ;
-%     - de régler N, le voisinage (±trames, ±canaux), F, gamma_f, s_thr et Tq ;
-%     - d'identifier la requête et d'afficher le spectrogramme avec la constellation,
-%       l'histogramme des δ du meilleur candidat et les scores des meilleurs morceaux.
+%INTERFACE_RECONNAISSANCE  Interface de paramétrage et de démonstration.
+%   interface_reconnaissance()
 %
-%   Données nécessaires (dossier cache/) :
-%     index_base.mat   : index des 100 morceaux (sur git) ; suffit pour identifier
-%                        et pour régler s_thr et Tq ;
-%     base.mat         : titres, artistes et genres (facultatif) ;
-%     signaux_base.mat : signaux à 8 kHz (pas sur git) ; nécessaire pour prendre un
-%                        extrait de la base et pour reconstruire l'index quand on
-%                        change N, le voisinage, F ou gamma_f.
+%   1. Requête : micro (Tq secondes), extrait de la base ou fichier audio,
+%      avec un bruit blanc optionnel.
+%   2. Réglages : N, voisinage, F, γf, s_thr, Tq. L'index est reconstruit
+%      automatiquement si N, le voisinage, F ou γf changent.
+%   3. Résultat : morceau reconnu, spectrogramme et constellation, histogramme
+%      des δ, meilleurs scores, historique des essais.
 %
-%   Écrite avec uifigure dans un fichier .m plutôt qu'avec App Designer : un .mlapp
-%   est un fichier binaire, illisible dans git.
+%   Fichiers utilisés (dossier cache/) :
+%     index_base.mat    index des 100 morceaux (sur git), suffit pour identifier ;
+%     base.mat          titres, artistes, genres (facultatif) ;
+%     signaux_base.mat  signaux à 8 kHz (hors git) : extraits de la base et
+%                       reconstruction de l'index.
+%
+%   Écrite avec uifigure dans un .m (un .mlapp est binaire, illisible dans git).
 
-%% Chemins et données
+%% Données
 racine = fileparts(fileparts(mfilename('fullpath')));
 addpath(racine, fullfile(racine, 'src'), fullfile(racine, 'utils'), ...
     fullfile(racine, 'eval', 'degradations'));
@@ -30,140 +28,289 @@ if ~isfile(fichierIndex)
     error('interface:index', 'Index introuvable : %s', fichierIndex);
 end
 S = load(fichierIndex, 'INDEX');
-etat.INDEX = S.INDEX;                       % index courant
-etat.cleIndex = cle_index(S.INDEX.P);       % réglages avec lesquels il a été construit
+etat.INDEX = S.INDEX;
+etat.cleIndex = cle_index(S.INDEX.P);       % réglages avec lesquels l'index a été construit
 etat.noms = S.INDEX.noms;
+etat.artistes = repmat({''}, numel(etat.noms), 1);
+etat.titres = etat.noms;
 etat.genres = repmat({''}, numel(etat.noms), 1);
-fichierBase = fullfile(dossierCache, 'base.mat');
-if isfile(fichierBase)
-    B = load(fichierBase, 'base');
-    etat.noms = cellstr(B.base.artiste + " – " + B.base.titre);
+if isfile(fullfile(dossierCache, 'base.mat'))
+    B = load(fullfile(dossierCache, 'base.mat'), 'base');
+    etat.artistes = cellstr(B.base.artiste);
+    etat.titres = cellstr(B.base.titre);
     etat.genres = cellstr(B.base.genre);
+    etat.noms = cellstr(B.base.artiste + " – " + B.base.titre);
 end
 etat.fichierSignaux = fullfile(dossierCache, 'signaux_base.mat');
 etat.signaux = {};                          % chargés à la première utilisation
-etat.y = [];                                % requête brute, à P.Fe (avant bruit)
-etat.source = '';                           % description de la requête
-etat.vrai = 0;                              % morceau d'origine si connu
-etat.t0 = NaN;                              % instant de début dans ce morceau (s)
-etat.enreg = [];                            % audiorecorder en cours
+etat.y = [];                                % requête à P.Fe, avant bruit
+etat.source = '';
+etat.vrai = 0;                              % morceau d'origine s'il est connu
+etat.t0 = NaN;
+etat.enreg = [];
 etat.minuteur = [];
+etat.historique = cell(0, 5);
 Fe_micro = 44100;
 
-P0 = parametres('Tq', 5);                   % valeurs du rapport : Tq = 5 s, s_thr = 35
+P0 = parametres('Tq', 5);                   % réglages du rapport
+
+% Palette « instrument de mesure » : fonds anthracite, un seul accent vert phosphore.
+% Les noms C.vert, C.orange, C.rouge... sont ceux utilisés par les fonctions
+% d'affichage ; seules leurs valeurs définissent le style.
+C.fond    = [17 19 21] / 255;      % fenêtre
+C.panneau = [26 29 33] / 255;      % panneaux, bandeau
+C.ecran   = [8 9 10] / 255;        % fond des graphes
+C.grille  = [42 48 54] / 255;      % grille, bordures
+C.texte   = [216 221 226] / 255;
+C.doux    = [125 134 143] / 255;   % texte secondaire, axes
+C.accent  = [46 240 122] / 255;    % vert phosphore
+C.champ   = [14 16 18] / 255;      % champs de saisie
+C.bouton  = [38 42 47] / 255;
+C.neutre  = C.panneau;
+C.vertF   = C.panneau;  C.vert   = C.accent;            % morceau trouvé
+C.orangeF = C.panneau;  C.orange = [200 205 210] / 255; % inconnu : gris clair
+C.rougeF  = C.panneau;  C.rouge  = [248 248 248] / 255; % confusion : blanc
+% Colormap du spectrogramme : noir -> vert sombre -> phosphore
+C.cmap = interp1([0; 0.55; 1], [C.ecran; 0 60/255 25/255; C.accent], linspace(0, 1, 256)');
+
+% Polices : chasse fixe pour les valeurs, sans empattement pour le reste
+if ispc
+    F.mono = 'Consolas';  F.sans = 'Segoe UI';
+elseif ismac
+    F.mono = 'Menlo';  F.sans = 'Helvetica Neue';
+else
+    F.mono = 'DejaVu Sans Mono';  F.sans = 'DejaVu Sans';
+end
 
 %% Fenêtre
-% Thème clair imposé : en thème sombre, la ligne du seuil s_thr (gris foncé)
-% disparaissait sur le fond noir des graphiques.
-fig = uifigure('Name', 'Reconnaissance musicale par empreintes', 'Theme', 'light', ...
-    'Position', [60 60 1380 820], 'CloseRequestFcn', @fermer);
-grille = uigridlayout(fig, [1 2], 'ColumnWidth', {330, '1x'}, 'Padding', [8 8 8 8]);
+% Thème sombre ; toutes les couleurs des graphes sont fixées plus bas (la ligne
+% du seuil reste visible).
+fig = uifigure('Name', 'Reconnaissance musicale par empreintes', 'Theme', 'dark', ...
+    'Position', [40 40 1440 880], 'Color', C.fond, 'CloseRequestFcn', @fermer, ...
+    'WindowState', 'maximized');
+% Style des graphes en valeurs par défaut de la fenêtre : stem, barh, imagesc...
+% réinitialisent les axes à chaque tracé, ces valeurs-là restent.
+set(fig, 'DefaultAxesColor', C.ecran, 'DefaultAxesXColor', C.doux, 'DefaultAxesYColor', C.doux, ...
+    'DefaultAxesGridColor', C.grille, 'DefaultAxesGridAlpha', 1, 'DefaultAxesMinorGridColor', C.grille, ...
+    'DefaultAxesXGrid', 'on', 'DefaultAxesYGrid', 'on', 'DefaultAxesBox', 'on', ...
+    'DefaultAxesLineWidth', 0.5, 'DefaultAxesTickDir', 'in', 'DefaultAxesTickLength', [0.004 0.004], ...
+    'DefaultAxesFontName', F.mono, 'DefaultAxesFontSize', 10, ...
+    'DefaultAxesTitleFontWeight', 'normal', 'DefaultAxesTitleFontSizeMultiplier', 1.05, ...
+    'DefaultAxesLabelFontSizeMultiplier', 1, 'DefaultTextColor', C.texte, ...
+    'DefaultTextFontName', F.mono, 'DefaultColorbarColor', C.doux, ...
+    'DefaultColorbarFontName', F.mono, 'DefaultColorbarBox', 'off');
+page = uigridlayout(fig, [3 1], 'RowHeight', {46, '1x', 22}, 'Padding', [0 0 0 0], ...
+    'RowSpacing', 0, 'BackgroundColor', C.fond);
 
-% ---------------- Colonne de gauche : commandes ----------------
-gauche = uigridlayout(grille, [4 1], 'RowHeight', {'fit', 'fit', 'fit', '1x'}, ...
-    'Padding', [0 0 0 0], 'RowSpacing', 8);
+% ---- Bandeau
+bandeau = uigridlayout(page, [2 2], 'ColumnWidth', {'1x', 'fit'}, 'RowHeight', {'1x', '1x'}, ...
+    'Padding', [14 4 14 4], 'RowSpacing', 0, 'BackgroundColor', C.panneau);
+lbl = uilabel(bandeau, 'Text', 'RECONNAISSANCE MUSICALE PAR EMPREINTES', ...
+    'FontSize', 14, 'FontWeight', 'bold', 'FontColor', C.texte, 'FontName', F.mono);
+lbl.Layout.Row = 1;  lbl.Layout.Column = 1;
+lbl = uilabel(bandeau, 'Text', 'Fe 8 kHz  |  TFCT Hann  |  constellation > paires > index inversé > vote sur δ', ...
+    'FontSize', 11, 'FontColor', C.doux, 'FontName', F.mono);
+lbl.Layout.Row = 2;  lbl.Layout.Column = 1;
+lblIndexHaut = uilabel(bandeau, 'Text', '', 'FontSize', 11, 'FontColor', C.doux, ...
+    'HorizontalAlignment', 'right', 'FontName', F.mono);
+lblIndexHaut.Layout.Row = [1 2];  lblIndexHaut.Layout.Column = 2;
 
-% 1. Requête
-pReq = uipanel(gauche, 'Title', '1. Requête', 'FontWeight', 'bold');
-gReq = uigridlayout(pReq, [7 2], 'RowHeight', repmat({'fit'}, 1, 7), ...
-    'ColumnWidth', {'1x', '1x'});
-bMicro = uibutton(gReq, 'Text', '● Enregistrer au micro', 'FontWeight', 'bold', ...
+% ---- Corps
+corps = uigridlayout(page, [1 2], 'ColumnWidth', {320, '1x'}, 'Padding', [8 8 8 6], ...
+    'ColumnSpacing', 8, 'BackgroundColor', C.fond);
+
+% ---- Colonne de gauche : contrôles
+gauche = uigridlayout(corps, [3 1], 'RowHeight', {'fit', 'fit', 'fit'}, ...
+    'Padding', [0 0 0 0], 'RowSpacing', 6, 'BackgroundColor', C.fond, 'Scrollable', 'on');
+
+% Acquisition
+pReq = panneau(gauche, 'ACQUISITION');
+gReq = uigridlayout(pReq, [9 2], 'RowHeight', {'fit', 'fit', 34, 'fit', 'fit', 'fit', 'fit', 'fit', 'fit'}, ...
+    'ColumnWidth', {'1x', '1x'}, 'RowSpacing', 4, 'Padding', [8 8 8 8], 'BackgroundColor', C.neutre);
+[nomsMicro, idsMicro] = micros();
+uilabel(gReq, 'Text', 'ENTRÉE', 'FontColor', C.doux);
+ddMicro = uidropdown(gReq, 'Items', nomsMicro, 'ItemsData', idsMicro);
+bMicro = uibutton(gReq, 'Text', 'Enregistrer au micro', 'FontWeight', 'bold', ...
     'ButtonPushedFcn', @enregistrer);
 bMicro.Layout.Column = [1 2];
-uilabel(gReq, 'Text', 'Morceau de la base :');
+jauge = uigauge(gReq, 'linear', 'Limits', [0 P0.Tq], 'Value', 0, 'MajorTicks', 0:P0.Tq, ...
+    'MinorTicks', [], 'ScaleColors', C.grille, 'ScaleColorLimits', [0 P0.Tq], ...
+    'FontSize', 9, 'FontColor', C.doux, 'BackgroundColor', C.panneau);
+jauge.Layout.Column = [1 2];
+uilabel(gReq, 'Text', 'BASE', 'FontColor', C.doux);
+spDebut = uispinner(gReq, 'Limits', [0 25], 'Value', 10, 'Step', 0.5, ...
+    'ValueDisplayFormat', 't0 = %.1f s');
 ddMorceau = uidropdown(gReq, 'Items', compose('%d. %s', (1:numel(etat.noms))', string(etat.noms)), ...
     'ItemsData', 1:numel(etat.noms));
-ddMorceau.Layout.Row = 3;  ddMorceau.Layout.Column = [1 2];
-uilabel(gReq, 'Text', 'Début de l''extrait (s) :');
-spDebut = uispinner(gReq, 'Limits', [0 25], 'Value', 10, 'Step', 0.5);
-uibutton(gReq, 'Text', 'Prendre l''extrait', 'ButtonPushedFcn', @(~, ~) extrait_base(false));
-uibutton(gReq, 'Text', 'Extrait au hasard', 'ButtonPushedFcn', @(~, ~) extrait_base(true));
-bFichier = uibutton(gReq, 'Text', 'Charger un fichier audio…', 'ButtonPushedFcn', @charger_fichier);
+ddMorceau.Layout.Column = [1 2];
+bJouer = uibutton(gReq, 'Text', 'Jouer le morceau (haut-parleurs)', ...
+    'Tooltip', 'Pour tester au micro : lancez la lecture, puis « Enregistrer au micro ». « Stop » arrête le son.', ...
+    'ButtonPushedFcn', @jouer_morceau);
+bJouer.Layout.Column = [1 2];
+uibutton(gReq, 'Text', 'Extrait à t0', 'ButtonPushedFcn', @(~, ~) extrait_base(false));
+uibutton(gReq, 'Text', 'Extrait aléatoire', 'ButtonPushedFcn', @(~, ~) extrait_base(true));
+bFichier = uibutton(gReq, 'Text', 'Fichier audio…', 'ButtonPushedFcn', @charger_fichier);
 bFichier.Layout.Column = [1 2];
-uilabel(gReq, 'Text', 'Dégradation :');
-ddBruit = uidropdown(gReq, 'Items', {'Aucune', 'Bruit blanc 10 dB', 'Bruit blanc 5 dB', 'Bruit blanc 0 dB'}, ...
+uilabel(gReq, 'Text', 'DÉGRADATION', 'FontColor', C.doux);
+ddBruit = uidropdown(gReq, 'Items', {'aucune', 'bruit blanc 10 dB', 'bruit blanc 5 dB', 'bruit blanc 0 dB'}, ...
     'ItemsData', [Inf 10 5 0]);
-lblSource = uilabel(gReq, 'Text', 'Aucune requête.', 'WordWrap', 'on', 'FontAngle', 'italic');
-lblSource.Layout.Column = [1 2];
 
-% 2. Paramètres
-pPar = uipanel(gauche, 'Title', '2. Paramètres', 'FontWeight', 'bold');
-gPar = uigridlayout(pPar, [8 2], 'RowHeight', repmat({'fit'}, 1, 8), 'ColumnWidth', {'1.3x', '1x'});
-uilabel(gPar, 'Text', 'N (fenêtre, points)');
+% Paramètres
+pPar = panneau(gauche, 'PARAMÈTRES');
+gPar = uigridlayout(pPar, [10 2], 'RowHeight', repmat({'fit'}, 1, 10), ...
+    'ColumnWidth', {'1.2x', '1x'}, 'RowSpacing', 3, 'Padding', [8 8 8 8], 'BackgroundColor', C.neutre);
+uilabel(gPar, 'Text', 'N      fenêtre');
 ddN = uidropdown(gPar, 'Items', {'256', '512', '1024', '2048'}, 'ItemsData', [256 512 1024 2048], ...
     'Value', P0.N, 'ValueChangedFcn', @reglage_change);
-uilabel(gPar, 'Text', 'Voisinage ± trames (m_v)');
-spDm = uispinner(gPar, 'Limits', [1 8], 'Value', P0.dm, 'Step', 1, 'ValueChangedFcn', @reglage_change);
-uilabel(gPar, 'Text', 'Voisinage ± canaux (k_v)');
-spDk = uispinner(gPar, 'Limits', [1 15], 'Value', P0.dk, 'Step', 1, 'ValueChangedFcn', @reglage_change);
-uilabel(gPar, 'Text', 'F (cibles par ancre)');
-spF = uispinner(gPar, 'Limits', [1 20], 'Value', P0.F, 'Step', 1, 'ValueChangedFcn', @reglage_change);
-uilabel(gPar, 'Text', 'γf (canaux par classe)');
+lblInfoN = info(gPar);
+uilabel(gPar, 'Text', 'm_v    ± trames');
+spDm = uispinner(gPar, 'Limits', [1 8], 'Value', P0.dm, 'ValueChangedFcn', @reglage_change);
+uilabel(gPar, 'Text', 'k_v    ± canaux');
+spDk = uispinner(gPar, 'Limits', [1 15], 'Value', P0.dk, 'ValueChangedFcn', @reglage_change);
+uilabel(gPar, 'Text', 'F      cibles/ancre');
+spF = uispinner(gPar, 'Limits', [1 20], 'Value', P0.F, 'ValueChangedFcn', @reglage_change);
+uilabel(gPar, 'Text', 'γf     regroupement');
 ddGf = uidropdown(gPar, 'Items', {'1', '2', '4', '8'}, 'ItemsData', [1 2 4 8], ...
     'Value', P0.gamma_f, 'ValueChangedFcn', @reglage_change);
-uilabel(gPar, 'Text', 'Seuil s_thr');
-spSthr = uispinner(gPar, 'Limits', [1 500], 'Value', P0.s_thr, 'Step', 1);
-uilabel(gPar, 'Text', 'Durée Tq (s)');
-spTq = uispinner(gPar, 'Limits', [1 20], 'Value', P0.Tq, 'Step', 1);
-bDefaut = uibutton(gPar, 'Text', 'Valeurs du rapport', 'ButtonPushedFcn', @valeurs_defaut);
+lblInfoGf = info(gPar);
+uilabel(gPar, 'Text', 's_thr  seuil');
+spSthr = uispinner(gPar, 'Limits', [1 500], 'Value', P0.s_thr, 'ValueChangedFcn', @reglage_change);
+uilabel(gPar, 'Text', 'Tq     durée');
+spTq = uispinner(gPar, 'Limits', [1 20], 'Value', P0.Tq, 'ValueDisplayFormat', '%.0f s', ...
+    'ValueChangedFcn', @reglage_change);
+lblEtatIndex = uilabel(gPar, 'Text', '', 'FontSize', 10, 'WordWrap', 'on');
+lblEtatIndex.Layout.Column = [1 2];
+bDefaut = uibutton(gPar, 'Text', 'Réglages du rapport', 'ButtonPushedFcn', @valeurs_defaut);
 bDefaut.Layout.Column = [1 2];
 
-% 3. Identification
-pId = uipanel(gauche, 'Title', '3. Identification', 'FontWeight', 'bold');
-gId = uigridlayout(pId, [2 2], 'RowHeight', {'fit', 'fit'});
-bIdent = uibutton(gId, 'Text', 'Identifier', 'FontWeight', 'bold', 'FontSize', 15, ...
-    'BackgroundColor', [0.20 0.45 0.75], 'FontColor', 'w', 'ButtonPushedFcn', @identifier_requete);
-bIdent.Layout.Column = [1 2];
-uibutton(gId, 'Text', '▶ Écouter la requête', 'ButtonPushedFcn', @ecouter);
-uibutton(gId, 'Text', '■ Arrêter le son', 'ButtonPushedFcn', @(~, ~) clear('sound'));
+% Analyse
+pId = panneau(gauche, 'ANALYSE');
+gId = uigridlayout(pId, [2 3], 'RowHeight', {34, 'fit'}, 'RowSpacing', 4, 'Padding', [8 8 8 8], ...
+    'BackgroundColor', C.neutre);
+bIdent = uibutton(gId, 'Text', 'IDENTIFIER', 'FontWeight', 'bold', 'FontSize', 14, ...
+    'BackgroundColor', C.accent, 'FontColor', C.ecran, 'ButtonPushedFcn', @identifier_requete);
+bIdent.Layout.Column = [1 3];
+uibutton(gId, 'Text', 'Écouter', 'Tooltip', 'Écouter la requête (avec le bruit choisi)', ...
+    'ButtonPushedFcn', @ecouter);
+uibutton(gId, 'Text', 'Stop', 'Tooltip', 'Arrêter le son', 'ButtonPushedFcn', @(~, ~) clear('sound'));
+uibutton(gId, 'Text', 'PNG', 'Tooltip', 'Enregistrer une capture de l''écran en PNG', ...
+    'ButtonPushedFcn', @exporter);
 
-% Journal
-lblEtat = uitextarea(gauche, 'Editable', 'off', 'FontSize', 11, ...
-    'Value', {sprintf('Index chargé : %d morceaux, %d entrées.', numel(etat.noms), numel(etat.INDEX.cle))});
+% ---- Colonne de droite : correspondance, signal, spectrogramme, votes
+droite = uigridlayout(corps, [4 2], 'RowHeight', {'fit', 60, '2.2x', '1x'}, ...
+    'ColumnWidth', {'1.15x', '1x'}, 'Padding', [0 0 0 0], 'RowSpacing', 6, 'ColumnSpacing', 8, ...
+    'BackgroundColor', C.fond);
+haut = uigridlayout(droite, [1 2], 'ColumnWidth', {'1x', 400}, 'Padding', [0 0 0 0], ...
+    'ColumnSpacing', 8, 'BackgroundColor', C.fond);
+haut.Layout.Column = [1 2];
 
-% ---------------- Colonne de droite : résultats ----------------
-droite = uigridlayout(grille, [3 2], 'RowHeight', {'fit', '1.2x', '1x'}, 'Padding', [0 0 0 0]);
-lblRes = uilabel(droite, 'Text', 'Choisissez une requête, puis « Identifier ».', 'FontSize', 20, ...
-    'FontWeight', 'bold', 'HorizontalAlignment', 'center', 'WordWrap', 'on');
-lblRes.Layout.Column = [1 2];
+% Correspondance (résultat)
+carte = uipanel(haut, 'Title', 'CORRESPONDANCE', 'BackgroundColor', C.neutre, 'BorderType', 'line', ...
+    'HighlightColor', C.grille, 'ForegroundColor', C.doux, 'FontName', F.mono, 'FontSize', 10);
+
+% Journal des essais
+pHist = panneau(haut, 'JOURNAL');
+gHist = uigridlayout(pHist, [1 1], 'Padding', [2 2 2 2], 'BackgroundColor', C.neutre);
+tabHist = uitable(gHist, 'ColumnName', {'REQUÊTE', 'RÉPONSE', 'SCORE', 'VERDICT'}, ...
+    'ColumnWidth', {90, 115, 60, 'auto'}, 'RowName', {}, 'FontSize', 10, 'Data', cell(0, 4), ...
+    'BackgroundColor', [C.champ; C.panneau], 'ForegroundColor', C.texte);
+gCarte = uigridlayout(carte, [3 4], 'RowHeight', {'fit', 'fit', 'fit'}, 'ColumnWidth', {'1.2x', '1x', '1x', '1x'}, ...
+    'Padding', [12 6 12 8], 'RowSpacing', 2, 'BackgroundColor', C.neutre);
+lblTitre = uilabel(gCarte, 'Text', 'EN ATTENTE', 'FontSize', 22, 'FontWeight', 'bold', 'FontColor', C.texte);
+lblTitre.Layout.Column = [1 4];
+lblSous = uilabel(gCarte, 'Text', 'Acquisition au micro, extrait de la base ou fichier, puis IDENTIFIER.', ...
+    'FontSize', 12, 'FontColor', C.doux, 'WordWrap', 'on');
+lblSous.Layout.Column = [1 4];
+tuiles = gobjects(4, 2);
+for i = 1:4
+    g = uigridlayout(gCarte, [2 1], 'RowHeight', {'fit', 'fit'}, 'Padding', [0 4 0 0], ...
+        'RowSpacing', 0, 'BackgroundColor', C.neutre);
+    tuiles(i, 1) = uilabel(g, 'Text', '–', 'FontSize', 18, 'FontWeight', 'bold', 'FontColor', C.texte);
+    tuiles(i, 2) = uilabel(g, 'Text', '', 'FontSize', 10, 'FontColor', C.doux);
+end
+tuiles(1, 2).Text = 'score';  tuiles(2, 2).Text = 'position dans le morceau';
+tuiles(3, 2).Text = 'clés dans la requête';  tuiles(4, 2).Text = 'temps d''identification';
+
+axOnde = uiaxes(droite);  axOnde.Layout.Column = [1 2];
 axSpec = uiaxes(droite);  axSpec.Layout.Column = [1 2];
 axDelta = uiaxes(droite);
 axScores = uiaxes(droite);
-titre_axes();
+for ax = [axOnde, axSpec, axDelta, axScores]
+    ax.Toolbar.Visible = 'off';
+    disableDefaultInteractivity(ax);
+    ax.FontSize = 10;  ax.Box = 'on';
+end
+axes_vides();
+
+% ---- Barre d'état
+barre = uigridlayout(page, [1 1], 'Padding', [10 0 10 0], 'BackgroundColor', C.panneau);
+lblEtat = uilabel(barre, 'Text', '', 'FontSize', 10, 'FontColor', C.doux);
+
+% ---- Polices et couleurs des commandes (style seulement)
+set(findall(fig, 'Type', 'uilabel'), 'FontName', F.sans);
+set([lblIndexHaut, lblTitre, tuiles(:)', lblInfoN, lblInfoGf, lblEtatIndex, lblEtat], 'FontName', F.mono);
+set(findall(gPar, 'Type', 'uilabel'), 'FontName', F.mono);
+set(findall(fig, 'Type', 'uibutton'), 'BackgroundColor', C.bouton, 'FontColor', C.texte, ...
+    'FontName', F.sans, 'FontSize', 12);
+set(bIdent, 'BackgroundColor', C.accent, 'FontColor', C.ecran, 'FontName', F.mono, 'FontSize', 14);
+set([findall(fig, 'Type', 'uidropdown'); findall(fig, 'Type', 'uispinner')], ...
+    'BackgroundColor', C.champ, 'FontColor', C.texte, 'FontName', F.mono, 'FontSize', 11);
+set(tabHist, 'FontName', F.mono);
+set(findall(bandeau, 'Type', 'uilabel'), 'FontName', F.mono);
+
+mettre_a_jour_reglages();
+statut(sprintf('Prêt. Index chargé : %d morceaux, %s entrées.', numel(etat.noms), milliers(numel(etat.INDEX.cle))));
 
 %% Fonctions internes
 
     function P = reglages()
-        % Paramètres courants lus dans l'interface.
         P = parametres('N', ddN.Value, 'dm', spDm.Value, 'dk', spDk.Value, ...
             'F', spF.Value, 'gamma_f', ddGf.Value, 's_thr', spSthr.Value, 'Tq', spTq.Value);
     end
 
-    function journal(msg)
-        lblEtat.Value = [{msg}; lblEtat.Value(:)];
+    function statut(msg)
+        lblEtat.Text = msg;
         drawnow;
     end
 
     function reglage_change(~, ~)
-        if ~isequal(cle_index(reglages()), etat.cleIndex)
-            journal('Réglage modifié : l''index sera reconstruit à la prochaine identification.');
+        mettre_a_jour_reglages();
+    end
+
+    function mettre_a_jour_reglages()
+        % Grandeurs dérivées affichées sous les réglages, et état de l'index.
+        P = reglages();
+        lblInfoN.Text = sprintf('Tw = %s ms   Δf = %s Hz   %s trames/s', fr(1000 * P.N / P.Fe, '%.0f'), ...
+            fr(1.44 * P.Fe / P.N, '%.1f'), fr(P.Fe / P.H, '%.1f'));
+        lblInfoGf.Text = sprintf('M = %s clés possibles', milliers(P.M));
+        jauge.Limits = [0 P.Tq];  jauge.MajorTicks = 0:max(1, round(P.Tq / 5)):P.Tq;
+        jauge.ScaleColorLimits = [0 P.Tq];
+        if isequal(cle_index(P), etat.cleIndex)
+            lblEtatIndex.Text = sprintf('Index à jour : %s entrées.', milliers(numel(etat.INDEX.cle)));
+            lblEtatIndex.FontColor = C.vert;
+        else
+            lblEtatIndex.Text = 'Index à reconstruire : il le sera à la prochaine identification (quelques secondes).';
+            lblEtatIndex.FontColor = C.orange;
         end
+        I = etat.INDEX.P;
+        lblIndexHaut.Text = {sprintf('%d morceaux · %s entrées', numel(etat.noms), milliers(numel(etat.INDEX.cle))), ...
+            sprintf('N = %d · ±%d × ±%d · F = %d · γf = %d', I.N, I.dm, I.dk, I.F, I.gamma_f)};
     end
 
     function valeurs_defaut(~, ~)
         ddN.Value = P0.N;  spDm.Value = P0.dm;  spDk.Value = P0.dk;  spF.Value = P0.F;
         ddGf.Value = P0.gamma_f;  spSthr.Value = P0.s_thr;  spTq.Value = P0.Tq;
-        journal('Valeurs du rapport rétablies (N = 1024, ±3 × ±5, F = 10, γf = 1, s_thr = 35, Tq = 5 s).');
+        mettre_a_jour_reglages();
+        statut('Réglages du rapport : N = 1024, ±3 × ±5, F = 10, γf = 1, s_thr = 35, Tq = 5 s.');
     end
 
     function ok = charger_signaux()
-        % Charge signaux_base.mat la première fois qu'on en a besoin.
         ok = ~isempty(etat.signaux);
         if ok, return; end
         if ~isfile(etat.fichierSignaux)
-            uialert(fig, sprintf(['signaux_base.mat est introuvable dans cache/.\n' ...
-                'Il faut ce fichier pour prendre un extrait de la base ou changer N, ' ...
-                'le voisinage, F ou γf.']), 'Fichier manquant');
+            uialert(fig, sprintf(['cache/signaux_base.mat est introuvable.\n' ...
+                'Il sert à prendre un extrait de la base et à reconstruire l''index ' ...
+                '(N, voisinage, F ou γf modifiés).']), 'Fichier manquant');
             return;
         end
         d = uiprogressdlg(fig, 'Title', 'Chargement', 'Message', ...
@@ -175,28 +322,32 @@ titre_axes();
     end
 
     function ok = index_a_jour(P)
-        % Reconstruit l'index si N, le voisinage, F ou gamma_f ont changé.
         ok = true;
         if isequal(cle_index(P), etat.cleIndex), return; end
         if ~charger_signaux(), ok = false; return; end
         d = uiprogressdlg(fig, 'Title', 'Index', 'Message', sprintf( ...
-            'Reconstruction de l''index (N = %d, ±%d trames × ±%d canaux, F = %d, γf = %d)…', ...
+            'Reconstruction de l''index : N = %d, ±%d × ±%d, F = %d, γf = %d…', ...
             P.N, P.dm, P.dk, P.F, P.gamma_f), 'Indeterminate', 'on');
         tic;
         etat.INDEX = construire_index(etat.signaux, P, etat.INDEX.noms);
         etat.cleIndex = cle_index(P);
         close(d);
-        journal(sprintf('Index reconstruit en %.1f s : %d entrées.', toc, numel(etat.INDEX.cle)));
+        mettre_a_jour_reglages();
+        msg = sprintf('Index reconstruit en %s s : %s entrées.', fr(toc, '%.1f'), milliers(numel(etat.INDEX.cle)));
         if P.s_thr == P0.s_thr && ~isequal(cle_index(P), cle_index(P0))
-            journal(['Attention : s_thr = 35 a été calibré pour les réglages du rapport. ' ...
-                'Avec d''autres réglages, les scores des mauvais morceaux changent.']);
+            msg = [msg ' Attention : s_thr = 35 a été calibré pour les réglages du rapport.'];
         end
+        statut(msg);
     end
 
-    function definir_requete(y, source, vrai, t0)
-        etat.y = y(:);  etat.source = source;  etat.vrai = vrai;  etat.t0 = t0;
-        lblSource.Text = sprintf('%s (%.1f s)', source, numel(y) / P0.Fe);
-        journal(['Requête : ' source]);
+    function definir_requete(y, source, court, vrai, t0)
+        etat.y = y(:);  etat.source = court;  etat.vrai = vrai;  etat.t0 = t0;
+        lblTitre.Text = 'Requête prête';
+        lblTitre.FontColor = C.texte;
+        lblSous.Text = sprintf('%s (%s s). Cliquez sur « Identifier ».', source, fr(numel(y) / P0.Fe, '%.1f'));
+        couleur_carte(C.neutre);
+        tracer_onde(etat.y, P0.Fe);
+        statut(['Requête : ' source]);
     end
 
     function extrait_base(auHasard)
@@ -206,23 +357,31 @@ titre_axes();
             ddMorceau.Value = randi(numel(etat.signaux));
         end
         x = etat.signaux{ddMorceau.Value};
-        duree = numel(x) / P.Fe;
-        if duree <= P.Tq
+        n = round(P.Tq * P.Fe);
+        if numel(x) <= n
             uialert(fig, 'Le morceau est plus court que Tq.', 'Extrait impossible');
             return;
         end
         if auHasard
-            % début tiré au hasard en échantillons : pas aligné sur la grille des trames
-            debut = randi(numel(x) - round(P.Tq * P.Fe));
+            debut = randi(numel(x) - n);    % en échantillons : pas aligné sur les trames
             spDebut.Value = min(spDebut.Limits(2), round((debut - 1) / P.Fe * 10) / 10);
         else
-            debut = round(spDebut.Value * P.Fe) + 1;
-            debut = min(debut, numel(x) - round(P.Tq * P.Fe));
+            debut = min(round(spDebut.Value * P.Fe) + 1, numel(x) - n);
         end
-        y = x(debut:debut + round(P.Tq * P.Fe) - 1);
         t0 = (debut - 1) / P.Fe;
-        definir_requete(y, sprintf('Extrait de « %s » à %.2f s', etat.noms{ddMorceau.Value}, t0), ...
-            ddMorceau.Value, t0);
+        definir_requete(x(debut:debut + n - 1), ...
+            sprintf('Extrait de « %s » à %s s', etat.noms{ddMorceau.Value}, fr(t0, '%.2f')), ...
+            sprintf('extrait n° %d', ddMorceau.Value), ddMorceau.Value, t0);
+    end
+
+    function jouer_morceau(~, ~)
+        % Diffuse le morceau choisi (signal à 8 kHz de la base) pour le capter au micro.
+        if ~charger_signaux(), return; end
+        x = etat.signaux{ddMorceau.Value};
+        clear('sound');
+        sound(0.9 * x / max(abs(x) + eps), P0.Fe);
+        statut(sprintf(['Lecture de « %s » (%s s). Cliquez sur « Enregistrer au micro » ; ' ...
+            '« Stop » arrête le son.'], etat.noms{ddMorceau.Value}, fr(numel(x) / P0.Fe, '%.0f')));
     end
 
     function charger_fichier(~, ~)
@@ -236,45 +395,48 @@ titre_axes();
             uialert(fig, err.message, 'Lecture impossible');
             return;
         end
-        % on garde Tq secondes à partir du début choisi (ou du début du fichier)
         P = reglages();
-        debut = min(round(spDebut.Value * P.Fe) + 1, max(1, numel(y) - round(P.Tq * P.Fe)));
-        y = y(debut:min(end, debut + round(P.Tq * P.Fe) - 1));
-        definir_requete(y, sprintf('Fichier « %s » à partir de %.1f s', nom, (debut - 1) / P.Fe), 0, NaN);
+        n = round(P.Tq * P.Fe);
+        debut = min(round(spDebut.Value * P.Fe) + 1, max(1, numel(y) - n));
+        y = y(debut:min(end, debut + n - 1));
+        definir_requete(y, sprintf('Fichier « %s » à partir de %s s', nom, fr((debut - 1) / P.Fe, '%.1f')), ...
+            raccourcir(nom, 14), 0, NaN);
     end
 
     function enregistrer(~, ~)
         if ~isempty(etat.enreg), return; end
         P = reglages();
         try
-            etat.enreg = audiorecorder(Fe_micro, 16, 1);
+            etat.enreg = audiorecorder(Fe_micro, 16, 1, ddMicro.Value);
             record(etat.enreg);
         catch err
             etat.enreg = [];
             uialert(fig, ['Micro indisponible : ' err.message], 'Enregistrement impossible');
             return;
         end
-        bMicro.Enable = 'off';
+        bMicro.Enable = 'off';  bIdent.Enable = 'off';
+        jauge.Value = 0;
         t_debut = tic;
-        etat.minuteur = timer('Period', 0.2, 'ExecutionMode', 'fixedRate', ...
+        etat.minuteur = timer('Period', 0.1, 'ExecutionMode', 'fixedRate', ...
             'TimerFcn', @(~, ~) tic_enregistrement(t_debut, P.Tq));
         start(etat.minuteur);
     end
 
     function tic_enregistrement(t_debut, Tq)
         if ~isvalid(fig), return; end
-        reste = Tq - toc(t_debut);
-        if reste > 0
-            bMicro.Text = sprintf('● Enregistrement… %.1f s', reste);
+        ecoule = toc(t_debut);
+        if ecoule < Tq
+            jauge.Value = ecoule;
+            bMicro.Text = sprintf('Enregistrement… %s s', fr(Tq - ecoule, '%.1f'));
             return;
         end
         stop(etat.minuteur);  delete(etat.minuteur);  etat.minuteur = [];
         stop(etat.enreg);
         y = getaudiodata(etat.enreg);
         etat.enreg = [];
-        bMicro.Text = '● Enregistrer au micro';  bMicro.Enable = 'on';
-        y = pretraitement(y, P0, Fe_micro);
-        definir_requete(y, 'Enregistrement au micro', 0, NaN);
+        jauge.Value = Tq;
+        bMicro.Text = 'Enregistrer au micro';  bMicro.Enable = 'on';  bIdent.Enable = 'on';
+        definir_requete(pretraitement(y, P0, Fe_micro), 'Enregistrement au micro', 'micro', 0, NaN);
         identifier_requete();
     end
 
@@ -294,7 +456,7 @@ titre_axes();
 
     function identifier_requete(~, ~)
         if isempty(etat.y)
-            uialert(fig, 'Choisissez d''abord une requête (micro, extrait ou fichier).', 'Pas de requête');
+            uialert(fig, 'Choisissez d''abord une requête : micro, extrait ou fichier.', 'Pas de requête');
             return;
         end
         P = reglages();
@@ -307,51 +469,66 @@ titre_axes();
     end
 
     function afficher(R, P, y, t)
-        % --- Résultat en texte
+        % --- Carte du résultat
+        bruit = '';
+        if isfinite(ddBruit.Value), bruit = sprintf(' · bruit blanc à %g dB', ddBruit.Value); end
         if R.id > 0
-            txt = sprintf('Reconnu : %s', etat.noms{R.id});
-            if ~isempty(etat.genres{R.id}), txt = sprintf('%s (%s)', txt, etat.genres{R.id}); end
-            lblRes.FontColor = [0.10 0.50 0.15];
+            lblTitre.Text = etat.titres{R.id};
+            details = etat.artistes{R.id};
+            if ~isempty(etat.genres{R.id}), details = sprintf('%s · %s', details, etat.genres{R.id}); end
+            lblSous.Text = sprintf('%s · reconnu sur %s s d''extrait%s', details, fr(numel(y) / P.Fe, '%.0f'), bruit);
+            fond = C.vertF;  couleur = C.vert;  reponse = raccourcir(etat.titres{R.id}, 18);
         else
-            txt = 'Inconnu : aucun morceau ne dépasse le seuil';
-            lblRes.FontColor = [0.85 0.40 0.05];
+            lblTitre.Text = 'Morceau inconnu';
+            lblSous.Text = sprintf('Aucun morceau ne dépasse le seuil. Meilleur candidat : %s (score %d)%s', ...
+                etat.noms{R.id_max}, R.score, bruit);
+            fond = C.orangeF;  couleur = C.orange;  reponse = 'inconnu';
         end
-        pos = R.delta * P.H / P.Fe;
-        detail = sprintf('score %d (seuil %d) · position estimée %.2f s · %d clés · %.0f ms', ...
-            R.score, P.s_thr, pos, R.nCles, 1000 * t);
+        verdict = '–';
         if etat.vrai > 0
             if R.id == etat.vrai
                 verdict = 'bonne réponse';
             elseif R.id == 0
                 verdict = 'non-détection';
             else
-                verdict = 'CONFUSION';
+                verdict = 'confusion';  fond = C.rougeF;  couleur = C.rouge;
             end
-            detail = sprintf('%s\nVérité : %s à %.2f s → %s', detail, etat.noms{etat.vrai}, etat.t0, verdict);
+            lblSous.Text = sprintf('%s\nVérité : %s à %s s → %s', lblSous.Text, etat.noms{etat.vrai}, ...
+                fr(etat.t0, '%.2f'), verdict);
         end
-        if isfinite(ddBruit.Value)
-            detail = sprintf('%s · bruit blanc à %g dB', detail, ddBruit.Value);
-        end
-        lblRes.Text = {txt, detail};
-        lblRes.FontSize = 18;
-        journal(sprintf('Identification : %s, score %d, %.0f ms.', txt, R.score, 1000 * t));
+        lblTitre.FontColor = couleur;
+        couleur_carte(fond);
+        tuiles(1, 1).Text = sprintf('%d', R.score);
+        tuiles(1, 2).Text = sprintf('score (seuil %d)', P.s_thr);
+        tuiles(2, 1).Text = sprintf('%s s', fr(R.delta * P.H / P.Fe, '%.2f'));
+        tuiles(3, 1).Text = milliers(R.nCles);
+        tuiles(4, 1).Text = sprintf('%s ms', fr(1000 * t, '%.0f'));
+        tuiles(1, 1).FontColor = couleur;
 
-        % --- Spectrogramme et constellation
+        % --- Historique (le plus récent en haut)
+        etat.historique = [{etat.source, reponse, R.score, verdict}; etat.historique];
+        tabHist.Data = etat.historique;
+        statut(sprintf('Identification en %s ms : %s, score %d.', fr(1000 * t, '%.0f'), reponse, R.score));
+
+        % --- Forme d'onde et spectrogramme avec la constellation
+        tracer_onde(y, P.Fe);
         cla(axSpec);
         K = size(R.SdB, 1);  M = size(R.SdB, 2);
         f = (0:K - 1) * P.Fe / P.Nfft;
         tt = ((0:M - 1) * P.H + P.N / 2) / P.Fe;
         imagesc(axSpec, tt, f / 1000, R.SdB);  axis(axSpec, 'xy');  hold(axSpec, 'on');
-        colormap(axSpec, flipud(gray));
+        colormap(axSpec, C.cmap);
         v = sort(R.SdB(:));  clim(axSpec, [v(max(1, round(0.25 * end))), v(round(0.995 * end))]);
+        cb = colorbar(axSpec);  cb.Label.String = 'dB';
         if ~isempty(R.pics)
-            plot(axSpec, tt(R.pics(:, 1)), f(R.pics(:, 2)) / 1000, 'o', 'MarkerSize', 4, ...
-                'MarkerFaceColor', [0.85 0.10 0.10], 'MarkerEdgeColor', 'w', 'LineWidth', 0.4);
+            plot(axSpec, tt(R.pics(:, 1)), f(R.pics(:, 2)) / 1000, 'o', 'MarkerSize', 5, ...
+                'MarkerFaceColor', 'none', 'MarkerEdgeColor', [1 1 1], 'LineWidth', 0.8);
         end
         hold(axSpec, 'off');
-        xlim(axSpec, [0, numel(y) / P.Fe]);  ylim(axSpec, [0, P.Fe / 2000]);
-        title(axSpec, sprintf('Spectrogramme de la requête et constellation : %d pics en %.1f s (%.1f pics/s)', ...
-            size(R.pics, 1), numel(y) / P.Fe, size(R.pics, 1) / (numel(y) / P.Fe)));
+        duree = numel(y) / P.Fe;
+        xlim(axSpec, [0 duree]);  ylim(axSpec, [0 P.Fe / 2000]);
+        title(axSpec, sprintf('Spectrogramme et constellation : %d pics, %s pics/s', ...
+            size(R.pics, 1), fr(size(R.pics, 1) / duree, '%.1f')), 'FontWeight', 'normal');
         xlabel(axSpec, 'temps (s)');  ylabel(axSpec, 'fréquence (kHz)');
 
         % --- Histogramme des δ du meilleur candidat
@@ -361,42 +538,83 @@ titre_axes();
             d = R.app(R.app(:, 1) == c, 2);
             [u, ~, ic] = unique(d);
             n = accumarray(ic, 1);
-            stem(axDelta, u, n, 'Marker', 'none', 'LineWidth', 1.2, ...
-                'Color', ternaire(R.id > 0, [0.85 0.33 0.10], [0.5 0.5 0.5]));
+            stem(axDelta, u, n, 'Marker', 'none', 'LineWidth', 1.2, 'Color', couleur);
             hold(axDelta, 'on');
-            yline(axDelta, P.s_thr, '--', sprintf('s_{thr} = %d', P.s_thr), 'Color', [0.2 0.2 0.2], ...
-                'LabelHorizontalAlignment', 'left');
+            yline(axDelta, P.s_thr, '--', sprintf('s_{thr} = %d', P.s_thr), 'Color', C.doux, ...
+                'LabelHorizontalAlignment', 'left', 'FontSize', 10);
+            [nMax, iMax] = max(n);
+            text(axDelta, u(iMax), nMax, sprintf('  %d votes à δ = %d (%s s)', nMax, u(iMax), ...
+                fr(u(iMax) * P.H / P.Fe, '%.2f')), 'VerticalAlignment', 'top', 'FontSize', 10, 'Color', C.texte);
             hold(axDelta, 'off');
-            ylim(axDelta, [0, max([n; P.s_thr]) * 1.12]);
+            ylim(axDelta, [0, max(nMax, P.s_thr) * 1.15]);
+            xlim(axDelta, [min(u) - 5, max(u) + 5]);
         end
-        title(axDelta, sprintf('Histogramme des δ du meilleur candidat (n° %d) : pic = score %d', c, R.score));
-        xlabel(axDelta, 'δ = m_{réf} − m_{req} (trames)');  ylabel(axDelta, 'appariements');
+        title(axDelta, sprintf('Histogramme des δ : %s', raccourcir(etat.titres{c}, 30)), 'FontWeight', 'normal');
+        xlabel(axDelta, 'δ = m_{réf} − m_{req} (trames)');  ylabel(axDelta, 'votes');
 
-        % --- Scores des 10 meilleurs morceaux
+        % --- Les 10 meilleurs scores
         cla(axScores);
         [s, ordre] = sort(R.scores, 'descend');
         nAff = min(10, numel(s));
         s = s(1:nAff);  ordre = ordre(1:nAff);
-        b = barh(axScores, flipud(s), 'FaceColor', 'flat');
-        b.CData = repmat([0.55 0.65 0.80], nAff, 1);
-        if R.id > 0, b.CData(end, :) = [0.10 0.55 0.20]; end
+        b = barh(axScores, flipud(s), 0.7, 'FaceColor', 'flat', 'EdgeColor', 'none');
+        b.CData = repmat([0.33 0.37 0.41], nAff, 1);
+        if R.id > 0, b.CData(end, :) = C.vert; end
         hold(axScores, 'on');
-        xline(axScores, P.s_thr, '--', 's_{thr}', 'Color', [0.2 0.2 0.2]);
+        xline(axScores, P.s_thr, '--', 's_{thr}', 'Color', C.doux, 'FontSize', 10, ...
+            'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'bottom');
         hold(axScores, 'off');
-        etiquettes = cellfun(@(z) raccourcir(z, 28), etat.noms(flipud(ordre)), 'UniformOutput', false);
-        axScores.YTick = 1:nAff;  axScores.YTickLabel = etiquettes;
-        axScores.XScale = 'log';  xlim(axScores, [0.8, max([s; P.s_thr]) * 1.5]);
-        title(axScores, '10 meilleurs scores');
+        axScores.YTick = 1:nAff;
+        axScores.YTickLabel = cellfun(@(z) raccourcir(z, 26), etat.titres(flipud(ordre)), 'UniformOutput', false);
+        axScores.XScale = 'log';  xlim(axScores, [0.8, max([s; P.s_thr]) * 1.6]);
+        title(axScores, '10 meilleurs scores', 'FontWeight', 'normal');
         xlabel(axScores, 'score (échelle log)');
     end
 
-    function titre_axes()
-        title(axSpec, 'Spectrogramme de la requête et constellation');
+    function tracer_onde(y, Fe)
+        cla(axOnde);
+        plot(axOnde, (0:numel(y) - 1) / Fe, y, 'Color', C.accent, 'LineWidth', 0.5);
+        a = max(abs(y)) + eps;
+        xlim(axOnde, [0, numel(y) / Fe]);  ylim(axOnde, [-a a] * 1.1);
+        axOnde.YTick = [];  axOnde.XTickLabel = {};
+        title(axOnde, 'Signal de la requête (8 kHz)', 'FontWeight', 'normal');
+    end
+
+    function axes_vides()
+        title(axOnde, 'Signal de la requête (8 kHz)', 'FontWeight', 'normal');
+        axOnde.YTick = [];  axOnde.XTickLabel = {};
+        title(axSpec, 'Spectrogramme et constellation', 'FontWeight', 'normal');
         xlabel(axSpec, 'temps (s)');  ylabel(axSpec, 'fréquence (kHz)');
-        title(axDelta, 'Histogramme des δ du meilleur candidat');
-        xlabel(axDelta, 'δ (trames)');  ylabel(axDelta, 'appariements');
-        title(axScores, '10 meilleurs scores');
+        title(axDelta, 'Histogramme des δ du meilleur candidat', 'FontWeight', 'normal');
+        xlabel(axDelta, 'δ (trames)');  ylabel(axDelta, 'votes');
+        title(axScores, '10 meilleurs scores', 'FontWeight', 'normal');
         xlabel(axScores, 'score');
+    end
+
+    function couleur_carte(fond)
+        carte.BackgroundColor = fond;
+        set(findobj(carte, 'Type', 'uigridlayout'), 'BackgroundColor', fond);
+    end
+
+
+    function exporter(~, ~)
+        [nom, chemin] = uiputfile('*.png', 'Exporter l''écran', 'interface.png');
+        figure(fig);
+        if isequal(nom, 0), return; end
+        exportapp(fig, fullfile(chemin, nom));
+        statut(['Écran exporté : ' fullfile(chemin, nom)]);
+    end
+
+    function p = panneau(parent, titre)
+        p = uipanel(parent, 'Title', titre, 'FontWeight', 'bold', 'FontSize', 10, ...
+            'BackgroundColor', C.neutre, 'ForegroundColor', C.doux, 'BorderType', 'line', ...
+            'HighlightColor', C.grille, 'FontName', F.mono);
+    end
+
+    function l = info(parent)
+        % Ligne d'information sous un réglage (grandeurs dérivées).
+        l = uilabel(parent, 'Text', '', 'FontSize', 10, 'FontColor', C.doux);
+        l.Layout.Column = [1 2];
     end
 
     function fermer(~, ~)
@@ -416,12 +634,32 @@ function c = cle_index(P)
 c = [P.N, P.dm, P.dk, P.F, P.gamma_f, P.rho, P.marge_dB, P.Nb, P.f_min, P.f_max, P.dk_max, P.dt_min, P.dt_max];
 end
 
-function s = raccourcir(s, n)
-if strlength(s) > n
-    s = [extractBefore(s, n) '…'];
+function [noms, ids] = micros()
+% Entrées audio disponibles ; -1 = entrée par défaut du système.
+noms = {'Entrée par défaut'};  ids = -1;
+try
+    d = audiodevinfo;
+    for e = d.input
+        noms{end + 1} = e.Name; %#ok<AGROW>
+        ids(end + 1) = e.ID; %#ok<AGROW>
+    end
+catch
 end
 end
 
-function s = ternaire(c, a, b)
-if c, s = a; else, s = b; end
+function s = fr(x, format)
+% Nombre avec une virgule décimale.
+s = strrep(sprintf(format, x), '.', ',');
+end
+
+function s = milliers(n)
+% 677171 -> '677 171'
+s = regexprep(sprintf('%d', round(n)), '(\d)(?=(\d{3})+$)', '$1 ');
+end
+
+function s = raccourcir(s, n)
+s = char(s);
+if numel(s) > n
+    s = [s(1:n - 1) '…'];
+end
 end
