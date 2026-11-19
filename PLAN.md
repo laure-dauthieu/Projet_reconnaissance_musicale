@@ -3,14 +3,14 @@
 Projet OBL-4101 : reconnaissance musicale par empreintes audio.
 **Rendu : vendredi 27 novembre 2026** (repoussé, initialement le 20). On vise un dépôt vendredi à **12 h** (tout retard coûte 5 points).
 
-- **A = Alessandro** : chaîne MATLAB, base, évaluation, mesures, démo et interface.
-- **B = Laure** : théorie, figure Q2, enregistrements au micro, rapport, vidéo.
+- **A = Alessandro** : chaîne MATLAB, base, évaluation, mesures, enregistrements réels (B2 et B3 repris), livraison.
+- **B = Laure** : théorie, rapport, vidéo, **interface de paramétrage** (B6).
 
 **État au mardi 17 au soir** : A0 à A4 sont faits (branche `a/chaine`). Les fonctions de dégradation de B2 ont été codées et testées avec A2 : B2 se réduit à la figure Q2. Résultats et figures : `resultats/notes_resultats.md`.
 
 > **À vérifier avec l'enseignant dès mercredi matin** : le sujet est prévu pour un **trinôme** (zip `Nom1_Nom2_Nom3`). Si nous sommes deux, confirmer que c'est accepté et le nom du zip. Demander aussi comment déposer la vidéo : le §8 ne la met pas dans le zip.
 
-Ce plan couvre d'abord **tout ce que le sujet demande**. Les améliorations sont à la fin (section 8) : on n'y touche qu'une fois le reste terminé. Seule exception : l'interface de paramétrage, qui compte pour 10 % de la note et sert aussi de démo. Elle est donc intégrée au plan (A5).
+Ce plan couvre d'abord **tout ce que le sujet demande**. Les améliorations sont à la fin (section 8) : on n'y touche qu'une fois le reste terminé. Seule exception : l'interface de paramétrage, qui compte pour 10 % de la note et sert aussi de démo. Elle est donc intégrée au plan (B6).
 
 ---
 
@@ -149,12 +149,9 @@ Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'envi
 - [x] Écrire pour B une fiche par figure dans `resultats/notes_resultats.md` : protocole, chiffres clés, ce qu'on observe.
 - [x] Écrire dans `resultats/parametres_finaux.md` la valeur finale de chaque paramètre et la mesure qui la justifie.
 
-### A5. Démo, interface et livraison (jeudi et vendredi)
+### A5. Livraison (jeudi et vendredi)
 
-- [ ] **Interface de paramétrage = démo** (bonus de 10 %). C'est une fenêtre `uifigure` écrite dans un fichier `.m`, plutôt qu'avec App Designer : un `.mlapp` est un fichier binaire, illisible dans git. Elle contient :
-  - quelques curseurs pour N, la taille du voisinage, F, γf et s_thr ;
-  - un bouton « Enregistrer », qui utilise `audiorecorder` pendant Tq secondes, et un bouton « Identifier » ;
-  - l'affichage du spectrogramme, de la constellation, de l'histogramme des δ et du résultat.
+- [ ] Tests des fonctions d'évaluation (`extraire_requete`, `taux_detection`, `calibrer_seuil`, `mesurer_p`, `evaluer`).
 - [x] Enregistrements en salle (B3, repris par A) : faits à 1 m et 3 m, évalués sur 5 s, 10 s et la prise entière.
 - [ ] **Mercredi 25, 18 h : gel du code.**
 - [ ] Vendredi : README final, commentaires, zip.
@@ -220,6 +217,17 @@ Plan imposé par le sujet :
 - [ ] **Jeudi soir** : tournage avec A.
 - [ ] **Vendredi 10 h** : vidéo exportée, durée vérifiée (7 min).
 
+### B6. Interface de paramétrage = démo (bonus de 10 %)
+
+- [ ] Fenêtre `uifigure` écrite dans un fichier `.m` (`interface/`), plutôt qu'avec App Designer : un `.mlapp` est un fichier binaire, illisible dans git. Elle contient :
+  - quelques curseurs pour N, la taille du voisinage, F, γf et s_thr ;
+  - un bouton « Enregistrer », qui utilise `audiorecorder` pendant Tq secondes, et un bouton « Identifier » ;
+  - l'affichage du spectrogramme, de la constellation, de l'histogramme des δ et du résultat.
+- Ce qu'il faut pour la faire tourner :
+  - `cache/index_base.mat` (sur git) : suffit pour identifier et régler s_thr et Tq ;
+  - `cache/signaux_base.mat` (zip envoyé en privé par A, pas sur git : 184 Mo et licences « No Derivatives ») : nécessaire pour reconstruire l'index quand on change N, le voisinage, F ou γf (`construire_index(signauxBase, P, INDEX.noms)`, environ 1 s).
+- Fonctions à appeler, toutes déjà testées : `parametres(...)` avec les réglages en paires nom/valeur, `pretraitement`, `identifier` (renvoie `.id`, `.score`, `.scores`, `.delta`, `.app`, `.pics`, `.SdB`), `calcul_spectrogramme`. `main.m` montre comment tracer la constellation et l'histogramme des δ.
+
 ---
 
 ## 4. Échanges entre A et B
@@ -251,8 +259,8 @@ On utilise les **notations du sujet** partout : code, figures, rapport, slides.
 | Mer. 18 midi | — | Brouhaha à la cafétéria (B3) | — |
 | Mer. 18 après-midi | Évaluation et mesures des questions (A3, A4) | Enregistrements au micro (B3) | — |
 | Mer. 18 soir | Figures finales et fiches | Rédaction théorie et conception | **21 h : toutes les mesures faites** |
-| Jeu. 19 | Enregistrements réels faits (1 m, 3 m, brouhaha) ; interface et démo (A5) | Résultats, discussion | — |
-| Ven. 20 – dim. 22 | Interface finie, tests des fonctions d'évaluation | Rapport complet, ramené à 12–15 pages | Dim. soir : relecture croisée du rapport |
+| Jeu. 19 | Enregistrements réels faits (1 m, 3 m, brouhaha) | Résultats, discussion ; début de l'interface (B6) | — |
+| Ven. 20 – dim. 22 | Tests des fonctions d'évaluation ; aide sur l'interface si besoin | Interface (B6) ; rapport complet, ramené à 12–15 pages | Dim. soir : relecture croisée du rapport |
 | Lun. 23 – mar. 24 | Corrections demandées par la relecture | Slides, script vidéo | Mar. soir : répétition de la démo |
 | Mer. 25 | **18 h : gel du code** | Rapport final | Soir : tournage de la vidéo |
 | Jeu. 26 | README, commentaires, zip | Montage, export | Relecture finale ensemble |

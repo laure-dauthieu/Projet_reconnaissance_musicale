@@ -20,7 +20,7 @@ Les deux phases utilisent **exactement** les mêmes fonctions d'extraction.
 
 | | **A — Alessandro** | **B — Laure** |
 |---|---|---|
-| Rôle | Chaîne MATLAB, base, dégradations, évaluation, mesures, interface | Théorie, figure Q2, enregistrements réels, rapport, vidéo |
+| Rôle | Chaîne MATLAB, base, dégradations, évaluation, mesures, enregistrements réels | Théorie, rapport, vidéo, interface de paramétrage |
 | Dossiers | `src/`, `eval/`, `experiences/`, `utils/`, `tests/`, `figures/`, `resultats/` | `rapport/`, `video/` |
 | Fournit à l'autre | Figures PDF, fiches de résultats (`resultats/notes_resultats.md`) | Enregistrements en salle, brouhaha |
 
