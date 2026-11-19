@@ -543,10 +543,18 @@ statut(sprintf('Prêt. Index chargé : %d morceaux, %s entrées.', numel(etat.no
             yline(axDelta, P.s_thr, '--', sprintf('s_{thr} = %d', P.s_thr), 'Color', C.doux, ...
                 'LabelHorizontalAlignment', 'left', 'FontSize', 10);
             [nMax, iMax] = max(n);
-            text(axDelta, u(iMax), nMax, sprintf('  %d votes à δ = %d (%s s)', nMax, u(iMax), ...
-                fr(u(iMax) * P.H / P.Fe, '%.2f')), 'VerticalAlignment', 'top', 'FontSize', 10, 'Color', C.texte);
+            % Axe zoomé : le pic écrase les autres δ, on plafonne juste au-dessus
+            % du seuil et du bruit ; le pic dépasse et sa valeur est écrite en haut.
+            nAutres = n;  nAutres(iMax) = 0;
+            yHaut = min(nMax * 1.15, max([P.s_thr * 1.5, max(nAutres) * 2, 10]));
+            txt = sprintf('  %d votes à δ = %d (%s s)', nMax, u(iMax), fr(u(iMax) * P.H / P.Fe, '%.2f'));
+            if nMax > yHaut
+                txt = ['\uparrow' txt];
+            end
+            text(axDelta, u(iMax), min(nMax, yHaut), txt, 'VerticalAlignment', 'top', ...
+                'FontSize', 10, 'Color', C.texte, 'Clipping', 'on');
             hold(axDelta, 'off');
-            ylim(axDelta, [0, max(nMax, P.s_thr) * 1.15]);
+            ylim(axDelta, [0, yHaut]);
             xlim(axDelta, [min(u) - 5, max(u) + 5]);
         end
         title(axDelta, sprintf('Histogramme des δ : %s', raccourcir(etat.titres{c}, 30)), 'FontWeight', 'normal');
