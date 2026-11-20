@@ -41,6 +41,10 @@ if isfile(fullfile(dossierCache, 'base.mat'))
     etat.genres = cellstr(B.base.genre);
     etat.noms = cellstr(B.base.artiste + " – " + B.base.titre);
 end
+% Quelques titres de la FMA contiennent « &amp; » au lieu de « & »
+etat.noms = strrep(etat.noms, '&amp;', '&');
+etat.artistes = strrep(etat.artistes, '&amp;', '&');
+etat.titres = strrep(etat.titres, '&amp;', '&');
 etat.fichierSignaux = fullfile(dossierCache, 'signaux_base.mat');
 etat.signaux = {};                          % chargés à la première utilisation
 etat.y = [];                                % requête à P.Fe, avant bruit
@@ -228,7 +232,7 @@ for i = 1:4
     tuiles(i, 1) = uilabel(g, 'Text', '–', 'FontSize', 18, 'FontWeight', 'bold', 'FontColor', C.texte);
     tuiles(i, 2) = uilabel(g, 'Text', '', 'FontSize', 10, 'FontColor', C.doux);
 end
-tuiles(1, 2).Text = 'score';  tuiles(2, 2).Text = 'position dans le morceau';
+tuiles(1, 2).Text = 'score';  tuiles(2, 2).Text = 'position trouvée';
 tuiles(3, 2).Text = 'clés dans la requête';  tuiles(4, 2).Text = 'temps d''identification';
 
 axOnde = uiaxes(droite);  axOnde.Layout.Column = [1 2];

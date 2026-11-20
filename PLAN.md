@@ -153,11 +153,12 @@ Point d'attention pour mesurer p avec le MP3 : le codeur ajoute un retard d'envi
 
 - [x] Tests des fonctions d'évaluation (`extraire_requete`, `taux_detection`, `calibrer_seuil`, `mesurer_p`, `evaluer`) : faits par B le 19, avec un fichier de test par fonction et une démonstration autonome de chaque fonction d'étape (README, « Chaque fonction est testable isolément »).
 - [x] Enregistrements en salle (B3, repris par A) : faits à 1 m et 3 m, évalués sur 5 s, 10 s et la prise entière.
-- [ ] **À faire par A sur son Mac** (seul à avoir ffmpeg et les signaux de la base) :
-  - [ ] Les **deux tests du MP3** : `runtests('tests/test_degrader_mp3.m')`. Sur le PC de B, ils sont ignorés faute de ffmpeg. Vérifier que les deux passent, et pas qu'ils sont « ignorés ».
-  - [ ] **ffmpeg** : vérifier qu'il répond depuis MATLAB (`system([P.ffmpeg ' -version'])`) avec le chemin mis dans `P.ffmpeg`.
-  - [ ] **Interface avec un morceau de la base** : `cache/signaux_base.mat` présent, lancer `interface_reconnaissance`, prendre un extrait dans la partie BASE, identifier, et vérifier que le bon morceau sort, avec l'histogramme des δ (axe des votes désormais zoomé, pic coupé et annoté « ↑ N votes ») et le spectrogramme.
-  - [ ] **Polices sur Mac** : l'interface utilise Menlo et Helvetica Neue sur Mac, contre Consolas et Segoe UI sous Windows. Vérifier que rien ne déborde ni n'est tronqué (bandeau, étiquettes, titres, légende de l'histogramme), et faire une capture si besoin.
+- [x] **À faire par A sur son Mac** (seul à avoir ffmpeg et les signaux de la base) : fait le 20, tout passe.
+  - [x] Les **deux tests du MP3** : `runtests('tests/test_degrader_mp3.m')`. Sur le PC de B, ils sont ignorés faute de ffmpeg. Vérifier que les deux passent, et pas qu'ils sont « ignorés ».
+  - [x] **ffmpeg** : vérifier qu'il répond depuis MATLAB (`system([P.ffmpeg ' -version'])`) avec le chemin mis dans `P.ffmpeg`.
+  - [x] **Interface avec un morceau de la base** : `cache/signaux_base.mat` présent, lancer `interface_reconnaissance`, prendre un extrait dans la partie BASE, identifier, et vérifier que le bon morceau sort, avec l'histogramme des δ (axe des votes désormais zoomé, pic coupé et annoté « ↑ N votes ») et le spectrogramme.
+  - [x] **Polices sur Mac** : l'interface utilise Menlo et Helvetica Neue sur Mac, contre Consolas et Segoe UI sous Windows. Vérifier que rien ne déborde ni n'est tronqué (bandeau, étiquettes, titres, légende de l'histogramme), et faire une capture si besoin.
+  - Résultat : 56 tests sur 56 passés (les 2 du MP3 exécutés, pas ignorés) ; 7 extraits de la base bien reconnus, bruit à 0 dB rejeté. Deux retouches dans l'interface : « &amp; » remplacé par « & » dans les noms de la FMA, et l'étiquette « position dans le morceau », tronquée sur Mac, devenue « position trouvée ».
 - [ ] **Mercredi 25, 18 h : gel du code.**
 - [ ] Vendredi : README final, commentaires, zip.
 
